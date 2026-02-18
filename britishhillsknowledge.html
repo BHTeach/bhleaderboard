@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>British Hills Challenge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Roboto+Slab:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto Slab', serif; background-color: #FDFBF7; }
+        h1, .fancy-font { font-family: 'Alfa Slab One', display; }
+        
+        /* Optional: Game Container Styling */
+        #game-canvas {
+            background: white;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center relative bg-[#FDFBF7]">
+
+    <!-- 1. NAVIGATION: Back Button -->
+    <a href="index.html" class="absolute top-4 left-4 bg-[#5D4037] text-white px-4 py-2 rounded-lg font-bold hover:bg-[#3E2723] transition-colors z-50 shadow-md flex items-center gap-2">
+        <span>⬅</span> Back to Map
+    </a>
+
+    <!-- 2. MAIN GAME CONTAINER -->
+    <div class="w-full max-w-4xl p-4">
+        <div class="bg-white border-4 border-[#5D4037] rounded-xl shadow-[8px_8px_0px_rgba(93,64,55,0.2)] overflow-hidden relative flex flex-col items-center p-8">
+            
+            <!-- Header -->
+            <h1 class="text-2xl md:text-4xl text-[#C8102E] mb-2 text-center">Challenge Room</h1>
+            <p class="text-gray-500 mb-6 text-center">Good luck, Challenger!</p>
+
+            <!-- GAME AREA: PASTE YOUR APP CODE HERE -->
+            <!-- Use a Canvas, or a Div, or whatever your game needs -->
+            <div id="game-area" class="w-full aspect-video bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center relative">
+                
+                <!-- Placeholder Content (Remove this when pasting your game) -->
+                <p class="text-lg text-gray-400 font-bold">Your Game Goes Here</p>
+                <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800 max-w-md text-center">
+                    <strong>Developer Note:</strong><br>
+                    Call <code>window.saveScore('gameId', 100)</code> when the game ends to update the leaderboard.
+                </div>
+                
+                <!-- DEV BUTTON: TEST SAVING SCORE -->
+                <button onclick="testWin()" class="mt-6 bg-[#27AE60] text-white px-6 py-2 rounded shadow hover:scale-105 transition-transform">
+                    Simulate Win (Score: 100)
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 3. FIREBASE LOGIC (DO NOT EDIT KEYS) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAIjDKXYOTzZIBpc4LFn0cSAwsy020x5G0",
+            authDomain: "british-hills-leaderboard.firebaseapp.com",
+            projectId: "british-hills-leaderboard",
+            storageBucket: "british-hills-leaderboard.firebasestorage.app",
+            messagingSenderId: "1035640631485",
+            appId: "1:1035640631485:web:ff52f6924553f973e307d4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        let currentUser = null;
+
+        // Auth Listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                console.log("Player ready:", user.uid);
+            } else {
+                // If they lost connection or session, try to sign in silently
+                signInAnonymously(auth).catch(e => console.error(e));
+            }
+        });
+
+        // --- SAVE SCORE FUNCTION ---
+        // gameId options: 'knowledge', 'survival', 'manners', 'commonwealth', 'directions'
+        window.saveScore = async (gameId, newScore) => {
+            if (!currentUser) {
+                alert("Not logged in. Returning to menu...");
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const userRef = doc(db, 'users', currentUser.uid);
+
+            try {
+                // 1. Check existing score
+                const docSnap = await getDoc(userRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    const currentScores = data.scores || {};
+                    const previousScore = currentScores[gameId] || 0;
+
+                    // 2. Only update if higher
+                    if (newScore > previousScore) {
+                        const updateData = {};
+                        updateData[`scores.${gameId}`] = newScore;
+                        updateData['updatedAt'] = new Date().toISOString();
+
+                        await updateDoc(userRef, updateData);
+                        alert(`🎉 New Personal Best: ${newScore}! Saved.`);
+                    } else {
+                        console.log(`Score ${newScore} did not beat ${previousScore}`);
+                        // Optional: alert(`Good Try! Your best is still ${previousScore}`);
+                    }
+                }
+            } catch (error) {
+                console.error("Save failed:", error);
+                alert("Could not save score. Check internet connection.");
+            }
+        };
+
+        // --- DEV TEST FUNCTION ---
+        window.testWin = () => {
+            // CHANGE 'knowledge' TO THE CORRECT ID FOR THIS FILE
+            window.saveScore('knowledge', 100);
+        };
+    </script>
+</body>
+</html>
