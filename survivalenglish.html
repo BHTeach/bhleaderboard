@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Survival English - Sentence Builder</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #f3f4f6; /* slate-100 */
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-royal {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Animations */
+        .fade-enter {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeIn 0.3s forwards;
+        }
+        
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        /* Word Blocks */
+        .word-block {
+            transition: all 0.2s ease-in-out;
+            user-select: none;
+        }
+        
+        .word-block:active {
+            transform: scale(0.95);
+        }
+
+        /* Point animation */
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-30px) scale(1.2); }
+        }
+        .point-float {
+            animation: floatUp 1s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col bg-slate-100 text-slate-800">
+
+    <!-- === START SCREEN === -->
+    <div id="start-screen" class="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 bg-slate-100">
+        <!-- Home Button -->
+        <button onclick="goHome()" class="absolute top-6 left-6 text-slate-500 hover:text-blue-900 transition-colors flex items-center gap-2 font-bold text-sm">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Map
+        </button>
+
+        <div class="text-center max-w-md w-full fade-enter">
+            <!-- Logo / Icon -->
+            <div class="w-24 h-24 bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border-4 border-yellow-500 text-white">
+                <i data-lucide="message-circle" class="w-12 h-12"></i>
+            </div>
+
+            <h1 class="text-4xl md:text-5xl font-royal font-bold text-blue-900 mb-2">Survival English</h1>
+            <h2 class="text-xl text-slate-600 mb-8 uppercase tracking-widest">Sentence Builder</h2>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 mb-8 text-left space-y-4">
+                <div class="flex items-start gap-3 text-slate-600">
+                    <i data-lucide="mouse-pointer-click" class="w-5 h-5 text-blue-600 shrink-0 mt-0.5"></i>
+                    <span>Tap the jumbled words in the correct order to build the sentence.</span>
+                </div>
+                <div class="flex items-center gap-3 text-slate-600">
+                    <i data-lucide="help-circle" class="w-5 h-5 text-blue-600 shrink-0"></i>
+                    <span>10 Random Sentences</span>
+                </div>
+                <div class="flex items-start gap-3 text-slate-600">
+                    <i data-lucide="timer" class="w-5 h-5 text-yellow-500 shrink-0 mt-0.5"></i>
+                    <span><strong>Be fast!</strong> You earn up to 100 points per sentence. The longer you take, the fewer points you get.</span>
+                </div>
+            </div>
+
+            <button onclick="startGame()" class="w-full py-4 bg-blue-900 hover:bg-blue-800 text-white font-bold rounded-xl shadow-lg transform transition active:scale-95 text-xl flex items-center justify-center gap-2">
+                Start Game <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- === GAME SCREEN === -->
+    <div id="game-screen" class="hidden absolute inset-0 z-10 flex flex-col bg-slate-100">
+        
+        <!-- Header: Progress, Timer & Score -->
+        <div class="h-16 bg-white shadow-sm flex items-center justify-between px-4 shrink-0 z-20">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-blue-900 rounded-full flex items-center justify-center text-white font-royal font-bold text-sm">
+                    <i data-lucide="message-circle" class="w-4 h-4"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-xs text-slate-400 font-bold uppercase">Sentence</span>
+                    <span class="text-sm font-bold text-slate-700"><span id="current-q-num">1</span> / <span id="total-q-num">10</span></span>
+                </div>
+            </div>
+
+            <!-- Timer -->
+            <div class="flex items-center gap-2 px-4 py-1 bg-slate-100 rounded-full font-mono font-bold text-slate-700">
+                <i data-lucide="clock" class="w-4 h-4 text-slate-500"></i>
+                <span id="global-timer">00:00</span>
+            </div>
+
+            <div class="flex flex-col items-end relative min-w-[3rem]">
+                <span class="text-xs text-slate-400 font-bold uppercase">Score</span>
+                <span id="score-display" class="text-sm font-bold text-blue-600 transition-transform duration-300">0</span>
+                <!-- Floating points indicator -->
+                <span id="points-floater" class="absolute -top-4 right-0 text-green-500 font-bold text-lg opacity-0 pointer-events-none whitespace-nowrap"></span>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="h-1 w-full bg-slate-200">
+            <div id="progress-bar" class="h-full bg-blue-600 transition-all duration-500 ease-out" style="width: 0%"></div>
+        </div>
+
+        <!-- Game Area -->
+        <div class="flex-1 overflow-y-auto p-4 flex flex-col items-center min-h-0 pt-6">
+            <div class="w-full max-w-3xl mx-auto flex flex-col h-full fade-enter" id="question-container">
+                
+                <!-- Target Area (Where words are placed) -->
+                <div class="mb-6 w-full">
+                    <div class="flex justify-between items-end mb-2">
+                        <span class="text-sm font-bold text-slate-500 uppercase tracking-wide">Your Answer:</span>
+                        <span class="text-xs font-bold text-slate-400 bg-slate-200 px-2 py-0.5 rounded-full" id="points-potential">Max 100 pts</span>
+                    </div>
+                    <div id="target-area" class="min-h-[120px] bg-white border-2 border-dashed border-slate-300 rounded-2xl p-4 flex flex-wrap gap-2 items-start content-start transition-colors duration-300">
+                        <!-- Words clicked will appear here -->
+                    </div>
+                </div>
+
+                <!-- Source Area (Scrambled words) -->
+                <div class="mb-auto w-full">
+                    <span class="text-sm font-bold text-slate-500 uppercase tracking-wide mb-2 block">Available Words:</span>
+                    <div id="source-area" class="min-h-[120px] bg-blue-50/50 border-2 border-slate-200 rounded-2xl p-4 flex flex-wrap gap-2 items-start content-start">
+                        <!-- Scrambled words injected here -->
+                    </div>
+                </div>
+
+                <!-- Controls & Feedback -->
+                <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+                    <button id="skip-btn" onclick="skipQuestion()" class="w-full sm:w-auto px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition flex items-center justify-center gap-2">
+                        <i data-lucide="eye" class="w-4 h-4"></i> Show Answer & Skip
+                    </button>
+                    
+                    <div id="feedback-text" class="font-bold text-center hidden flex-1">
+                        <!-- Feedback text goes here -->
+                    </div>
+
+                    <button id="action-btn" onclick="checkAnswer()" disabled class="w-full sm:w-auto px-8 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg transform transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 flex items-center justify-center gap-2">
+                        Check Answer <i data-lucide="check" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- === RESULTS SCREEN === -->
+    <div id="results-screen" class="hidden absolute inset-0 z-30 flex flex-col items-center justify-center p-6 bg-slate-100/95 backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full text-center border-t-8 border-blue-900 fade-enter">
+            
+            <div class="mb-6">
+                <div id="result-icon" class="w-20 h-20 bg-yellow-400 rounded-full flex items-center justify-center mx-auto shadow-inner text-white text-4xl">
+                    🏆
+                </div>
+            </div>
+
+            <h2 class="text-3xl font-royal font-bold text-slate-800 mb-2">Game Complete!</h2>
+            <p id="result-message" class="text-slate-500 mb-6">Let's see how you did.</p>
+
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <span class="block text-xs text-slate-400 font-bold uppercase mb-1">Total Score</span>
+                    <span id="final-score" class="text-4xl font-bold text-blue-900">0</span>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <span class="block text-xs text-slate-400 font-bold uppercase mb-1">Time</span>
+                    <span id="final-time" class="text-4xl font-bold text-blue-900">00:00</span>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <button onclick="startGame()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow transition transform active:scale-95">
+                    Play Again
+                </button>
+                <button onclick="goHome()" class="block w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition">
+                    Back to Map
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- === GAME LOGIC === -->
+    <script>
+        // --- DATA POOL ---
+        const sentencePool = [
+            "Could you tell me the way to the Dining Hall?",
+            "How do you spell \"opposite\"?",
+            "How do you say \"楽しい\" in English?",
+            "How much is a plate of fish and chips?",
+            "May I borrow your pen, please?",
+            "Could you say that a little slower please?",
+            "Could you tell me how to get to the Ballroom please?",
+            "What is your name?",
+            "Where are you from?",
+            "How long have you lived in Japan?",
+            "What is your favourite season?",
+            "What is your favourite sport?",
+            "What food do you like?",
+            "How many people are there in your family?",
+            "Why did you come to Japan?",
+            "Would you like to play a game of badminton?",
+            "That dance lesson was really fun.",
+            "Do you prefer tea or coffee?",
+            "How much is this box of chocolates?",
+            "Where can I try afternoon tea?"
+        ];
+
+        // --- STATE ---
+        let currentSentences = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        
+        let originalSentenceStr = "";
+        let availableWords = []; // Array of objects { id, text }
+        let targetWords = [];    // Array of objects { id, text }
+        
+        let gameState = 'playing'; // 'playing', 'checked'
+        
+        // Timers
+        let globalSeconds = 0;
+        let globalTimerInterval = null;
+        
+        let questionSeconds = 0;
+        let questionTimerInterval = null;
+
+        // --- DOM ELEMENTS ---
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        
+        const sourceArea = document.getElementById('source-area');
+        const targetArea = document.getElementById('target-area');
+        const actionBtn = document.getElementById('action-btn');
+        const skipBtn = document.getElementById('skip-btn');
+        const feedbackText = document.getElementById('feedback-text');
+        
+        const currentQNumDisplay = document.getElementById('current-q-num');
+        const totalQNumDisplay = document.getElementById('total-q-num');
+        const scoreDisplay = document.getElementById('score-display');
+        const pointsFloater = document.getElementById('points-floater');
+        const progressBar = document.getElementById('progress-bar');
+        const globalTimerDisplay = document.getElementById('global-timer');
+        const pointsPotentialDisplay = document.getElementById('points-potential');
+
+        const finalScoreDisplay = document.getElementById('final-score');
+        const finalTimeDisplay = document.getElementById('final-time');
+        const resultMessage = document.getElementById('result-message');
+        const resultIcon = document.getElementById('result-icon');
+
+        // --- INITIALIZATION ---
+        lucide.createIcons();
+
+        // Utilities
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function formatTime(totalSeconds) {
+            const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+            const s = (totalSeconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function goHome() {
+            window.location.href = 'index.html';
+        }
+
+        // --- GAME LOGIC ---
+
+        function startGame() {
+            // Select 10 random sentences
+            currentSentences = shuffle([...sentencePool]).slice(0, 10);
+            
+            score = 0;
+            currentQuestionIndex = 0;
+            globalSeconds = 0;
+            
+            updateHeader();
+            globalTimerDisplay.textContent = "00:00";
+            
+            // Start Global Timer
+            clearInterval(globalTimerInterval);
+            globalTimerInterval = setInterval(() => {
+                globalSeconds++;
+                globalTimerDisplay.textContent = formatTime(globalSeconds);
+            }, 1000);
+            
+            // UI Transition
+            startScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            resultsScreen.classList.add('hidden');
+            
+            loadQuestion();
+        }
+
+        function updateHeader() {
+            currentQNumDisplay.textContent = currentQuestionIndex + 1;
+            totalQNumDisplay.textContent = currentSentences.length;
+            scoreDisplay.textContent = score;
+            
+            const progress = ((currentQuestionIndex) / currentSentences.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function getPotentialPoints() {
+            // Max 100 points, lose 2 points per second. Minimum 10 points.
+            return Math.max(10, 100 - (questionSeconds * 2));
+        }
+
+        function loadQuestion() {
+            gameState = 'playing';
+            updateHeader();
+            
+            // Reset question timer
+            questionSeconds = 0;
+            pointsPotentialDisplay.textContent = "Max 100 pts";
+            pointsPotentialDisplay.className = "text-xs font-bold text-slate-400 bg-slate-200 px-2 py-0.5 rounded-full";
+            
+            clearInterval(questionTimerInterval);
+            questionTimerInterval = setInterval(() => {
+                if (gameState === 'playing') {
+                    questionSeconds++;
+                    const pts = getPotentialPoints();
+                    pointsPotentialDisplay.textContent = `Potential: ${pts} pts`;
+                    
+                    // Color code the potential points
+                    if(pts > 80) pointsPotentialDisplay.className = "text-xs font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-full transition-colors";
+                    else if(pts > 40) pointsPotentialDisplay.className = "text-xs font-bold text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-full transition-colors";
+                    else pointsPotentialDisplay.className = "text-xs font-bold text-red-700 bg-red-100 px-2 py-0.5 rounded-full transition-colors";
+                }
+            }, 1000);
+
+            // Setup Words
+            originalSentenceStr = currentSentences[currentQuestionIndex];
+            const words = originalSentenceStr.split(" ");
+            
+            // Create word objects so duplicates can be tracked uniquely
+            let wordObjects = words.map((w, index) => ({
+                id: `word_${index}`,
+                text: w
+            }));
+
+            targetWords = [];
+            availableWords = shuffle([...wordObjects]);
+
+            // Reset UI
+            targetArea.classList.remove('border-green-400', 'bg-green-50', 'border-red-400', 'bg-red-50', 'border-yellow-400', 'bg-yellow-50');
+            targetArea.classList.add('border-slate-300', 'bg-white');
+            
+            feedbackText.classList.add('hidden');
+            skipBtn.classList.remove('hidden');
+            
+            actionBtn.innerHTML = `Check Answer <i data-lucide="check" class="w-5 h-5"></i>`;
+            actionBtn.classList.replace('bg-green-600', 'bg-blue-600');
+            actionBtn.classList.replace('hover:bg-green-700', 'hover:bg-blue-700');
+            actionBtn.onclick = checkAnswer;
+            actionBtn.disabled = true;
+
+            renderWords();
+            lucide.createIcons();
+            
+            // Small entrance animation
+            document.getElementById('question-container').classList.remove('fade-enter');
+            void document.getElementById('question-container').offsetWidth; // trigger reflow
+            document.getElementById('question-container').classList.add('fade-enter');
+        }
+
+        function createWordButton(wordObj, isTarget) {
+            const btn = document.createElement('button');
+            btn.className = `word-block px-4 py-2 text-lg font-bold rounded-xl shadow-sm border-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 `;
+            
+            if (isTarget) {
+                // Styling for words in the target (answer) area
+                btn.className += `bg-blue-600 text-white border-blue-700 hover:bg-blue-700`;
+                btn.onclick = () => { if(gameState === 'playing') moveToSource(wordObj); };
+            } else {
+                // Styling for words in the source area
+                btn.className += `bg-white text-slate-700 border-slate-300 hover:border-blue-400 hover:bg-blue-50`;
+                btn.onclick = () => { if(gameState === 'playing') moveToTarget(wordObj); };
+            }
+            
+            btn.innerText = wordObj.text;
+            return btn;
+        }
+
+        function renderWords() {
+            // Clear containers
+            sourceArea.innerHTML = '';
+            targetArea.innerHTML = '';
+
+            // Render Target Area
+            targetWords.forEach(w => {
+                targetArea.appendChild(createWordButton(w, true));
+            });
+
+            // Render Source Area
+            availableWords.forEach(w => {
+                sourceArea.appendChild(createWordButton(w, false));
+            });
+
+            // Enable/Disable action button
+            if (availableWords.length === 0 && gameState === 'playing') {
+                actionBtn.disabled = false;
+            } else if (gameState === 'playing') {
+                actionBtn.disabled = true;
+            }
+        }
+
+        function moveToTarget(wordObj) {
+            availableWords = availableWords.filter(w => w.id !== wordObj.id);
+            targetWords.push(wordObj);
+            renderWords();
+        }
+
+        function moveToSource(wordObj) {
+            targetWords = targetWords.filter(w => w.id !== wordObj.id);
+            availableWords.push(wordObj);
+            renderWords();
+        }
+
+        function showFloatingPoints(pts, isZero = false) {
+            pointsFloater.textContent = `+${pts}`;
+            pointsFloater.className = `absolute -top-4 right-0 font-bold text-lg pointer-events-none whitespace-nowrap ${isZero ? 'text-slate-400' : 'text-green-500'}`;
+            pointsFloater.classList.remove('point-float');
+            void pointsFloater.offsetWidth; // reflow
+            pointsFloater.classList.add('point-float');
+        }
+
+        function checkAnswer() {
+            if (gameState !== 'playing') return;
+
+            const currentStr = targetWords.map(w => w.text).join(" ");
+            
+            if (currentStr === originalSentenceStr) {
+                // Correct
+                gameState = 'checked';
+                clearInterval(questionTimerInterval);
+                
+                const pointsEarned = getPotentialPoints();
+                score += pointsEarned;
+                scoreDisplay.textContent = score;
+                showFloatingPoints(pointsEarned);
+                
+                targetArea.classList.replace('border-slate-300', 'border-green-400');
+                targetArea.classList.replace('bg-white', 'bg-green-50');
+                
+                feedbackText.innerHTML = `<span class="text-green-600"><i data-lucide="check-circle-2" class="inline w-5 h-5 mb-1"></i> Perfect! +${pointsEarned} pts</span>`;
+                feedbackText.classList.remove('hidden');
+                skipBtn.classList.add('hidden');
+                
+                actionBtn.innerHTML = `Next Sentence <i data-lucide="arrow-right" class="w-5 h-5"></i>`;
+                actionBtn.classList.replace('bg-blue-600', 'bg-green-600');
+                actionBtn.classList.replace('hover:bg-blue-700', 'hover:bg-green-700');
+                actionBtn.onclick = nextQuestion;
+                
+                // Confetti
+                confetti({
+                    particleCount: Math.max(30, pointsEarned),
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#22c55e', '#3b82f6', '#ffffff']
+                });
+                
+            } else {
+                // Incorrect
+                targetArea.classList.remove('shake');
+                void targetArea.offsetWidth; // trigger reflow
+                targetArea.classList.add('shake');
+                
+                targetArea.classList.replace('border-slate-300', 'border-red-400');
+                
+                // Visual feedback that reverts quickly
+                setTimeout(() => {
+                    if (gameState === 'playing') {
+                        targetArea.classList.replace('border-red-400', 'border-slate-300');
+                    }
+                }, 600);
+            }
+            lucide.createIcons();
+        }
+
+        function skipQuestion() {
+            if (gameState !== 'playing') return;
+            
+            gameState = 'checked';
+            clearInterval(questionTimerInterval);
+            showFloatingPoints(0, true);
+            
+            // Move everything to target in correct order
+            const correctOrderTexts = originalSentenceStr.split(" ");
+            let allWords = [...targetWords, ...availableWords];
+            targetWords = [];
+            
+            // Reconstruct perfectly
+            correctOrderTexts.forEach(text => {
+                const foundIndex = allWords.findIndex(w => w.text === text);
+                if (foundIndex !== -1) {
+                    targetWords.push(allWords.splice(foundIndex, 1)[0]);
+                }
+            });
+            availableWords = [];
+            renderWords();
+            
+            // Style UI for skip
+            targetArea.classList.replace('border-slate-300', 'border-yellow-400');
+            targetArea.classList.replace('bg-white', 'bg-yellow-50');
+            
+            // Change word button styles to show they are locked/skipped
+            const targetBtns = targetArea.querySelectorAll('button');
+            targetBtns.forEach(btn => {
+                btn.classList.replace('bg-blue-600', 'bg-yellow-600');
+                btn.classList.replace('border-blue-700', 'border-yellow-700');
+                btn.classList.replace('hover:bg-blue-700', 'hover:bg-yellow-600');
+                btn.style.cursor = 'default';
+                btn.onclick = null; // disable clicking
+            });
+            
+            feedbackText.innerHTML = `<span class="text-yellow-600"><i data-lucide="info" class="inline w-5 h-5 mb-1"></i> Skipped. +0 pts</span>`;
+            feedbackText.classList.remove('hidden');
+            skipBtn.classList.add('hidden');
+            
+            actionBtn.disabled = false;
+            actionBtn.innerHTML = `Next Sentence <i data-lucide="arrow-right" class="w-5 h-5"></i>`;
+            actionBtn.onclick = nextQuestion;
+            
+            lucide.createIcons();
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < currentSentences.length) {
+                loadQuestion();
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            clearInterval(globalTimerInterval);
+            clearInterval(questionTimerInterval);
+            
+            gameScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            
+            finalScoreDisplay.textContent = score;
+            finalTimeDisplay.textContent = formatTime(globalSeconds);
+
+            // --- FIREBASE SCORE SAVING TRIGGER ---
+            if (typeof window.saveScore === 'function') {
+                window.saveScore('survival', score);
+            }
+            // -------------------------------------
+            
+            // Max score is 1000
+            if (score === 1000) {
+                resultIcon.innerHTML = "👑";
+                resultMessage.textContent = "Perfect Speed & Accuracy! Legendary!";
+                confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 } });
+            } else if (score >= 800) {
+                resultIcon.innerHTML = "⚡";
+                resultMessage.textContent = "Incredible speed! You're a natural.";
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            } else if (score >= 500) {
+                resultIcon.innerHTML = "👍";
+                resultMessage.textContent = "Good job! Try to be a little faster next time.";
+            } else {
+                resultIcon.innerHTML = "📚";
+                resultMessage.textContent = "Keep practicing! Accuracy comes first, speed comes later.";
+            }
+        }
+
+        // Initialize icons on load
+        lucide.createIcons();
+    </script>
+
+    <!-- === FIREBASE LOGIC (DO NOT EDIT KEYS) === -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAIjDKXYOTzZIBpc4LFn0cSAwsy020x5G0",
+            authDomain: "british-hills-leaderboard.firebaseapp.com",
+            projectId: "british-hills-leaderboard",
+            storageBucket: "british-hills-leaderboard.firebasestorage.app",
+            messagingSenderId: "1035640631485",
+            appId: "1:1035640631485:web:ff52f6924553f973e307d4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        let currentUser = null;
+
+        // Auth Listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                console.log("Player ready:", user.uid);
+            } else {
+                // If they lost connection or session, try to sign in silently
+                signInAnonymously(auth).catch(e => console.error(e));
+            }
+        });
+
+        // --- SAVE SCORE FUNCTION ---
+        window.saveScore = async (gameId, newScore) => {
+            if (!currentUser) {
+                console.warn("Not logged in. Score won't be saved to Leaderboard.");
+                return;
+            }
+
+            const userRef = doc(db, 'users', currentUser.uid);
+
+            try {
+                // 1. Check existing score
+                const docSnap = await getDoc(userRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    const currentScores = data.scores || {};
+                    const previousScore = currentScores[gameId] || 0;
+
+                    // 2. Only update if higher
+                    if (newScore > previousScore) {
+                        const updateData = {};
+                        updateData[`scores.${gameId}`] = newScore;
+                        updateData['updatedAt'] = new Date().toISOString();
+
+                        await updateDoc(userRef, updateData);
+                        
+                        // Wait a tiny bit for the confetti to pop before showing alert
+                        setTimeout(() => {
+                            alert(`🎉 New Personal Best: ${newScore}! Saved to Leaderboard.`);
+                        }, 500);
+                        
+                    } else {
+                        console.log(`Score ${newScore} did not beat ${previousScore}`);
+                    }
+                }
+            } catch (error) {
+                console.error("Save failed:", error);
+            }
+        };
+    </script>
+</body>
+</html>
