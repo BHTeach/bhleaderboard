@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>British Manners & Etiquette</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-royal {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Animations */
+        .fade-enter {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        /* Etiquette Meter Transition */
+        #etiquette-fill {
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.8s;
+        }
+        
+        /* Interactive Sentences */
+        .sentence-card {
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .sentence-card:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col text-slate-800">
+
+    <!-- === MAIN MENU === -->
+    <div id="menu-screen" class="absolute inset-0 z-30 flex flex-col items-center justify-center p-6 bg-slate-50 overflow-y-auto">
+        <!-- Back to Map Button -->
+        <button onclick="goHome()" class="absolute top-6 left-6 text-slate-500 hover:text-red-900 transition-colors flex items-center gap-2 font-bold text-sm">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Map
+        </button>
+
+        <div class="text-center max-w-md w-full fade-enter my-auto py-8">
+            <div class="w-24 h-24 bg-red-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border-4 border-yellow-500 text-white">
+                <i data-lucide="crown" class="w-12 h-12"></i>
+            </div>
+
+            <h1 class="text-4xl md:text-5xl font-royal font-bold text-red-900 mb-2">British Manners</h1>
+
+            <div class="bg-white p-6 rounded-2xl shadow-md border-2 border-slate-200 mb-8 text-left space-y-4">
+                <div class="flex items-center gap-3 text-slate-700">
+                    <div class="bg-blue-100 p-2 rounded-lg text-blue-700 shrink-0">
+                        <i data-lucide="search" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold block">Part 1: Spot the Mistake</span>
+                        <span class="text-sm text-slate-500">Find the bad manners in each scenario.</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 text-slate-700">
+                    <div class="bg-purple-100 p-2 rounded-lg text-purple-700 shrink-0">
+                        <i data-lucide="scale" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold block">Part 2: The Correct Etiquette</span>
+                        <span class="text-sm text-slate-500">Roleplay situations to keep your etiquette meter high.</span>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="startGame()" class="w-full py-4 bg-red-800 hover:bg-red-900 text-white font-bold rounded-xl shadow-lg transform transition active:scale-95 text-xl flex items-center justify-center gap-2">
+                Start Training <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- === PART 1: SPOT THE MISTAKE SCREEN === -->
+    <div id="part1-screen" class="hidden absolute inset-0 z-20 flex flex-col bg-slate-50">
+        <!-- Header -->
+        <div class="h-16 bg-white shadow-sm flex items-center justify-between px-4 shrink-0">
+            <button onclick="goHome()" class="text-slate-500 hover:text-blue-900 transition-colors flex items-center p-2 -ml-2">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <div class="flex flex-col items-center text-center">
+                <span class="text-xs text-blue-600 font-bold uppercase">Part 1: Spot the Mistake</span>
+                <span class="text-sm font-bold text-slate-700"><span id="p1-current">1</span> / <span id="p1-total">7</span></span>
+            </div>
+            <div class="flex flex-col items-end">
+                <span class="text-xs text-slate-400 font-bold uppercase">Score</span>
+                <span id="p1-score" class="text-sm font-bold text-blue-600">0</span>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 flex flex-col items-center pt-6">
+            <div class="w-full max-w-2xl mx-auto flex flex-col h-full" id="p1-container">
+                
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-royal font-bold text-blue-900 mb-2" id="p1-title">Scenario Title</h2>
+                    <p class="text-slate-500 text-sm font-bold uppercase tracking-wide">Find and tap the bad manners!</p>
+                </div>
+
+                <!-- Sentences Container -->
+                <div id="p1-sentences" class="space-y-3 mb-8">
+                    <!-- Sentences injected here -->
+                </div>
+
+                <!-- Feedback Area -->
+                <div id="p1-feedback" class="mt-auto hidden bg-white p-6 rounded-2xl shadow-lg border-2 border-green-200 text-center fade-enter">
+                    <h3 class="text-xl font-bold text-green-700 mb-2 flex items-center justify-center gap-2">
+                        <i data-lucide="check-circle" class="w-6 h-6"></i> Correct!
+                    </h3>
+                    <p id="p1-rationale" class="text-slate-600 mb-6 text-sm">Reasoning goes here.</p>
+                    <button onclick="p1Next()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow transition transform active:scale-95 flex items-center justify-center gap-2">
+                        Next Scenario <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- === TRANSITION SCREEN === -->
+    <div id="transition-screen" class="hidden absolute inset-0 z-30 flex flex-col items-center justify-center p-6 bg-slate-800 text-white overflow-y-auto">
+        <div class="text-center max-w-md w-full fade-enter">
+            <div class="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border-4 border-slate-700">
+                <i data-lucide="check" class="w-10 h-10 text-white"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-blue-300 mb-2 uppercase tracking-widest">Part 1 Complete</h2>
+            <p class="text-slate-300 mb-10">You finished "Spot the Mistake" with a score of <span id="transition-score" class="font-bold text-white">0</span>.</p>
+            
+            <hr class="border-slate-600 mb-10">
+
+            <div class="w-24 h-24 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border-4 border-slate-700">
+                <i data-lucide="scale" class="w-12 h-12 text-white"></i>
+            </div>
+            <h1 class="text-4xl font-royal font-bold text-white mb-4">Part 2:<br>The Correct Etiquette</h1>
+            <p class="text-slate-300 mb-8">You will now be placed in various roleplay situations. Choose the most polite actions to keep your Etiquette Meter full!</p>
+
+            <button onclick="startPart2()" class="w-full py-4 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-lg transform transition active:scale-95 text-xl flex items-center justify-center gap-2">
+                Begin Part 2 <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- === PART 2: THE CORRECT ETIQUETTE SCREEN === -->
+    <div id="part2-screen" class="hidden absolute inset-0 z-20 flex flex-col bg-slate-50">
+        <!-- Header -->
+        <div class="h-20 bg-white shadow-sm flex items-center justify-between px-4 shrink-0 border-b border-slate-200">
+            <button onclick="goHome()" class="text-slate-500 hover:text-purple-900 transition-colors p-2 -ml-2">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            
+            <!-- Etiquette Meter -->
+            <div class="flex-1 max-w-md mx-4 flex flex-col">
+                <div class="flex justify-between text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">
+                    <span>Rude</span>
+                    <span class="text-purple-700 font-royal hidden sm:inline">Etiquette Meter</span>
+                    <span>Perfect</span>
+                </div>
+                <div class="h-4 bg-slate-200 rounded-full overflow-hidden border border-slate-300 relative">
+                    <div id="etiquette-fill" class="h-full bg-yellow-500" style="width: 50%"></div>
+                    <!-- Center marker -->
+                    <div class="absolute top-0 bottom-0 left-1/2 w-0.5 bg-white/50"></div>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-end min-w-[3rem]">
+                <span class="text-xs text-purple-600 font-bold uppercase">Sit.</span>
+                <span class="text-sm font-bold text-slate-700"><span id="p2-current">1</span> / <span id="p2-total">12</span></span>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 flex flex-col items-center pt-8">
+            <div class="w-full max-w-xl mx-auto" id="p2-container">
+                
+                <!-- Situation Card -->
+                <div class="bg-white p-6 md:p-8 rounded-3xl shadow-lg border-b-4 border-purple-200 mb-8 relative">
+                    <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-purple-900 rounded-full flex items-center justify-center text-white border-4 border-slate-50 shadow-sm">
+                        <i data-lucide="book-open" class="w-5 h-5"></i>
+                    </div>
+                    <h2 id="p2-situation" class="text-xl md:text-2xl font-bold text-slate-800 text-center mt-4 leading-relaxed">
+                        Situation goes here.
+                    </h2>
+                </div>
+
+                <div class="text-center mb-4">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">What do you do?</span>
+                </div>
+
+                <!-- Options -->
+                <div id="p2-options" class="space-y-4">
+                    <!-- Options injected here -->
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Feedback Overlay for Part 2 -->
+        <div id="p2-feedback-overlay" class="hidden absolute inset-0 z-30 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl text-center fade-enter relative overflow-hidden">
+                <div id="p2-feedback-banner" class="absolute top-0 left-0 right-0 h-2 bg-purple-500"></div>
+                
+                <div id="p2-feedback-icon" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl">
+                    <!-- Icon -->
+                </div>
+                
+                <h3 id="p2-feedback-title" class="text-2xl font-royal font-bold text-slate-800 mb-2">Title</h3>
+                <p id="p2-feedback-text" class="text-slate-600 mb-8 leading-relaxed">Explanation goes here.</p>
+                
+                <button onclick="p2Next()" class="w-full py-4 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-md transition transform active:scale-95">
+                    Continue
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- === RESULTS SCREEN === -->
+    <div id="results-screen" class="hidden absolute inset-0 z-40 flex flex-col items-center justify-center p-6 bg-slate-50/95 backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full text-center border-t-8 border-red-900 fade-enter">
+            
+            <div class="mb-6">
+                <div id="result-icon" class="w-20 h-20 bg-yellow-400 rounded-full flex items-center justify-center mx-auto shadow-inner text-white text-4xl">
+                    🏆
+                </div>
+            </div>
+
+            <h2 class="text-3xl font-royal font-bold text-slate-800 mb-2">Training Complete!</h2>
+            <p id="result-message" class="text-slate-500 mb-8">Let's see how you did.</p>
+
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <!-- Part 1 Stats -->
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 flex flex-col items-center justify-center">
+                    <span class="block text-xs text-blue-500 font-bold uppercase mb-1 text-center">Observation<br>Score</span>
+                    <div class="flex items-baseline gap-1">
+                        <span id="final-p1-score" class="text-4xl font-bold text-blue-900">0</span>
+                        <span class="text-sm text-blue-400 font-bold" id="final-p1-max">/ 100</span>
+                    </div>
+                </div>
+
+                <!-- Part 2 Stats -->
+                <div class="bg-purple-50 p-4 rounded-xl border border-purple-100 flex flex-col items-center justify-center">
+                    <span class="block text-xs text-purple-500 font-bold uppercase mb-1 text-center">Final<br>Etiquette</span>
+                    <span id="final-p2-score" class="text-4xl font-bold text-purple-900">50%</span>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <button onclick="startGame()" class="block w-full py-4 bg-red-800 hover:bg-red-900 text-white font-bold rounded-xl transition shadow-lg transform active:scale-95">
+                    Train Again
+                </button>
+                <button onclick="goHome()" class="block w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition">
+                    Back to Map
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA: PART 1 (Spot the Mistake) ---
+        const part1Data = [
+            {
+                title: "Soup at Dinner",
+                sentences: [
+                    { text: "Shunsuke sits down at the dinner table and puts his napkin on his lap.", isBad: false },
+                    { text: "When the soup arrives, he blows on it gently to cool it down.", isBad: true, rationale: "Never blow on hot food." },
+                    { text: "He dips his spoon into the bowl, moving it away from himself to collect the soup.", isBad: false },
+                    { text: "He sips quietly from the side of the spoon.", isBad: false }
+                ]
+            },
+            {
+                title: "Afternoon Tea",
+                sentences: [
+                    { text: "Momo pours the tea from the teapot into her cup.", isBad: false },
+                    { text: "She raises the teacup, sticking her pinky finger out as she drinks.", isBad: true, rationale: "Sticking pinky out is bad form." },
+                    { text: "She places the cup back onto the saucer carefully.", isBad: false },
+                    { text: "She breaks her scone in half with her hands.", isBad: false }
+                ]
+            },
+            {
+                title: "Introductions",
+                sentences: [
+                    { text: "Yuuki is introduced to a new student.", isBad: false },
+                    { text: "He makes no eye contact.", isBad: true, rationale: "Handshakes need eye contact." },
+                    { text: "He gives a strong handshake.", isBad: false },
+                    { text: "Yuuki says 'Hey, nice to meet you.'", isBad: false }
+                ]
+            },
+            {
+                title: "At the Falstaff Pub",
+                sentences: [
+                    { text: "Miki walks up to the bar to order her drinks and food.", isBad: false },
+                    { text: "She snaps her fingers to get the barman's attention.", isBad: true, rationale: "Snapping fingers is rude." },
+                    { text: "When paying, she thanks the barman.", isBad: false },
+                    { text: "She carries her food and drinks back to the table.", isBad: false }
+                ]
+            },
+            {
+                title: "Dining Etiquette",
+                sentences: [
+                    { text: "Emma holds her fork in her left hand, pointing downwards.", isBad: false },
+                    { text: "She holds her knife in her right hand to cut the meat.", isBad: false },
+                    { text: "She needs to use the salt, so she leans across the table to grab it.", isBad: true, rationale: "Never reach across the table." },
+                    { text: "She uses her knife to push vegetables onto her fork.", isBad: false }
+                ]
+            },
+            {
+                title: "Passing Items",
+                sentences: [
+                    { text: "Tim asks for the salt.", isBad: false },
+                    { text: "Emi picks up the salt.", isBad: false },
+                    { text: "Emi holds it up for Tim to take.", isBad: true, rationale: "When passing items, put it on the table for the next person to pick up." },
+                    { text: "Emi says “here you are.”", isBad: false }
+                ]
+            },
+            {
+                title: "Eating",
+                sentences: [
+                    { text: "Daiki picks up his knife and fork.", isBad: false },
+                    { text: "Daiki cuts his roast beef into many pieces.", isBad: true, rationale: "Only cut you food into one piece at a time, then eat it." },
+                    { text: "Daiki puts one bite-size piece on his fork.", isBad: false },
+                    { text: "Daiki eats the piece of roast beef.", isBad: false }
+                ]
+            }
+        ];
+
+        // --- DATA: PART 2 (The Correct Etiquette) ---
+        const part2Data = [
+            {
+                situation: "You sit down at a very formal dinner setting. There are three forks on your left and three knives on your right. Which do you use for the first course?",
+                options: [
+                    { text: "The ones closest to the plate (inside out).", points: -15, icon: "x", title: "Oh dear!", feedback: "Incorrect. You always work from the outside in as the courses progress." },
+                    { text: "The ones furthest from the plate (outside in).", points: 15, icon: "check", title: "Splendid!", feedback: "Correct! Always start with the cutlery furthest from the plate and work your way inwards." },
+                    { text: "Just pick the biggest ones, it doesn't matter.", points: -20, icon: "x", title: "Barbaric!", feedback: "It matters very much in formal dining!" }
+                ]
+            },
+            {
+                situation: "You are walking down a crowded street in London. Someone accidentally steps on your shoe. It was entirely their fault.",
+                options: [
+                    { text: "Say 'Watch where you are going!'", points: -15, icon: "alert-triangle", title: "A bit aggressive!", feedback: "Even if it's their fault, making a scene is considered bad form." },
+                    { text: "Say nothing and glare at them.", points: -5, icon: "minus", title: "Frosty.", feedback: "The 'cold shoulder' isn't terribly polite, though common." },
+                    { text: "Say 'Sorry!' instinctively.", points: 15, icon: "check", title: "Perfectly British!", feedback: "Correct! The British reflex is to apologise even when someone else bumps into you." }
+                ]
+            },
+            {
+                situation: "You have finished eating your main course at the Refectory. How do you signal to the waiter that you are done?",
+                options: [
+                    { text: "Push the plate away from you.", points: -15, icon: "x", title: "Very rude!", feedback: "Never push your plate away. It looks like you are disgusted by the food." },
+                    { text: "Cross your knife and fork into an 'X' on the plate.", points: -5, icon: "minus", title: "Not quite.", feedback: "An 'X' or an inverted 'V' means you are resting and intend to eat more." },
+                    { text: "Place your knife and fork side-by-side in the centre of the plate.", points: 15, icon: "check", title: "Excellent!", feedback: "Correct. Placing them together signals you are finished." }
+                ]
+            },
+            {
+                situation: "You are introducing your younger friend, Tom, to the Headmaster of the school.",
+                options: [
+                    { text: "Say: 'Tom, this is the Headmaster.'", points: -15, icon: "x", title: "Backwards!", feedback: "You must introduce the lower-ranking (or younger) person TO the higher-ranking person." },
+                    { text: "Say: 'Headmaster, may I introduce my friend, Tom?'", points: 15, icon: "check", title: "Proper Form!", feedback: "Correct! Always present the junior person to the senior person." },
+                    { text: "Say: 'Alright Headmaster, meet my mate Tom.'", points: -25, icon: "alert-octagon", title: "Disastrous!", feedback: "Far too informal for a Headmaster!" }
+                ]
+            },
+            {
+                situation: "You are served a bread roll with your soup. How should you eat it?",
+                options: [
+                    { text: "Pick it up and take a bite out of it.", points: -10, icon: "x", title: "Too casual.", feedback: "You shouldn't bite directly into a whole bread roll at a formal dinner." },
+                    { text: "Use your knife to cut it neatly in half.", points: -10, icon: "x", title: "Not quite.", feedback: "Cutting bread with a knife at the dinner table is considered incorrect." },
+                    { text: "Tear off a bite-sized piece with your fingers, butter it, and eat it.", points: 15, icon: "check", title: "Flawless!", feedback: "Correct! Bread should be broken into bite-sized pieces by hand." }
+                ]
+            },
+            {
+                situation: "You are stirring milk into your tea. How should you move the spoon?",
+                options: [
+                    { text: "Stir vigorously in a circle so it clinks against the sides of the cup.", points: -15, icon: "x", title: "Too noisy!", feedback: "Clinking your spoon against the cup is considered rude." },
+                    { text: "Leave the spoon in the cup while you drink.", points: -20, icon: "alert-triangle", title: "Dangerous!", feedback: "You might poke yourself in the eye! Never leave the spoon in the cup." },
+                    { text: "Move the spoon gently back and forth from the 12 o'clock to the 6 o'clock position.", points: 15, icon: "check", title: "Very Refined!", feedback: "Correct! A gentle back-and-forth motion is proper tea etiquette." }
+                ]
+            },
+            {
+                situation: "You need to leave the table for a moment during dinner, but plan to return. What do you do with your napkin?",
+                options: [
+                    { text: "Toss it onto your plate over your half-eaten food.", points: -20, icon: "x", title: "Messy!", feedback: "Never put a napkin on a plate with food." },
+                    { text: "Fold it neatly and place it on the table to the left of your fork.", points: -5, icon: "minus", title: "Not quite.", feedback: "Placing it on the table means you are completely finished with your meal." },
+                    { text: "Place it loosely on the back of your chair.", points: 15, icon: "check", title: "Spot On!", feedback: "Correct. Placing it on your chair signals to the waiter that you are returning." }
+                ]
+            },
+            {
+                situation: "It is the end of the meal and you have finished your tea. Where should you place your spoon?",
+                options: [
+                    { text: "Leave it standing upright inside the teacup.", points: -15, icon: "x", title: "Bad Form.", feedback: "Spoons should never be left inside the cup." },
+                    { text: "Place it on the table next to the saucer.", points: -10, icon: "x", title: "Oh dear.", feedback: "This can stain the tablecloth." },
+                    { text: "Place it quietly on the saucer, next to the cup's handle.", points: 15, icon: "check", title: "Perfect!", feedback: "Correct! It should rest neatly on the saucer." }
+                ]
+            },
+            {
+                situation: "You want to buy a souvenir in Victorian Alley, but there are several people waiting near the till. What do you do?",
+                options: [
+                    { text: "Walk straight to the front and say \"Excuse me.\"", points: -25, icon: "alert-octagon", title: "Scandalous!", feedback: "Jumping the queue is a massive faux pas in the UK!" },
+                    { text: "Stand near the counter and try to catch the cashier's eye.", points: -10, icon: "minus", title: "Impatient.", feedback: "You must join the line properly." },
+                    { text: "Find the back of the line and wait your turn quietly.", points: 15, icon: "check", title: "Proper British Form", feedback: "Correct! Queuing patiently is practically a national sport." }
+                ]
+            },
+            {
+                situation: "Oh dear! You accidentally dropped your fork on the floor during a formal dinner at the Refectory. What should you do?",
+                options: [
+                    { text: "Pick it up, wipe it on your napkin, and continue eating with it.", points: -20, icon: "alert-triangle", title: "Unhygienic!", feedback: "Never eat with dropped cutlery." },
+                    { text: "Dive under the table to retrieve it immediately.", points: -15, icon: "x", title: "Disruptive.", feedback: "You shouldn't disappear under the table during a formal meal." },
+                    { text: "Leave it on the floor and politely ask a waiter for a replacement.", points: 15, icon: "check", title: "Calm and Collected", feedback: "Correct! Let the staff handle dropped items." }
+                ]
+            },
+            {
+                situation: "You are sitting at the dinner table, waiting for the waiters to bring out the next course. What should you do with your arms?",
+                options: [
+                    { text: "Rest your elbows on the table.", points: -15, icon: "x", title: "Bad Posture!", feedback: "Elbows must always be kept off the table." },
+                    { text: "Cross your arms over your chest.", points: -5, icon: "minus", title: "A bit defensive.", feedback: "This makes you look closed off to conversation." },
+                    { text: "Keep your elbows off the table, resting your hands in your lap.", points: 15, icon: "check", title: "Excellent", feedback: "Correct! Hands should rest politely in your lap when not eating." }
+                ]
+            },
+            {
+                situation: "You have just taken a bite of roast beef, and you need to clean your mouth before drinking. What do you do?",
+                options: [
+                    { text: "Wipe your mouth vigorously from side-to-side with the napkin.", points: -10, icon: "x", title: "Too Rough!", feedback: "A napkin is not a towel." },
+                    { text: "Lick your lips clean.", points: -15, icon: "x", title: "Oh my!", feedback: "Not appropriate at a formal dinner table." },
+                    { text: "Gently dab your lips with the corner of your napkin.", points: 15, icon: "check", title: "Very Elegant", feedback: "Correct! Always dab gently." }
+                ]
+            }
+        ];
+
+        // --- STATE ---
+        let currentPart1Data = [];
+        let currentPart2Data = [];
+        let currentIndex = 0;
+        let p1Score = 0;
+        let attemptsThisQuestion = 0;
+        let p2Etiquette = 50; // Starts at 50%
+        let isAnswering = false;
+
+        // --- INITIALIZATION ---
+        lucide.createIcons();
+
+        // Utilities
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function goHome() {
+            window.location.href = 'index.html';
+        }
+
+        // --- GAME FLOW LOGIC ---
+        function startGame() {
+            // Shuffle and select 5 questions for Part 1
+            currentPart1Data = shuffle([...part1Data]).slice(0, 5);
+            document.getElementById('p1-total').textContent = currentPart1Data.length;
+            document.getElementById('final-p1-max').textContent = `/ ${currentPart1Data.length * 20}`;
+
+            // Reset state
+            p1Score = 0;
+            p2Etiquette = 50;
+            currentIndex = 0;
+            
+            // UI Transition
+            document.getElementById('menu-screen').classList.add('hidden');
+            document.getElementById('results-screen').classList.add('hidden');
+            document.getElementById('part1-screen').classList.remove('hidden');
+            
+            loadP1Scenario();
+        }
+
+        // --- PART 1 LOGIC ---
+        function loadP1Scenario() {
+            isAnswering = true;
+            attemptsThisQuestion = 0;
+            
+            document.getElementById('p1-current').textContent = currentIndex + 1;
+            document.getElementById('p1-score').textContent = p1Score;
+            
+            const data = currentPart1Data[currentIndex];
+            document.getElementById('p1-title').textContent = data.title;
+            
+            const container = document.getElementById('p1-sentences');
+            container.innerHTML = '';
+            
+            document.getElementById('p1-feedback').classList.add('hidden');
+            
+            // Render sentences
+            data.sentences.forEach((sentenceObj, index) => {
+                const div = document.createElement('div');
+                div.className = `sentence-card bg-white p-4 rounded-xl shadow-sm border-2 border-slate-200 text-slate-700 font-medium`;
+                div.textContent = sentenceObj.text;
+                
+                div.onclick = () => checkP1Answer(sentenceObj, div);
+                container.appendChild(div);
+            });
+            
+            // Animation
+            document.getElementById('p1-container').classList.remove('fade-enter');
+            void document.getElementById('p1-container').offsetWidth;
+            document.getElementById('p1-container').classList.add('fade-enter');
+            
+            lucide.createIcons();
+        }
+
+        function checkP1Answer(sentenceObj, element) {
+            if (!isAnswering || element.classList.contains('border-red-400')) return;
+
+            attemptsThisQuestion++;
+
+            if (sentenceObj.isBad) {
+                // Correctly identified the mistake
+                isAnswering = false;
+                
+                // Calculate score
+                let pts = 0;
+                if(attemptsThisQuestion === 1) pts = 20;
+                else if(attemptsThisQuestion === 2) pts = 10;
+                else pts = 5;
+                
+                p1Score += pts;
+                document.getElementById('p1-score').textContent = p1Score;
+
+                element.classList.replace('border-slate-200', 'border-green-500');
+                element.classList.replace('bg-white', 'bg-green-100');
+                element.classList.replace('text-slate-700', 'text-green-900');
+                
+                // Show feedback
+                const feedbackDiv = document.getElementById('p1-feedback');
+                document.getElementById('p1-rationale').textContent = sentenceObj.rationale;
+                feedbackDiv.classList.remove('hidden');
+                
+                confetti({
+                    particleCount: pts * 3,
+                    spread: 60,
+                    origin: { y: 0.7 },
+                    colors: ['#22c55e', '#ffffff']
+                });
+
+            } else {
+                // Incorrectly identified
+                element.classList.replace('border-slate-200', 'border-red-400');
+                element.classList.replace('bg-white', 'bg-red-50');
+                element.classList.replace('text-slate-700', 'text-red-900');
+                
+                element.classList.remove('shake');
+                void element.offsetWidth;
+                element.classList.add('shake');
+            }
+        }
+
+        function p1Next() {
+            currentIndex++;
+            if (currentIndex < currentPart1Data.length) {
+                loadP1Scenario();
+            } else {
+                showTransition();
+            }
+        }
+
+        function showTransition() {
+            document.getElementById('part1-screen').classList.add('hidden');
+            document.getElementById('transition-score').textContent = p1Score;
+            document.getElementById('transition-screen').classList.remove('hidden');
+        }
+
+        // --- PART 2 LOGIC ---
+        function startPart2() {
+            // Shuffle and select 5 questions for Part 2
+            currentPart2Data = shuffle([...part2Data]).slice(0, 5);
+            document.getElementById('p2-total').textContent = currentPart2Data.length;
+
+            currentIndex = 0; // Reset index for part 2 array
+            document.getElementById('transition-screen').classList.add('hidden');
+            document.getElementById('part2-screen').classList.remove('hidden');
+            
+            loadP2Situation();
+        }
+
+        function updateEtiquetteMeter() {
+            const fill = document.getElementById('etiquette-fill');
+            fill.style.width = `${p2Etiquette}%`;
+            
+            if (p2Etiquette < 30) fill.className = "h-full bg-red-500";
+            else if (p2Etiquette < 70) fill.className = "h-full bg-yellow-500";
+            else fill.className = "h-full bg-green-500";
+        }
+
+        function loadP2Situation() {
+            updateEtiquetteMeter();
+            document.getElementById('p2-current').textContent = currentIndex + 1;
+            
+            const data = currentPart2Data[currentIndex];
+            document.getElementById('p2-situation').textContent = data.situation;
+            
+            const container = document.getElementById('p2-options');
+            container.innerHTML = '';
+            
+            // Shuffle options
+            const shuffledOptions = [...data.options].sort(() => Math.random() - 0.5);
+            
+            shuffledOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left bg-white p-4 rounded-2xl shadow-sm border-2 border-slate-200 hover:border-purple-400 hover:bg-purple-50 hover:shadow-md transition-all font-bold text-slate-700 active:scale-95";
+                btn.textContent = opt.text;
+                btn.onclick = () => handleP2Choice(opt);
+                container.appendChild(btn);
+            });
+            
+            document.getElementById('p2-container').classList.remove('fade-enter');
+            void document.getElementById('p2-container').offsetWidth;
+            document.getElementById('p2-container').classList.add('fade-enter');
+        }
+
+        function handleP2Choice(option) {
+            // Apply points
+            p2Etiquette += option.points;
+            // Clamp between 0 and 100
+            p2Etiquette = Math.max(0, Math.min(100, p2Etiquette));
+            updateEtiquetteMeter();
+            
+            // Setup feedback overlay
+            const banner = document.getElementById('p2-feedback-banner');
+            const iconContainer = document.getElementById('p2-feedback-icon');
+            
+            document.getElementById('p2-feedback-title').textContent = option.title;
+            document.getElementById('p2-feedback-text').textContent = option.feedback;
+            
+            if (option.points > 0) {
+                banner.className = "absolute top-0 left-0 right-0 h-2 bg-green-500";
+                iconContainer.className = "w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600 text-2xl";
+                confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+            } else if (option.points === 0) {
+                banner.className = "absolute top-0 left-0 right-0 h-2 bg-yellow-500";
+                iconContainer.className = "w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 text-yellow-600 text-2xl";
+            } else {
+                banner.className = "absolute top-0 left-0 right-0 h-2 bg-red-500";
+                iconContainer.className = "w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-red-600 text-2xl";
+                // Screen shake
+                document.getElementById('part2-screen').classList.add('shake');
+                setTimeout(() => document.getElementById('part2-screen').classList.remove('shake'), 500);
+            }
+            
+            iconContainer.innerHTML = `<i data-lucide="${option.icon}" class="w-8 h-8"></i>`;
+            
+            document.getElementById('p2-feedback-overlay').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function p2Next() {
+            document.getElementById('p2-feedback-overlay').classList.add('hidden');
+            
+            currentIndex++;
+            if (currentIndex < currentPart2Data.length) {
+                loadP2Situation();
+            } else {
+                showFinalResults();
+            }
+        }
+
+        // --- RESULTS ---
+        function showFinalResults() {
+            document.getElementById('part2-screen').classList.add('hidden');
+            document.getElementById('results-screen').classList.remove('hidden');
+            
+            // Inject values
+            document.getElementById('final-p1-score').textContent = p1Score;
+            
+            const p2ScoreElem = document.getElementById('final-p2-score');
+            p2ScoreElem.textContent = `${p2Etiquette}%`;
+            
+            // Style etiquette number based on result
+            if(p2Etiquette >= 70) p2ScoreElem.className = "text-4xl font-bold text-green-600";
+            else if(p2Etiquette < 30) p2ScoreElem.className = "text-4xl font-bold text-red-600";
+            else p2ScoreElem.className = "text-4xl font-bold text-yellow-600";
+
+            // Main feedback message logic (combine the two metrics)
+            const messageElem = document.getElementById('result-message');
+            const maxP1 = currentPart1Data.length * 20; // 100 points
+            
+            if (p1Score >= (maxP1 * 0.8) && p2Etiquette >= 80) {
+                messageElem.textContent = "Outstanding! You are ready for high society tea with the King.";
+                confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 } });
+            } else if (p1Score >= (maxP1 * 0.5) && p2Etiquette >= 50) {
+                messageElem.textContent = "Quite respectable. You've definitely learned a thing or two!";
+                confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+            } else {
+                messageElem.textContent = "Oh dear. A few blunders, but nothing a little practice can't fix.";
+            }
+
+            // --- FIREBASE SCORE SAVING TRIGGER ---
+            // Combine Part 1 and Part 2 into a single leaderboard score (Max 200)
+            const finalLeaderboardScore = p1Score + p2Etiquette; 
+            if (typeof window.saveScore === 'function') {
+                window.saveScore('manners', finalLeaderboardScore);
+            }
+            // -------------------------------------
+        }
+    </script>
+
+    <!-- === FIREBASE LOGIC (DO NOT EDIT KEYS) === -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAIjDKXYOTzZIBpc4LFn0cSAwsy020x5G0",
+            authDomain: "british-hills-leaderboard.firebaseapp.com",
+            projectId: "british-hills-leaderboard",
+            storageBucket: "british-hills-leaderboard.firebasestorage.app",
+            messagingSenderId: "1035640631485",
+            appId: "1:1035640631485:web:ff52f6924553f973e307d4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        let currentUser = null;
+
+        // Auth Listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                console.log("Player ready:", user.uid);
+            } else {
+                signInAnonymously(auth).catch(e => console.error(e));
+            }
+        });
+
+        // --- SAVE SCORE FUNCTION ---
+        window.saveScore = async (gameId, newScore) => {
+            if (!currentUser) {
+                console.warn("Not logged in. Score won't be saved to Leaderboard.");
+                return;
+            }
+
+            const userRef = doc(db, 'users', currentUser.uid);
+
+            try {
+                // 1. Check existing score
+                const docSnap = await getDoc(userRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    const currentScores = data.scores || {};
+                    const previousScore = currentScores[gameId] || 0;
+
+                    // 2. Only update if higher
+                    if (newScore > previousScore) {
+                        const updateData = {};
+                        updateData[`scores.${gameId}`] = newScore;
+                        updateData['updatedAt'] = new Date().toISOString();
+
+                        await updateDoc(userRef, updateData);
+                        
+                        setTimeout(() => {
+                            alert(`🎉 New Personal Best: ${newScore}! Saved to Leaderboard.`);
+                        }, 500);
+                        
+                    } else {
+                        console.log(`Score ${newScore} did not beat ${previousScore}`);
+                    }
+                }
+            } catch (error) {
+                console.error("Save failed:", error);
+            }
+        };
+    </script>
+</body>
+</html>
