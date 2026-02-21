@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Commonwealth Passport Control</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #f0fdf4; /* Very light green tint for a 'customs' feel */
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-royal {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Card and Stamp Animations */
+        .fade-enter {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-out-right {
+            animation: slideOutRight 0.5s ease-in forwards;
+        }
+        
+        @keyframes slideOutRight {
+            to { opacity: 0; transform: translateX(100%) rotate(10deg); }
+        }
+
+        /* The Stamp Effect */
+        .stamp-anim {
+            opacity: 0;
+            animation: stampDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes stampDown {
+            0% {
+                opacity: 0;
+                transform: scale(3) rotate(-25deg);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(0.9) rotate(-10deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotate(-15deg);
+            }
+        }
+
+        /* Custom passport button texture */
+        .passport-btn {
+            background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 10px 10px;
+        }
+        .passport-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col text-slate-800">
+
+    <!-- === START SCREEN === -->
+    <div id="start-screen" class="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 bg-slate-50">
+        <button onclick="goHome()" class="absolute top-6 left-6 text-slate-500 hover:text-emerald-900 transition-colors flex items-center gap-2 font-bold text-sm">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Map
+        </button>
+
+        <div class="text-center max-w-md w-full fade-enter">
+            <!-- Logo / Icon -->
+            <div class="w-24 h-24 bg-emerald-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border-4 border-emerald-200 text-white">
+                <i data-lucide="stamp" class="w-12 h-12"></i>
+            </div>
+
+            <h1 class="text-4xl md:text-5xl font-royal font-bold text-emerald-900 mb-2">Passport Control</h1>
+            <h2 class="text-xl text-slate-600 mb-8 uppercase tracking-widest">The Commonwealth</h2>
+
+            <div class="bg-white p-6 rounded-2xl shadow-md border-2 border-slate-200 mb-8 text-left space-y-4">
+                <div class="flex items-start gap-3 text-slate-700">
+                    <div class="bg-emerald-100 p-2 rounded-lg text-emerald-700 shrink-0 mt-0.5">
+                        <i data-lucide="globe" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold block">Where is this from?</span>
+                        <span class="text-sm text-slate-500">Look at the item, landmark, or animal on the screen.</span>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 text-slate-700">
+                    <div class="bg-blue-100 p-2 rounded-lg text-blue-700 shrink-0 mt-0.5">
+                        <i data-lucide="check-square" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold block">Stamp the Passport</span>
+                        <span class="text-sm text-slate-500">Tap the correct country to stamp their paperwork. You have 10 items to process!</span>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="startGame()" class="w-full py-4 bg-emerald-800 hover:bg-emerald-900 text-white font-bold rounded-xl shadow-lg transform transition active:scale-95 text-xl flex items-center justify-center gap-2">
+                Open Your Desk <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- === GAME SCREEN === -->
+    <div id="game-screen" class="hidden absolute inset-0 z-10 flex flex-col bg-slate-100">
+        
+        <!-- Header -->
+        <div class="h-16 bg-white shadow-sm flex items-center justify-between px-4 shrink-0 z-20">
+            <div class="flex items-center gap-2 text-emerald-800">
+                <i data-lucide="stamp" class="w-6 h-6"></i>
+                <div class="flex flex-col">
+                    <span class="text-xs text-slate-400 font-bold uppercase">Item</span>
+                    <span class="text-sm font-bold text-slate-700"><span id="current-q-num">1</span> / <span id="total-q-num">10</span></span>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="flex-1 mx-4 h-2 bg-slate-200 rounded-full overflow-hidden max-w-xs">
+                <div id="progress-bar" class="h-full bg-emerald-600 transition-all duration-500 ease-out" style="width: 0%"></div>
+            </div>
+
+            <div class="flex flex-col items-end">
+                <span class="text-xs text-slate-400 font-bold uppercase">Score</span>
+                <span id="score-display" class="text-sm font-bold text-emerald-600">0</span>
+            </div>
+        </div>
+
+        <!-- Desk / Play Area -->
+        <div class="flex-1 overflow-y-auto p-4 flex flex-col items-center justify-between pt-8 pb-6 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PGRlZnM+PHBhdHRlcm4gaWQ9ImEiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTAgMGg0MHY0MEgweiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik00MCAwaC0xdjQwSDB2LTFoNDBWMHptLTIwIDIwaC0xdjIwSDB2LTFoMjBWMjB6IiBmaWxsPSIjZTE1OTVkIiBmaWxsLW9wYWNpdHk9IjAuMDUiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjYSkiLz48L3N2Zz4=')]">
+            
+            <!-- Document Card (The Item) -->
+            <div id="document-card" class="relative w-full max-w-sm bg-amber-50 rounded-md shadow-lg border border-amber-200 p-6 flex flex-col items-center justify-center min-h-[250px] transition-transform">
+                <!-- Paper texture overlay -->
+                <div class="absolute inset-0 opacity-20 pointer-events-none rounded-md" style="background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIi8+CjxwYXRoIGQ9Ik0wIDBMNCA0Wk00IDBMMCA0WiIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjAuMSIvPgo8L3N2Zz4=');"></div>
+                
+                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Where is this from?</h3>
+                
+                <!-- Image or Emoji Container -->
+                <div id="item-visual" class="w-32 h-32 flex items-center justify-center text-6xl mb-4 bg-white rounded-xl shadow-inner border border-amber-100">
+                    <!-- Image or Emoji goes here -->
+                </div>
+                
+                <h2 id="item-name" class="text-2xl font-bold text-slate-800 text-center">Item Name</h2>
+                
+                <!-- The Stamp Overlay (Hidden by default) -->
+                <div id="stamp-overlay" class="absolute inset-0 flex items-center justify-center pointer-events-none z-10 hidden">
+                    <div id="stamp-text" class="border-[6px] text-4xl font-bold uppercase p-3 rounded-lg bg-white/80 backdrop-blur-sm">
+                        APPROVED
+                    </div>
+                </div>
+            </div>
+
+            <!-- Passports (The Answers) -->
+            <div class="w-full max-w-md mt-8">
+                <span class="block text-center text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 bg-white/80 py-1 rounded-full w-max mx-auto px-4 backdrop-blur-sm shadow-sm">Select Passport to Stamp</span>
+                
+                <div id="passports-container" class="grid grid-cols-2 gap-3">
+                    <!-- Passport buttons injected here -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- === RESULTS SCREEN === -->
+    <div id="results-screen" class="hidden absolute inset-0 z-30 flex flex-col items-center justify-center p-6 bg-slate-50/95 backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full text-center border-t-8 border-emerald-800 fade-enter">
+            
+            <div class="mb-6">
+                <div id="result-icon" class="w-20 h-20 bg-yellow-400 rounded-full flex items-center justify-center mx-auto shadow-inner text-white text-4xl">
+                    🌍
+                </div>
+            </div>
+
+            <h2 class="text-3xl font-royal font-bold text-slate-800 mb-2">Shift Over!</h2>
+            <p id="result-message" class="text-slate-500 mb-6">Let's see your processing accuracy.</p>
+
+            <div class="flex justify-center items-end gap-2 mb-8">
+                <span id="final-score" class="text-6xl font-bold text-emerald-800">8</span>
+                <span class="text-2xl text-slate-400 font-bold mb-2">/ 10</span>
+            </div>
+
+            <div class="space-y-3">
+                <button onclick="startGame()" class="w-full py-4 bg-emerald-800 hover:bg-emerald-900 text-white font-bold rounded-xl shadow transition transform active:scale-95 text-lg">
+                    Start Another Shift
+                </button>
+                <button onclick="goHome()" class="block w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition">
+                    Back to Map
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA POOL ---
+        // I have included an `image` property. Leave it empty ("") to use the emoji. 
+        // When you have images, put the filename in there (e.g. image: "kiwi.jpg")
+        const commonwealthData = [
+            { text: "Maple Syrup", country: "Canada", emoji: "🍁", image: "" },
+            { text: "Kangaroo", country: "Australia", emoji: "🦘", image: "" },
+            { text: "Kiwi Bird", country: "New Zealand", emoji: "🥝", image: "" },
+            { text: "Taj Mahal", country: "India", emoji: "🕌", image: "" },
+            { text: "Springbok", country: "South Africa", emoji: "🦌", image: "" },
+            { text: "Big Ben", country: "United Kingdom", emoji: "🕰️", image: "" },
+            { text: "Mount Kilimanjaro", country: "Tanzania", emoji: "⛰️", image: "" },
+            { text: "Blue Mountains", country: "Australia", emoji: "🏔️", image: "" },
+            { text: "Auckland Sky Tower", country: "New Zealand", emoji: "🗼", image: "" },
+            { text: "Moose", country: "Canada", emoji: "🫎", image: "" },
+            { text: "Victoria Falls", country: "Zambia", emoji: "🌊", image: "" },
+            { text: "Maracas Bay", country: "Trinidad & Tobago", emoji: "🏖️", image: "" },
+            { text: "Lion", country: "Kenya", emoji: "🦁", image: "" },
+            { text: "Petronas Towers", country: "Malaysia", emoji: "🏢", image: "" },
+            { text: "Reggae Music", country: "Jamaica", emoji: "🎸", image: "" },
+            { text: "Marina Bay Sands", country: "Singapore", emoji: "🏙️", image: "" },
+            { text: "Red Double-Decker Bus", country: "United Kingdom", emoji: "🚌", image: "" }
+        ];
+
+        // All possible countries to use as wrong answers (distractors)
+        const allCountries = Array.from(new Set(commonwealthData.map(item => item.country)));
+
+        // --- STATE ---
+        let currentQuizData = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let isAnswering = false;
+
+        // --- DOM ELEMENTS ---
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        
+        const documentCard = document.getElementById('document-card');
+        const itemVisual = document.getElementById('item-visual');
+        const itemName = document.getElementById('item-name');
+        const stampOverlay = document.getElementById('stamp-overlay');
+        const stampText = document.getElementById('stamp-text');
+        const passportsContainer = document.getElementById('passports-container');
+        
+        const currentQNumDisplay = document.getElementById('current-q-num');
+        const totalQNumDisplay = document.getElementById('total-q-num');
+        const scoreDisplay = document.getElementById('score-display');
+        const progressBar = document.getElementById('progress-bar');
+
+        // --- INITIALIZATION ---
+        lucide.createIcons();
+
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function goHome() {
+            window.location.href = 'index.html';
+        }
+
+        function startGame() {
+            // Shuffle and pick 10
+            currentQuizData = shuffle([...commonwealthData]).slice(0, 10);
+            
+            score = 0;
+            currentQuestionIndex = 0;
+            updateHeader();
+            
+            // UI Transition
+            startScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            resultsScreen.classList.add('hidden');
+            
+            loadItem();
+        }
+
+        function updateHeader() {
+            currentQNumDisplay.textContent = currentQuestionIndex + 1;
+            totalQNumDisplay.textContent = currentQuizData.length;
+            scoreDisplay.textContent = score;
+            
+            const progress = ((currentQuestionIndex) / currentQuizData.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function getDistractors(correctCountry, count = 3) {
+            let distractors = allCountries.filter(c => c !== correctCountry);
+            distractors = shuffle(distractors).slice(0, count);
+            return distractors;
+        }
+
+        function getPassportColor(index) {
+            const colors = [
+                'bg-blue-900 border-blue-950',   // Dark Blue
+                'bg-red-800 border-red-950',     // Maroon
+                'bg-emerald-800 border-emerald-950', // Dark Green
+                'bg-slate-800 border-slate-950'  // Black/Dark Grey
+            ];
+            return colors[index % colors.length];
+        }
+
+        function loadItem() {
+            isAnswering = true;
+            updateHeader();
+            
+            // Reset Document Card animations
+            documentCard.className = "relative w-full max-w-sm bg-amber-50 rounded-md shadow-lg border border-amber-200 p-6 flex flex-col items-center justify-center min-h-[250px] transition-transform fade-enter";
+            stampOverlay.classList.add('hidden');
+            stampOverlay.classList.remove('stamp-anim');
+
+            const data = currentQuizData[currentQuestionIndex];
+            
+            // Load Visual (Image or Emoji)
+            if (data.image && data.image !== "") {
+                itemVisual.innerHTML = `<img src="${data.image}" alt="${data.text}" class="w-full h-full object-contain p-2">`;
+            } else {
+                itemVisual.innerHTML = data.emoji;
+            }
+            
+            itemName.textContent = data.text;
+
+            // Generate Passports (1 Correct, 3 Wrong)
+            const options = [data.country, ...getDistractors(data.country, 3)];
+            const shuffledOptions = shuffle(options);
+            
+            passportsContainer.innerHTML = '';
+            
+            shuffledOptions.forEach((country, index) => {
+                const btn = document.createElement('button');
+                const colorClass = getPassportColor(index);
+                
+                btn.className = `passport-btn ${colorClass} text-white p-3 rounded-lg shadow-md border-b-4 flex flex-col items-center justify-center gap-1 transition-transform h-24`;
+                btn.innerHTML = `
+                    <div class="w-8 h-8 rounded-full border border-white/30 flex items-center justify-center mb-1">
+                        <i data-lucide="shield" class="w-4 h-4 text-white/70"></i>
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-center leading-tight">${country}</span>
+                `;
+                
+                btn.onclick = () => stampItem(country === data.country, country, btn);
+                passportsContainer.appendChild(btn);
+            });
+            
+            lucide.createIcons();
+        }
+
+        function stampItem(isCorrect, selectedCountry, btnElement) {
+            if (!isAnswering) return;
+            isAnswering = false; // lock inputs
+
+            const data = currentQuizData[currentQuestionIndex];
+
+            // Disable all passport buttons
+            const allBtns = passportsContainer.querySelectorAll('button');
+            allBtns.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.remove('active:scale-95');
+                btn.classList.add('opacity-70');
+            });
+            btnElement.classList.remove('opacity-70');
+
+            // Configure Stamp Visuals
+            stampOverlay.classList.remove('hidden');
+            
+            if (isCorrect) {
+                score++;
+                scoreDisplay.textContent = score;
+                
+                stampText.textContent = `VERIFIED: ${data.country}`;
+                stampText.className = "border-[6px] border-emerald-600 text-emerald-600 text-2xl font-bold uppercase p-3 rounded-lg bg-white/90 backdrop-blur-sm shadow-xl transform -rotate-12";
+                
+                confetti({
+                    particleCount: 50,
+                    spread: 60,
+                    origin: { y: 0.6 },
+                    colors: ['#059669', '#ffffff']
+                });
+            } else {
+                stampText.textContent = `DENIED: NOT ${selectedCountry}`;
+                stampText.className = "border-[6px] border-red-600 text-red-600 text-2xl font-bold uppercase p-3 rounded-lg bg-white/90 backdrop-blur-sm shadow-xl transform rotate-12";
+                
+                // Highlight the correct passport button
+                allBtns.forEach(btn => {
+                    if (btn.innerText.includes(data.country.toUpperCase())) {
+                        btn.classList.remove('opacity-70');
+                        btn.classList.add('ring-4', 'ring-emerald-400', 'ring-offset-2');
+                    }
+                });
+            }
+
+            // Trigger stamp animation
+            void stampOverlay.offsetWidth; // Reflow
+            stampOverlay.classList.add('stamp-anim');
+
+            // Wait 1.5 seconds, then slide card out and load next
+            setTimeout(() => {
+                documentCard.classList.remove('fade-enter');
+                documentCard.classList.add('slide-out-right');
+                
+                setTimeout(() => {
+                    nextQuestion();
+                }, 400); // wait for slide out
+                
+            }, 1800);
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < currentQuizData.length) {
+                loadItem();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            gameScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            
+            document.getElementById('final-score').textContent = score;
+            
+            const messageElem = document.getElementById('result-message');
+            const resultIconElem = document.getElementById('result-icon');
+            
+            if (score === 10) {
+                resultIconElem.innerHTML = "👑";
+                messageElem.textContent = "Perfect! An expert immigration officer.";
+                confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
+            } else if (score >= 7) {
+                resultIconElem.innerHTML = "✈️";
+                messageElem.textContent = "Great job! You know your Commonwealth.";
+            } else if (score >= 4) {
+                resultIconElem.innerHTML = "🛂";
+                messageElem.textContent = "Good effort, but a few items got sent to the wrong country!";
+            } else {
+                resultIconElem.innerHTML = "📚";
+                messageElem.textContent = "Keep studying your geography!";
+            }
+
+            // --- FIREBASE SCORE SAVING TRIGGER ---
+            // Multiplying by 10 to standardise leaderboard scores (Max 100 points)
+            const finalLeaderboardScore = score * 10;
+            if (typeof window.saveScore === 'function') {
+                window.saveScore('commonwealth', finalLeaderboardScore);
+            }
+            // -------------------------------------
+        }
+
+    </script>
+
+    <!-- === FIREBASE LOGIC (DO NOT EDIT KEYS) === -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAIjDKXYOTzZIBpc4LFn0cSAwsy020x5G0",
+            authDomain: "british-hills-leaderboard.firebaseapp.com",
+            projectId: "british-hills-leaderboard",
+            storageBucket: "british-hills-leaderboard.firebasestorage.app",
+            messagingSenderId: "1035640631485",
+            appId: "1:1035640631485:web:ff52f6924553f973e307d4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        let currentUser = null;
+
+        // Auth Listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                console.log("Player ready:", user.uid);
+            } else {
+                signInAnonymously(auth).catch(e => console.error(e));
+            }
+        });
+
+        // --- SAVE SCORE FUNCTION ---
+        window.saveScore = async (gameId, newScore) => {
+            if (!currentUser) {
+                console.warn("Not logged in. Score won't be saved to Leaderboard.");
+                return;
+            }
+
+            const userRef = doc(db, 'users', currentUser.uid);
+
+            try {
+                // 1. Check existing score
+                const docSnap = await getDoc(userRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    const currentScores = data.scores || {};
+                    const previousScore = currentScores[gameId] || 0;
+
+                    // 2. Only update if higher
+                    if (newScore > previousScore) {
+                        const updateData = {};
+                        updateData[`scores.${gameId}`] = newScore;
+                        updateData['updatedAt'] = new Date().toISOString();
+
+                        await updateDoc(userRef, updateData);
+                        
+                        setTimeout(() => {
+                            alert(`🎉 New Personal Best: ${newScore}! Saved to Leaderboard.`);
+                        }, 500);
+                        
+                    } else {
+                        console.log(`Score ${newScore} did not beat ${previousScore}`);
+                    }
+                }
+            } catch (error) {
+                console.error("Save failed:", error);
+            }
+        };
+    </script>
+</body>
+</html>
