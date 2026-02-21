@@ -2,58 +2,486 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>British Hills Challenge</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>British Hills Quiz</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Roboto+Slab:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-        body { font-family: 'Roboto Slab', serif; background-color: #FDFBF7; }
-        h1, .fancy-font { font-family: 'Alfa Slab One', display; }
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #f3f4f6; /* slate-100 */
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-royal {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Card Flip / Fade Animations */
+        .fade-enter {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        .fade-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 300ms, transform 300ms;
+        }
+        .fade-exit {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .fade-exit-active {
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 200ms, transform 200ms;
+        }
+
+        /* Custom Scrollbar for longer questions on small screens */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
         
-        /* Optional: Game Container Styling */
-        #game-canvas {
-            background: white;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+        /* Point animation */
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-30px) scale(1.2); }
+        }
+        .point-float {
+            animation: floatUp 1s ease-out forwards;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center relative bg-[#FDFBF7]">
+<body class="h-screen w-screen overflow-hidden flex flex-col bg-slate-100 text-slate-800">
 
-    <!-- 1. NAVIGATION: Back Button -->
-    <a href="index.html" class="absolute top-4 left-4 bg-[#5D4037] text-white px-4 py-2 rounded-lg font-bold hover:bg-[#3E2723] transition-colors z-50 shadow-md flex items-center gap-2">
-        <span>⬅</span> Back to Map
-    </a>
+    <!-- === START SCREEN === -->
+    <div id="start-screen" class="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 bg-slate-100">
+        <!-- Home Button (Now goes back to map) -->
+        <button onclick="goHome()" class="absolute top-6 left-6 text-slate-500 hover:text-blue-900 transition-colors flex items-center gap-2 font-bold text-sm">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Map
+        </button>
 
-    <!-- 2. MAIN GAME CONTAINER -->
-    <div class="w-full max-w-4xl p-4">
-        <div class="bg-white border-4 border-[#5D4037] rounded-xl shadow-[8px_8px_0px_rgba(93,64,55,0.2)] overflow-hidden relative flex flex-col items-center p-8">
-            
-            <!-- Header -->
-            <h1 class="text-2xl md:text-4xl text-[#C8102E] mb-2 text-center">Challenge Room</h1>
-            <p class="text-gray-500 mb-6 text-center">Good luck, Challenger!</p>
-
-            <!-- GAME AREA: PASTE YOUR APP CODE HERE -->
-            <!-- Use a Canvas, or a Div, or whatever your game needs -->
-            <div id="game-area" class="w-full aspect-video bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center relative">
-                
-                <!-- Placeholder Content (Remove this when pasting your game) -->
-                <p class="text-lg text-gray-400 font-bold">Your Game Goes Here</p>
-                <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800 max-w-md text-center">
-                    <strong>Developer Note:</strong><br>
-                    Call <code>window.saveScore('gameId', 100)</code> when the game ends to update the leaderboard.
-                </div>
-                
-                <!-- DEV BUTTON: TEST SAVING SCORE -->
-                <button onclick="testWin()" class="mt-6 bg-[#27AE60] text-white px-6 py-2 rounded shadow hover:scale-105 transition-transform">
-                    Simulate Win (Score: 100)
-                </button>
-
+        <div class="text-center max-w-md w-full animate-fade-in-up">
+            <!-- Logo / Icon -->
+            <div class="w-24 h-24 bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border-4 border-yellow-500 text-white">
+                <span class="font-royal text-5xl font-bold">B</span>
             </div>
 
+            <h1 class="text-4xl md:text-5xl font-royal font-bold text-blue-900 mb-2">British Hills</h1>
+            <h2 class="text-xl text-slate-600 mb-8 uppercase tracking-widest">Knowledge Quiz</h2>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 mb-8 text-left space-y-3">
+                <div class="flex items-center gap-3 text-slate-600">
+                    <i data-lucide="help-circle" class="w-5 h-5 text-blue-600"></i>
+                    <span>10 Random Questions</span>
+                </div>
+                <div class="flex items-center gap-3 text-slate-600">
+                    <i data-lucide="star" class="w-5 h-5 text-yellow-500"></i>
+                    <span>Points: 10 (1st try), 5 (2nd try), 2 (3rd try)</span>
+                </div>
+                <div class="flex items-center gap-3 text-slate-600">
+                    <i data-lucide="clock" class="w-5 h-5 text-green-600"></i>
+                    <span>No Time Limit</span>
+                </div>
+            </div>
+
+            <button onclick="startQuiz()" class="w-full py-4 bg-blue-900 hover:bg-blue-800 text-white font-bold rounded-xl shadow-lg transform transition active:scale-95 text-xl flex items-center justify-center gap-2">
+                Start Quiz <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            </button>
         </div>
     </div>
 
-    <!-- 3. FIREBASE LOGIC (DO NOT EDIT KEYS) -->
+    <!-- === QUIZ SCREEN === -->
+    <div id="quiz-screen" class="hidden absolute inset-0 z-10 flex flex-col bg-slate-100">
+        
+        <!-- Header: Progress & Score -->
+        <div class="h-16 bg-white shadow-sm flex items-center justify-between px-4 shrink-0 z-20">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-blue-900 rounded-full flex items-center justify-center text-white font-royal font-bold text-sm">
+                    B
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-xs text-slate-400 font-bold uppercase">Question</span>
+                    <span class="text-sm font-bold text-slate-700"><span id="current-q-num">1</span> / <span id="total-q-num">10</span></span>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="flex-1 mx-4 h-2 bg-slate-200 rounded-full overflow-hidden max-w-xs">
+                <div id="progress-bar" class="h-full bg-blue-600 transition-all duration-500 ease-out" style="width: 0%"></div>
+            </div>
+
+            <div class="flex flex-col items-end relative">
+                <span class="text-xs text-slate-400 font-bold uppercase">Score</span>
+                <span id="score-display" class="text-sm font-bold text-blue-600 transition-transform duration-300">0</span>
+                <!-- Floating points indicator -->
+                <span id="points-floater" class="absolute -top-4 right-0 text-green-500 font-bold text-lg opacity-0 pointer-events-none"></span>
+            </div>
+        </div>
+
+        <!-- Question Area -->
+        <div class="flex-1 overflow-y-auto p-4 flex flex-col items-center justify-center min-h-0">
+            <div id="question-container" class="w-full max-w-2xl mx-auto transition-all duration-300">
+                
+                <!-- Question Card -->
+                <div class="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-6 border-b-4 border-slate-200">
+                    <h3 id="question-text" class="text-xl md:text-2xl font-bold text-slate-800 leading-relaxed text-center">
+                        Loading Question...
+                    </h3>
+                </div>
+
+                <!-- Options Grid -->
+                <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Options injected here -->
+                </div>
+
+                <!-- Feedback / Next Button Area -->
+                <div id="feedback-area" class="mt-6 h-16 flex flex-col items-center justify-center opacity-0 transition-opacity">
+                    <p id="feedback-text" class="text-sm font-bold mb-2 text-green-600 hidden">+10 Points!</p>
+                    <button id="next-btn" onclick="nextQuestion()" class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full shadow-lg transform transition active:scale-95 flex items-center gap-2">
+                        Next Question <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- === RESULTS SCREEN === -->
+    <div id="results-screen" class="hidden absolute inset-0 z-30 flex flex-col items-center justify-center p-6 bg-slate-100/95 backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full text-center border-t-8 border-blue-900 animate-fade-in-up">
+            
+            <div class="mb-6">
+                <div id="result-icon" class="w-20 h-20 bg-yellow-400 rounded-full flex items-center justify-center mx-auto shadow-inner text-white text-4xl">
+                    🏆
+                </div>
+            </div>
+
+            <h2 class="text-3xl font-royal font-bold text-slate-800 mb-2">Quiz Complete!</h2>
+            <p id="result-message" class="text-slate-500 mb-6">Let's see how you did.</p>
+
+            <div class="flex justify-center items-end gap-2 mb-8">
+                <span id="final-score" class="text-6xl font-bold text-blue-900">80</span>
+                <span class="text-2xl text-slate-400 font-bold mb-2">/ 100</span>
+            </div>
+
+            <div class="space-y-3">
+                <button onclick="restartQuiz()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow transition transform active:scale-95">
+                    Play Again
+                </button>
+                <button onclick="goHome()" class="block w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition">
+                    Back to Map
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- === GAME LOGIC === -->
+    <script>
+        // --- DATA ---
+        // The full pool of 20 questions
+        const quizDataPool = [
+            { q: "Where is British Hills located?", options: ["Tokyo", "Osaka", "Fukushima", "Hokkaido"], answer: 2 },
+            { q: "What language is spoken by the staff at British Hills?", options: ["French", "English", "Spanish", "Chinese"], answer: 1 },
+            { q: "Do you need a real passport to visit British Hills?", options: ["Yes, always", "Only on weekends", "No, you do not need one", "Yes, if you stay overnight"], answer: 2 },
+            { q: "What is the name of the main dining hall in the Manor House?", options: ["The Refectory", "The Restaurant", "The Falstaff Pub", "The Ascot Tea Room"], answer: 0 },
+            { q: "Which building is across from Bentley?", options: ["Holbein", "Chaucer", "The Barracks", "The Manor House"], answer: 1 },
+            { q: "What is the climate like at British Hills?", options: ["Very hot and tropical", "Cool, like Scotland", "Dry and desert-like", "Always sunny with no clouds"], answer: 1 },
+            { q: "Which traditional British dish is famous at the Falstaff Pub?", options: ["Sushi", "Pizza", "Fish and Chips", "Tacos"], answer: 2 },
+            { q: "What is \"The Ascot\"?", options: ["A swimming pool", "A tea room", "A tennis court", "A bus station"], answer: 1 },
+            { q: "What is \"Snooker\"?", options: ["A type of British cake", "A traditional dance", "A sport similar to pool or English billiards", "A type of hat"], answer: 2 },
+            { q: "Why was British Hills built?", options: ["To be a movie set", "To train athletes", "To experience British culture", "To sell British cars"], answer: 2 },
+            // New Questions
+            { q: "Where do British Hills Teachers come from?", options: ["The Commonwealth", "North America & the UK", "All around the world", "Japan"], answer: 0 },
+            { q: "Which of these can you play in the Falstaff Pub?", options: ["Table Tennis", "Baseball", "Badminton", "Darts"], answer: 3 },
+            { q: "What room is between the Snooker Room and Apothecary?", options: ["Music", "The Chapel", "The Gym", "Reception"], answer: 1 },
+            { q: "When did British Hills open?", options: ["1984", "1994", "2004", "1784"], answer: 1 },
+            { q: "How many bedrooms are there in the Manor House?", options: ["1", "3", "2", "7"], answer: 2 },
+            { q: "What animal is on the British Hills Coat-of-Arms?", options: ["Unicorn", "Dragon", "Bear", "Panda"], answer: 0 },
+            { q: "Which sport come from the UK?", options: ["Football", "Cricket", "Rugby", "All of them!"], answer: 3 },
+            { q: "Where is the red telephone box?", options: ["Between Turner and Chaucer", "Opposite the Manor House", "To the left of the Barracks", "In front of the Ascot"], answer: 3 },
+            { q: "What sword can you find in front of the Falstaff Pub?", options: ["Caliburn", "Excalibur", "Dōjigiri", "Curtana"], answer: 1 },
+            { q: "What is in front of the Barracks?", options: ["A Telephone Box", "The Fairy House", "An Armstrong Gun", "A Lake"], answer: 2 }
+        ];
+
+        // --- STATE ---
+        let currentQuizData = []; // Will hold the 10 randomly selected questions
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let isAnswering = false;
+        let attemptsThisQuestion = 0; // Tracks guesses per question
+
+        // --- DOM ELEMENTS ---
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackArea = document.getElementById('feedback-area');
+        const feedbackText = document.getElementById('feedback-text');
+        
+        const currentQNumDisplay = document.getElementById('current-q-num');
+        const totalQNumDisplay = document.getElementById('total-q-num');
+        const scoreDisplay = document.getElementById('score-display');
+        const pointsFloater = document.getElementById('points-floater');
+        const progressBar = document.getElementById('progress-bar');
+
+        const finalScoreDisplay = document.getElementById('final-score');
+        const resultMessage = document.getElementById('result-message');
+        const resultIcon = document.getElementById('result-icon');
+
+        // --- INITIALIZATION ---
+        lucide.createIcons();
+
+        // Fisher-Yates array shuffle algorithm
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function goHome() {
+            // Updated to link back to the main leaderboard map
+            window.location.href = 'index.html';
+        }
+
+        function startQuiz() {
+            // Shuffle the pool and select the first 10
+            currentQuizData = shuffle([...quizDataPool]).slice(0, 10);
+            
+            score = 0;
+            currentQuestionIndex = 0;
+            updateHeader();
+            
+            // UI Transition
+            startScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            resultsScreen.classList.add('hidden');
+            
+            loadQuestion();
+        }
+
+        function updateHeader() {
+            currentQNumDisplay.textContent = currentQuestionIndex + 1;
+            totalQNumDisplay.textContent = currentQuizData.length;
+            scoreDisplay.textContent = score;
+            
+            const progress = ((currentQuestionIndex) / currentQuizData.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function loadQuestion() {
+            isAnswering = true;
+            attemptsThisQuestion = 0;
+            updateHeader();
+            feedbackArea.style.opacity = '0';
+            feedbackArea.style.pointerEvents = 'none';
+            feedbackText.classList.add('hidden');
+
+            const data = currentQuizData[currentQuestionIndex];
+            
+            // Animate Text Change
+            questionText.classList.add('fade-exit-active');
+            
+            setTimeout(() => {
+                questionText.textContent = data.q;
+                questionText.classList.remove('fade-exit-active');
+                questionText.classList.add('fade-enter');
+                
+                // Clear and Rebuild Options
+                optionsContainer.innerHTML = '';
+                
+                data.options.forEach((opt, index) => {
+                    const btn = document.createElement('button');
+                    btn.className = `
+                        w-full p-4 text-left rounded-xl border-2 border-slate-200 bg-white 
+                        text-slate-700 font-bold transition-all transform hover:scale-[1.02] 
+                        hover:border-blue-400 hover:bg-blue-50 active:scale-95 shadow-sm
+                    `;
+                    // Add letter prefix (A, B, C, D)
+                    const letter = String.fromCharCode(65 + index);
+                    btn.innerHTML = `<span class="text-blue-900 mr-2">${letter}.</span> ${opt}`;
+                    
+                    btn.onclick = () => checkAnswer(index, btn);
+                    
+                    // Staggered animation
+                    btn.style.opacity = '0';
+                    btn.style.transform = 'translateY(10px)';
+                    optionsContainer.appendChild(btn);
+                    
+                    setTimeout(() => {
+                        btn.style.transition = 'all 0.3s ease';
+                        btn.style.opacity = '1';
+                        btn.style.transform = 'translateY(0)';
+                    }, index * 100);
+                });
+
+                setTimeout(() => questionText.classList.remove('fade-enter'), 300);
+            }, 200);
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            // Prevent interaction if question is fully answered or button is already clicked
+            if (!isAnswering || btnElement.disabled) return;
+
+            const data = currentQuizData[currentQuestionIndex];
+            const correctIndex = data.answer;
+            const buttons = optionsContainer.querySelectorAll('button');
+
+            attemptsThisQuestion++;
+
+            if (selectedIndex === correctIndex) {
+                // Correct logic
+                isAnswering = false; // Disable further selections
+                
+                // Determine points based on attempts
+                let pointsEarned = 0;
+                if (attemptsThisQuestion === 1) pointsEarned = 10;
+                else if (attemptsThisQuestion === 2) pointsEarned = 5;
+                else if (attemptsThisQuestion === 3) pointsEarned = 2;
+                else pointsEarned = 0; // 4th attempt gets 0 points
+
+                score += pointsEarned;
+                scoreDisplay.textContent = score;
+
+                // Animate floating points if points earned > 0
+                if (pointsEarned > 0) {
+                    pointsFloater.textContent = `+${pointsEarned}`;
+                    pointsFloater.classList.remove('point-float');
+                    // Trigger reflow to restart animation
+                    void pointsFloater.offsetWidth;
+                    pointsFloater.classList.add('point-float');
+                }
+
+                // Style Correct Button
+                btnElement.classList.replace('border-slate-200', 'border-green-500');
+                btnElement.classList.replace('bg-white', 'bg-green-100');
+                btnElement.classList.replace('text-slate-700', 'text-green-900');
+                btnElement.classList.replace('hover:border-blue-400', 'hover:border-green-500');
+                
+                // Show feedback text
+                feedbackText.textContent = `+${pointsEarned} Points!`;
+                feedbackText.classList.remove('hidden');
+                if(pointsEarned === 0) {
+                    feedbackText.textContent = "Correct, but no points this time.";
+                    feedbackText.className = "text-sm font-bold mb-2 text-slate-500";
+                } else if(pointsEarned === 10) {
+                    feedbackText.className = "text-sm font-bold mb-2 text-green-600";
+                } else {
+                    feedbackText.className = "text-sm font-bold mb-2 text-yellow-600";
+                }
+                
+                // Confetti burst on correct
+                if (pointsEarned > 0) {
+                    const rect = btnElement.getBoundingClientRect();
+                    const x = (rect.left + rect.width / 2) / window.innerWidth;
+                    const y = (rect.top + rect.height / 2) / window.innerHeight;
+                    
+                    confetti({
+                        particleCount: pointsEarned * 6, // More confetti for more points
+                        spread: 60,
+                        origin: { x: x, y: y },
+                        colors: ['#22c55e', '#facc15', '#ffffff']
+                    });
+                }
+
+                // Disable all buttons
+                buttons.forEach(btn => {
+                    btn.disabled = true;
+                    btn.classList.remove('hover:scale-[1.02]', 'active:scale-95', 'hover:bg-blue-50');
+                    btn.style.cursor = 'default';
+                });
+
+                // Show Next Button
+                feedbackArea.style.pointerEvents = 'auto';
+                feedbackArea.style.opacity = '1';
+
+            } else {
+                // Incorrect logic
+                // Disable just this button so they can try again
+                btnElement.classList.replace('border-slate-200', 'border-red-500');
+                btnElement.classList.replace('bg-white', 'bg-red-50');
+                btnElement.classList.replace('text-slate-700', 'text-red-900');
+                btnElement.disabled = true;
+                btnElement.classList.remove('hover:scale-[1.02]', 'active:scale-95', 'hover:bg-blue-50', 'hover:border-blue-400');
+                btnElement.style.cursor = 'default';
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < currentQuizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            quizScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            
+            finalScoreDisplay.textContent = score;
+
+            // --- FIREBASE SCORE SAVING TRIGGER ---
+            if (typeof window.saveScore === 'function') {
+                window.saveScore('knowledge', score);
+            }
+            // -------------------------------------
+            
+            // Custom messages based on score (Max is 100)
+            if (score === 100) {
+                resultIcon.innerHTML = "👑";
+                resultMessage.textContent = "Perfect Score! You are a British Hills Master!";
+                confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 } });
+            } else if (score >= 70) {
+                resultIcon.innerHTML = "🇬🇧";
+                resultMessage.textContent = "Great job! You know your way around.";
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            } else if (score >= 40) {
+                resultIcon.innerHTML = "🍵";
+                resultMessage.textContent = "Good effort. Have a cup of tea and try again!";
+            } else {
+                resultIcon.innerHTML = "📚";
+                resultMessage.textContent = "Keep practicing! There is much to learn.";
+            }
+        }
+
+        function restartQuiz() {
+            startQuiz();
+        }
+
+        // Initialize icons on load
+        lucide.createIcons();
+    </script>
+
+    <!-- === FIREBASE LOGIC (DO NOT EDIT KEYS) === -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
@@ -85,11 +513,9 @@
         });
 
         // --- SAVE SCORE FUNCTION ---
-        // gameId options: 'knowledge', 'survival', 'manners', 'commonwealth', 'directions'
         window.saveScore = async (gameId, newScore) => {
             if (!currentUser) {
-                alert("Not logged in. Returning to menu...");
-                window.location.href = 'index.html';
+                console.warn("Not logged in. Score won't be saved to Leaderboard.");
                 return;
             }
 
@@ -110,22 +536,19 @@
                         updateData['updatedAt'] = new Date().toISOString();
 
                         await updateDoc(userRef, updateData);
-                        alert(`🎉 New Personal Best: ${newScore}! Saved.`);
+                        
+                        // Wait a tiny bit for the confetti to pop before showing alert
+                        setTimeout(() => {
+                            alert(`🎉 New Personal Best: ${newScore}! Saved to Leaderboard.`);
+                        }, 500);
+                        
                     } else {
                         console.log(`Score ${newScore} did not beat ${previousScore}`);
-                        // Optional: alert(`Good Try! Your best is still ${previousScore}`);
                     }
                 }
             } catch (error) {
                 console.error("Save failed:", error);
-                alert("Could not save score. Check internet connection.");
             }
-        };
-
-        // --- DEV TEST FUNCTION ---
-        window.testWin = () => {
-            // CHANGE 'knowledge' TO THE CORRECT ID FOR THIS FILE
-            window.saveScore('knowledge', 100);
         };
     </script>
 </body>
