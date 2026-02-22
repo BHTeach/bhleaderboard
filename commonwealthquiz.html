@@ -229,6 +229,7 @@
             { text: "Moose", country: "Canada", emoji: "🫎", image: "assets/moose.jpg" },
             { text: "Victoria Falls", country: "Zambia", emoji: "🌊", image: "assets/victoria_falls.jpg" },
             { text: "Maracas Bay", country: "Trinidad & Tobago", emoji: "🏖️", image: "assets/maracas_bay.jpg" },
+            { text: "Lion", country: "Kenya", emoji: "🦁", image: "assets/lion.jpg" },
             { text: "Petronas Towers", country: "Malaysia", emoji: "🏢", image: "assets/petronas_towers.jpg" },
             { text: "Reggae Music", country: "Jamaica", emoji: "🎸", image: "assets/reggae.jpg" },
             { text: "Marina Bay Sands", country: "Singapore", emoji: "🏙️", image: "assets/marina_bay.jpg" },
@@ -508,28 +509,36 @@
             const userRef = doc(db, 'users', currentUser.uid);
 
             try {
-                // 1. Check existing score
+                // 1. Check existing score & bank balance
                 const docSnap = await getDoc(userRef);
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     const currentScores = data.scores || {};
                     const previousScore = currentScores[gameId] || 0;
+                    const currentBank = data.bank_balance || 0;
 
-                    // 2. Only update if higher
+                    // 2. ALWAYS award money & update timestamp
+                    const updateData = {
+                        bank_balance: currentBank + newScore,
+                        updatedAt: new Date().toISOString()
+                    };
+
+                    // 3. Only update if higher
+                    let isNewBest = false;
                     if (newScore > previousScore) {
-                        const updateData = {};
                         updateData[`scores.${gameId}`] = newScore;
-                        updateData['updatedAt'] = new Date().toISOString();
-
-                        await updateDoc(userRef, updateData);
-                        
-                        setTimeout(() => {
-                            alert(`🎉 New Personal Best: ${newScore}! Saved to Leaderboard.`);
-                        }, 500);
-                        
-                    } else {
-                        console.log(`Score ${newScore} did not beat ${previousScore}`);
+                        isNewBest = true;
                     }
+
+                    await updateDoc(userRef, updateData);
+                    
+                    setTimeout(() => {
+                        if (isNewBest) {
+                            alert(`🎉 New Personal Best: ${newScore}!\n💰 You also earned £${newScore} for the shop!`);
+                        } else {
+                            alert(`💰 Good job! You earned £${newScore} for the shop!`);
+                        }
+                    }, 500);
                 }
             } catch (error) {
                 console.error("Save failed:", error);
