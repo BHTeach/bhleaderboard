@@ -496,7 +496,7 @@
             }
 
             return (
-                <div className="safe-padding flex flex-col h-full w-full">
+                <div className="safe-padding flex flex-col h-full w-full max-w-2xl mx-auto">
                     
                     {/* 1. DISCREET TOP NAV & SCORE */}
                     <div className="w-full flex justify-between items-center px-4 pt-4 pb-2 text-amber-500 uppercase tracking-widest font-bold shrink-0 z-10">
@@ -508,28 +508,28 @@
                         </div>
                     </div>
 
-                    {/* 2. MAZE AREA (Expands to fill top half) */}
-                    <div className="flex-1 w-full flex items-center justify-center p-4 min-h-0 relative">
-                        <div className="maze-container aspect-square max-h-full max-w-full relative">
+                    {/* 2. MAZE AREA (Expands to fill top half, explicit calculated size prevents collapsing bug) */}
+                    <div className="flex-1 w-full flex items-center justify-center p-2 min-h-0 relative">
+                        <div className="maze-container relative mx-auto" style={{ width: 'min(100vw - 2rem, 100dvh - 320px)', height: 'min(100vw - 2rem, 100dvh - 320px)' }}>
                             
-                            {/* OVERLAYS (Now contained perfectly inside the square maze) */}
+                            {/* OVERLAYS */}
                             {gameState === 'START' && (
-                                <div className="absolute inset-0 z-20 bg-black/85 backdrop-blur-sm flex flex-col items-center justify-center text-center">
-                                    <button onClick={() => setGameState('PLAYING')} className="px-8 py-4 bg-amber-600 text-white text-4xl font-bold border-b-8 border-amber-950 active:border-b-0 active:translate-y-2 rounded uppercase shadow-2xl tracking-widest">start</button>
+                                <div className="absolute inset-0 z-20 bg-black/85 backdrop-blur-sm flex flex-col items-center justify-center text-center p-2">
+                                    <button onClick={() => setGameState('PLAYING')} className="px-6 py-3 md:px-8 md:py-4 bg-amber-600 text-white text-3xl md:text-4xl font-bold border-b-8 border-amber-950 active:border-b-0 active:translate-y-2 rounded uppercase shadow-2xl tracking-widest">start</button>
                                 </div>
                             )}
                             {gameState === 'WON' && (
                                 <div className="absolute inset-0 z-20 bg-amber-600/95 flex flex-col items-center justify-center text-white text-center p-2">
-                                    <div className="text-6xl mb-2 animate-bounce">🧀</div>
-                                    <h2 className="text-4xl md:text-5xl font-bold mb-4 uppercase tracking-widest">YOU DID IT!</h2>
-                                    <button onClick={generateNewMaze} className="px-6 py-3 bg-white text-amber-900 text-xl font-bold rounded shadow-lg border-b-4 border-gray-300 mt-2">New Maze</button>
+                                    <div className="text-5xl md:text-6xl mb-2 animate-bounce">🧀</div>
+                                    <h2 className="text-2xl md:text-4xl font-bold mb-4 uppercase tracking-widest text-shadow-sm">YOU DID IT!</h2>
+                                    <button onClick={generateNewMaze} className="px-4 py-2 bg-white text-amber-900 text-lg md:text-xl font-bold rounded shadow-lg border-b-4 border-gray-300 mt-2">New Maze</button>
                                 </div>
                             )}
                             {gameState === 'LOST' && (
                                 <div className="absolute inset-0 z-20 bg-red-950/95 flex flex-col items-center justify-center text-white text-center p-2">
-                                    <div className="text-6xl mb-2">🚪</div>
-                                    <h2 className="text-4xl md:text-5xl font-bold mb-4 uppercase tracking-widest">CAUGHT!</h2>
-                                    <button onClick={generateNewMaze} className="px-6 py-3 bg-white text-red-900 text-xl font-bold rounded shadow-lg border-b-4 border-gray-300 mt-2">Try Again</button>
+                                    <div className="text-5xl md:text-6xl mb-2">🚪</div>
+                                    <h2 className="text-2xl md:text-4xl font-bold mb-4 uppercase tracking-widest text-shadow-sm">CAUGHT!</h2>
+                                    <button onClick={generateNewMaze} className="px-4 py-2 bg-white text-red-900 text-lg md:text-xl font-bold rounded shadow-lg border-b-4 border-gray-300 mt-2">Try Again</button>
                                 </div>
                             )}
 
@@ -547,17 +547,17 @@
                     </div>
 
                     {/* 3. CONTROLS AREA (Tucked at the bottom) */}
-                    <div className="w-full max-w-md mx-auto p-4 flex flex-col gap-4 shrink-0 mb-2">
+                    <div className="w-full mx-auto p-4 flex flex-col gap-3 shrink-0 mb-2">
                         <div className="grid grid-cols-2 gap-3 font-bold text-lg md:text-xl">
-                            <button onClick={() => addManualCommand({ action: "Forward", type: "move" })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 py-4 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">FORWARD</button>
-                            <button onClick={() => addManualCommand({ action: "Back", type: "move" })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 py-4 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">BACKWARD</button>
+                            <button onClick={() => addManualCommand({ action: "Forward", type: "move" })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 py-4 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">GO FORWARD</button>
+                            <button onClick={() => addManualCommand({ action: "Back", type: "move" })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 py-4 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">GO BACKWARD</button>
                             <button onClick={() => addManualCommand({ action: "Left", type: "turn", change: -1 })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 py-4 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">TURN LEFT</button>
                             <button onClick={() => addManualCommand({ action: "Right", type: "turn", change: 1 })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 py-4 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">TURN RIGHT</button>
                         </div>
                         
                         {/* Shrunken Voice Control Button */}
-                        <button onClick={toggleListen} disabled={gameState !== 'PLAYING'} className={`btn-primary w-full py-3 text-xl font-bold uppercase tracking-widest border-b-4 active:border-b-0 active:translate-y-1 rounded shadow-lg ${isListening ? 'animate-pulse brightness-125' : ''}`}>
-                            {isListening ? "SILENCE MIC" : "🎤 VOICE CONTROL"}
+                        <button onClick={toggleListen} disabled={gameState !== 'PLAYING'} className={`btn-primary w-full py-2 text-base md:text-lg font-bold uppercase tracking-widest border-b-4 active:border-b-0 active:translate-y-1 rounded shadow-lg flex items-center justify-center gap-2 ${isListening ? 'animate-pulse brightness-125' : ''}`}>
+                            <span className="text-xl">{isListening ? "🔇" : "🎤"}</span> {isListening ? "SILENCE MIC" : "VOICE CONTROL"}
                         </button>
                     </div>
 
