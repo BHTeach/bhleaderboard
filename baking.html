@@ -162,6 +162,30 @@
         </div>
     </div>
 
+    <!-- === ROUND ANNOUNCEMENT OVERLAY === -->
+    <div id="round-announcement" class="hidden absolute inset-0 z-30 bg-slate-900/85 backdrop-blur-md flex flex-col items-center justify-center p-6">
+        <div class="fade-enter flex flex-col items-center w-full max-w-sm">
+            <h2 class="text-2xl font-bold text-amber-300 mb-2 uppercase tracking-widest drop-shadow-md">We are making...</h2>
+            <h1 id="announcement-recipe-name" class="text-4xl md:text-5xl font-royal font-bold text-white mb-8 text-center drop-shadow-lg">Recipe Name</h1>
+            
+            <!-- Framed Photo -->
+            <div class="w-64 h-64 bg-white p-3 rounded-xl shadow-2xl transform rotate-3 mb-10">
+                <div class="w-full h-full border-4 border-dashed border-amber-300 rounded-lg overflow-hidden relative bg-amber-50 flex items-center justify-center">
+                    <img id="announcement-image" src="" alt="Recipe Photo" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <!-- Fallback if image is missing/loading -->
+                    <div style="display:none;" class="w-full h-full flex flex-col items-center justify-center text-amber-400 p-4 text-center">
+                        <i data-lucide="image-off" class="w-12 h-12 mb-2 opacity-50"></i>
+                        <span class="text-xs font-bold uppercase opacity-50">Image Missing</span>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="beginSpawningPhase()" class="w-full py-4 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl shadow-[0_0_20px_rgba(217,119,6,0.5)] transform transition active:scale-95 text-xl animate-bounce">
+                Start Baking!
+            </button>
+        </div>
+    </div>
+
     <!-- === RECIPE BOOK MODAL === -->
     <div id="recipe-book-modal" class="hidden absolute inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-amber-50 rounded-r-3xl rounded-l-md p-6 max-w-md w-full shadow-2xl relative border-l-8 border-amber-900 fade-enter min-h-[400px] flex flex-col">
@@ -228,18 +252,22 @@
         const recipes = [
             {
                 name: "Traditional Scones",
+                image: "assets/scones.jpg",
                 ingredients: ["Flour", "Butter", "Sugar", "Milk", "Baking Powder", "Salt"]
             },
             {
                 name: "Shortbread",
+                image: "assets/shortbread.jpg",
                 ingredients: ["Butter", "Sugar", "Flour"]
             },
             {
                 name: "Blueberry Muffins",
+                image: "assets/muffins.jpg",
                 ingredients: ["Flour", "Sugar", "Eggs", "Milk", "Butter", "Blueberries", "Baking Powder"]
             },
             {
                 name: "Victoria Sponge",
+                image: "assets/victoria_sponge.jpg",
                 ingredients: ["Butter", "Sugar", "Eggs", "Flour", "Strawberry Jam", "Double Cream"]
             }
         ];
@@ -267,11 +295,15 @@
         const gameScreen = document.getElementById('game-screen');
         const resultsScreen = document.getElementById('results-screen');
         const recipeBookModal = document.getElementById('recipe-book-modal');
+        const roundAnnouncement = document.getElementById('round-announcement');
         
         const currentRecipeNameDisplay = document.getElementById('current-recipe-name');
         const scoreDisplay = document.getElementById('score-display');
         const fallingContainer = document.getElementById('falling-container');
         const collectionTray = document.getElementById('collection-tray');
+        
+        const announcementRecipeName = document.getElementById('announcement-recipe-name');
+        const announcementImage = document.getElementById('announcement-image');
 
         // --- INITIALIZATION ---
         lucide.createIcons();
@@ -310,6 +342,28 @@
             // Clear play area
             fallingContainer.innerHTML = '';
             
+            // Pause Game state
+            isGameRunning = false;
+            stopSpawning();
+            fallingContainer.classList.add('is-paused');
+
+            // Setup and Show Announcement Overlay
+            announcementRecipeName.textContent = recipe.name;
+            
+            // Reset image display in case it fell back to error state previously
+            announcementImage.style.display = 'block';
+            if (announcementImage.nextElementSibling) {
+                announcementImage.nextElementSibling.style.display = 'none';
+            }
+            announcementImage.src = recipe.image;
+            
+            roundAnnouncement.classList.remove('hidden');
+            lucide.createIcons();
+        }
+        
+        // Triggered by the "Start Baking" button on the announcement overlay
+        function beginSpawningPhase() {
+            roundAnnouncement.classList.add('hidden');
             isGameRunning = true;
             fallingContainer.classList.remove('is-paused');
             startSpawning();
