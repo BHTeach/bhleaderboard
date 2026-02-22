@@ -106,26 +106,8 @@
             <button onclick="logout()" class="text-xs text-red-500 hover:text-red-700 underline font-bold px-2 py-1">Logout</button>
         </div>
 
-        <!-- Login Form (Only shows if NOT logged in) -->
-        <div id="login-form" class="bg-white border-4 border-[#C8102E] rounded-xl p-6 shadow-[6px_6px_0px_rgba(200,16,46,0.2)]">
-            <h3 class="font-royal text-xl text-[#012169] mb-4 text-center font-bold">Register Your Passport</h3>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Nickname / Name</label>
-                    <input type="text" id="input-name" class="w-full border-2 border-gray-300 rounded-lg p-3 outline-none focus:border-[#C8102E]" placeholder="e.g. Taro">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Town / School</label>
-                    <input type="text" id="input-town" class="w-full border-2 border-gray-300 rounded-lg p-3 outline-none focus:border-[#C8102E]" placeholder="e.g. Shirakawa">
-                </div>
-                <button onclick="registerUser()" class="w-full bg-[#C8102E] text-white font-bold text-lg py-3 rounded-lg shadow-md hover:bg-red-800 transition-colors active:scale-95">
-                    Create Passport
-                </button>
-            </div>
-        </div>
-
         <!-- Games Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             
             <!-- 1. Knowledge Quiz -->
             <div class="adventure-card p-6 h-full" onclick="startGame('britishhillsknowledge.html')">
@@ -291,6 +273,33 @@
         </div>
     </div>
 
+    <!-- === LOGIN MODAL === -->
+    <div id="login-modal" class="hidden fixed inset-0 z-[60] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl border-4 border-[#C8102E] fade-in text-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-3 bg-[#012169]"></div>
+            
+            <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-[#012169] text-[#012169] mt-2">
+                <i data-lucide="plane-takeoff" class="w-10 h-10"></i>
+            </div>
+            
+            <h3 class="font-royal text-3xl text-[#012169] mb-6 font-bold">Passport Control</h3>
+            
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Nickname / Name</label>
+                    <input type="text" id="input-name" class="w-full border-2 border-gray-300 rounded-xl p-4 outline-none focus:border-[#C8102E] bg-slate-50 font-bold" placeholder="e.g. Taro">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Town / School</label>
+                    <input type="text" id="input-town" class="w-full border-2 border-gray-300 rounded-xl p-4 outline-none focus:border-[#C8102E] bg-slate-50 font-bold" placeholder="e.g. Shirakawa">
+                </div>
+                <button onclick="registerUser()" class="w-full bg-[#C8102E] text-white font-bold text-lg py-4 rounded-xl shadow-lg hover:bg-red-800 transition transform active:scale-95 mt-4">
+                    Create Passport
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase Code -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
@@ -330,7 +339,7 @@
 
         // DOM Elements
         const leaderboardBody = document.getElementById('leaderboard-body');
-        const loginForm = document.getElementById('login-form');
+        const loginModal = document.getElementById('login-modal');
         const idCard = document.getElementById('id-card');
         const bankDisplay = document.getElementById('bank-balance');
         const shopBalanceDisplay = document.getElementById('shop-balance');
@@ -354,8 +363,12 @@
                         if (data.nickname) {
                             document.getElementById('student-name').textContent = data.nickname;
                             document.getElementById('student-town').textContent = data.town || 'Unknown';
-                            loginForm.classList.add('hidden');
+                            loginModal.classList.add('hidden');
                             idCard.classList.remove('hidden');
+                        } else {
+                            // User exists but has no nickname
+                            loginModal.classList.remove('hidden');
+                            idCard.classList.add('hidden');
                         }
 
                         // Handle Currency & Inventory
@@ -367,11 +380,14 @@
                         shopBalanceDisplay.textContent = userBankBalance;
                         renderShelf();
                         renderShop(); // Refresh shop buttons (owned/affordable states)
+                    } else {
+                        // User exists in auth but no database document yet
+                        loginModal.classList.remove('hidden');
+                        idCard.classList.add('hidden');
                     }
                 });
             } else {
                 currentUser = null;
-                loginForm.classList.remove('hidden');
                 idCard.classList.add('hidden');
                 bankDisplay.textContent = "0";
                 shelfItemsContainer.innerHTML = '';
