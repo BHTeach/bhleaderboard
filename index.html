@@ -2,141 +2,69 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>British Hills Champions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>British Hills Adventure</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Roboto+Slab:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        /* Adventure Theme Variables */
-        :root {
-            --bg-parchment: #FDFBF7;
-            --wood-brown: #5D4037;
-            --map-ink: #2C3E50;
-            --bh-red: #E74C3C;
-            --bh-blue: #2980B9;
-            --bh-gold: #F1C40F;
-            --bh-green: #27AE60;
-            --bh-teal: #16A085;
-        }
-
-        body {
-            font-family: 'Roboto Slab', serif;
-            background-color: var(--bg-parchment);
-            background-image: radial-gradient(#E5E0D8 1px, transparent 1px);
-            background-size: 20px 20px;
-            color: var(--map-ink);
-        }
-
-        h1, h2, h3, .fancy-font {
-            font-family: 'Alfa Slab One', display;
-            letter-spacing: 0.05em;
-        }
-
-        /* 3D Card Effect */
+        body { font-family: 'Lato', sans-serif; background-color: #FDFBF7; -webkit-tap-highlight-color: transparent;}
+        h1, h2, h3, .font-royal { font-family: 'Cinzel', serif; }
+        
         .adventure-card {
             background: white;
-            border: 3px solid var(--wood-brown);
+            border: 4px solid #5D4037;
             border-radius: 16px;
-            box-shadow: 6px 6px 0px rgba(93, 64, 55, 0.2);
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 6px 6px 0px rgba(93,64,55,0.2);
+            transition: all 0.2s;
             position: relative;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .adventure-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 8px 8px 0px rgba(93, 64, 55, 0.2);
-        }
-
-        /* 3D Button Effect for Games */
-        .game-btn {
-            background: #fff;
-            border: 2px solid var(--wood-brown);
-            border-radius: 12px;
-            box-shadow: 3px 3px 0px var(--wood-brown);
-            transition: all 0.1s;
             cursor: pointer;
-            text-align: center;
-            padding: 12px;
-            margin-top: auto; /* Pushes button to bottom */
         }
+        .adventure-card:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px rgba(93,64,55,0.2); }
         
-        .game-btn:active {
-            transform: translate(3px, 3px);
-            box-shadow: 0px 0px 0px var(--wood-brown);
-        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Decorative "Sticker" effect for icons */
-        .icon-sticker {
-            filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.1));
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Dashed Path (Decorative) */
-        .path-dashed {
-            border-left: 4px dashed #D7CCC8;
-            position: absolute;
-            left: 50%;
-            height: 100%;
-            z-index: -1;
-            transform: translateX(-50%);
-        }
-
-        /* Modal Backdrop */
-        #passport-modal {
-            background-color: rgba(93, 64, 55, 0.8);
-            backdrop-filter: blur(4px);
-        }
-
-        /* Leaderboard Table Styles */
-        .leader-table th {
-            font-family: 'Alfa Slab One', display;
-            color: var(--wood-brown);
-            padding: 12px;
-            text-align: left;
-        }
-        .leader-table td {
-            padding: 12px;
-            border-bottom: 2px dashed #E5E0D8;
-        }
-        .leader-table tr:last-child td {
-            border-bottom: none;
-        }
+        .tab-active { background-color: #5D4037 !important; color: #F1C40F !important; }
+        
         .rank-badge {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: white;
-            font-family: 'Alfa Slab One', display;
+            width: 28px; height: 28px; rounded-full; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white;
         }
-        .rank-1 { background-color: #F1C40F; box-shadow: 0 2px 0 #B7950B; }
-        .rank-2 { background-color: #95A5A6; box-shadow: 0 2px 0 #7F8C8D; }
-        .rank-3 { background-color: #E67E22; box-shadow: 0 2px 0 #D35400; }
-        .rank-other { background-color: #D7CCC8; color: #5D4037; }
+        .rank-1 { background: linear-gradient(135deg, #FFD700, #F59E0B); box-shadow: 0 2px 4px rgba(245,158,11,0.4); }
+        .rank-2 { background: linear-gradient(135deg, #E2E8F0, #94A3B8); }
+        .rank-3 { background: linear-gradient(135deg, #FDBA74, #B45309); }
+        .rank-other { background: #E2E8F0; color: #64748B; }
+
+        /* The Shelf */
+        .wood-shelf {
+            background: linear-gradient(to bottom, #8B5A2B, #5D4037);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.2);
+        }
         
-        .tab-active {
-            background-color: var(--wood-brown);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
-        }
+        /* Modals */
+        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center pb-12">
+<body class="min-h-screen flex flex-col items-center pb-20 relative">
+
+    <!-- Top Status Bar (Bank & Shop) -->
+    <div class="w-full max-w-3xl px-4 pt-4 flex justify-between items-center z-20">
+        <div class="bg-green-100 text-green-800 font-bold px-4 py-2 rounded-full border-2 border-green-500 shadow-sm flex items-center gap-2">
+            <span class="text-green-600">£</span> <span id="bank-balance">0</span>
+        </div>
+        <button onclick="openShop()" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold px-4 py-2 rounded-full border-2 border-amber-500 shadow-sm flex items-center gap-2 transition active:scale-95">
+            <i data-lucide="shopping-bag" class="w-4 h-4"></i> Shop
+        </button>
+    </div>
 
     <!-- Header Section -->
-    <header class="w-full max-w-3xl px-6 pt-8 pb-6 flex flex-col items-center text-center relative z-10">
+    <header class="w-full max-w-3xl px-6 pt-4 pb-6 flex flex-col items-center text-center relative z-10">
+        
         <!-- Logo -->
-        <div class="mb-4 w-24 h-24 md:w-32 md:h-32 bg-white rounded-full border-4 border-[#5D4037] shadow-[4px_4px_0px_#5D4037] flex items-center justify-center overflow-hidden">
+        <div class="mb-4 w-24 h-24 md:w-32 md:h-32 bg-white rounded-full border-4 border-[#5D4037] shadow-[4px_4px_0px_#5D4037] flex items-center justify-center overflow-hidden z-10 relative">
             <img src="assets/logo.png" 
                  alt="British Hills Logo" 
                  class="w-full h-full object-contain p-1"
@@ -144,120 +72,137 @@
             <div style="display:none;" class="text-2xl font-bold text-[#012169]">BH</div>
         </div>
 
-        <!-- Title & Subtitle -->
-        <h1 class="text-3xl md:text-5xl text-[#C8102E] mb-2 leading-tight drop-shadow-[2px_2px_0px_#fff]">
-            British Hills Champions
-        </h1>
-        <div class="bg-[#F1C40F] px-4 py-2 rounded-lg border-2 border-[#5D4037] shadow-[3px_3px_0px_#5D4037] transform -rotate-2">
-            <p id="welcome-msg" class="text-[#5D4037] text-sm md:text-base font-bold">
-                Prove your skills and become a legend!
-            </p>
+        <!-- The Display Shelf -->
+        <div onclick="openTrophyRoom()" class="w-full max-w-xs mx-auto -mt-8 mb-6 cursor-pointer group">
+            <div class="wood-shelf h-4 rounded-full w-full relative z-0 mt-12 transition-transform group-hover:scale-[1.02] group-active:scale-95">
+                <!-- Items sit ON the shelf -->
+                <div id="shelf-items" class="absolute bottom-3 left-0 w-full flex justify-center gap-2 px-4 items-end">
+                    <!-- Javascript injects up to 5 items here -->
+                </div>
+            </div>
+            <p class="text-[10px] text-gray-400 mt-2 uppercase tracking-widest font-bold group-hover:text-[#5D4037] transition-colors">Tap shelf to view Trophy Room</p>
         </div>
-        
-        <!-- User Profile Tag (Hidden initially) -->
-        <div id="user-profile" class="hidden mt-4 bg-white px-4 py-2 rounded-full border-2 border-[#5D4037] shadow-sm flex items-center gap-2 cursor-pointer hover:bg-gray-50 transition-colors">
-            <span class="text-lg">🇬🇧</span>
-            <span id="profile-name" class="font-bold text-[#5D4037]">Guest</span>
-            <span class="text-gray-400 text-xs ml-1">(Click to edit)</span>
-        </div>
+
+        <!-- Title -->
+        <h1 class="text-3xl md:text-5xl text-[#C8102E] mb-2 leading-tight drop-shadow-[2px_2px_0px_#fff]">British Hills</h1>
+        <h2 class="text-xl md:text-2xl text-[#5D4037] font-bold tracking-widest uppercase">Adventure Passport</h2>
     </header>
 
-    <!-- Main Map Grid -->
-    <main class="w-full max-w-3xl px-4 flex-grow relative z-0">
+    <!-- Main Content Container -->
+    <main class="w-full max-w-3xl px-4 flex flex-col gap-8">
         
-        <!-- Dashed path for larger screens decoration -->
-        <div class="hidden md:block path-dashed"></div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-
-            <!-- 1. British Hills Knowledge -->
-            <div class="adventure-card p-6 h-full" onclick="startGame('britishhillsknowledge.html')">
-                <div class="absolute top-0 left-0 w-full h-4 bg-[#C8102E]"></div>
-                <div class="flex items-center space-x-3 mb-3 mt-2">
-                    <div class="bg-red-100 p-3 rounded-xl border-2 border-red-200 icon-sticker text-[#C8102E] w-14 h-14">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                    </div>
-                    <h3 class="text-xl text-[#C8102E] leading-tight">British Hills Knowledge</h3>
+        <!-- ID Card (Only shows if logged in) -->
+        <div id="id-card" class="hidden bg-white border-2 border-[#5D4037] rounded-xl p-4 shadow-md flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-800 border-2 border-blue-300">
+                    <i data-lucide="user" class="w-6 h-6"></i>
                 </div>
-                <p class="text-sm text-gray-500 mb-4 font-sans">Test your knowledge of British Hills history and facts.</p>
-                <button class="game-btn group w-full block">
-                    <span class="font-bold text-[#C8102E] group-hover:scale-110 inline-block transition-transform">PLAY NOW</span>
+                <div>
+                    <div class="text-xs text-gray-500 font-bold uppercase tracking-widest">Student ID</div>
+                    <div id="student-name" class="font-bold text-lg text-[#5D4037]">Name</div>
+                    <div id="student-town" class="text-sm text-gray-600">Town</div>
+                </div>
+            </div>
+            <button onclick="logout()" class="text-xs text-red-500 hover:text-red-700 underline font-bold px-2 py-1">Logout</button>
+        </div>
+
+        <!-- Login Form (Only shows if NOT logged in) -->
+        <div id="login-form" class="bg-white border-4 border-[#C8102E] rounded-xl p-6 shadow-[6px_6px_0px_rgba(200,16,46,0.2)]">
+            <h3 class="font-royal text-xl text-[#012169] mb-4 text-center font-bold">Register Your Passport</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Nickname / Name</label>
+                    <input type="text" id="input-name" class="w-full border-2 border-gray-300 rounded-lg p-3 outline-none focus:border-[#C8102E]" placeholder="e.g. Taro">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Town / School</label>
+                    <input type="text" id="input-town" class="w-full border-2 border-gray-300 rounded-lg p-3 outline-none focus:border-[#C8102E]" placeholder="e.g. Shirakawa">
+                </div>
+                <button onclick="registerUser()" class="w-full bg-[#C8102E] text-white font-bold text-lg py-3 rounded-lg shadow-md hover:bg-red-800 transition-colors active:scale-95">
+                    Create Passport
                 </button>
+            </div>
+        </div>
+
+        <!-- Games Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <!-- 1. Knowledge Quiz -->
+            <div class="adventure-card p-6 h-full" onclick="startGame('britishhillsknowledge.html')">
+                <div class="absolute top-0 left-0 w-full h-4 bg-[#012169]"></div>
+                <div class="flex items-center space-x-3 mb-3 mt-2">
+                    <div class="bg-blue-100 p-3 rounded-xl border-2 border-blue-200 text-[#012169] w-14 h-14 flex items-center justify-center">
+                        <i data-lucide="book-open" class="w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-xl text-[#012169] leading-tight font-royal font-bold">Knowledge Quiz</h3>
+                </div>
+                <p class="text-sm text-gray-500 mb-4 font-sans">Test your facts about the Manor House, the grounds, and the history.</p>
+                <button class="font-bold text-[#012169] group-hover:scale-110 inline-block transition-transform w-full text-left">PLAY NOW ➔</button>
             </div>
 
             <!-- 2. Survival English -->
             <div class="adventure-card p-6 h-full" onclick="startGame('survivalenglish.html')">
-                <div class="absolute top-0 left-0 w-full h-4 bg-[#012169]"></div>
+                <div class="absolute top-0 left-0 w-full h-4 bg-[#C8102E]"></div>
                 <div class="flex items-center space-x-3 mb-3 mt-2">
-                    <div class="bg-blue-100 p-3 rounded-xl border-2 border-blue-200 icon-sticker text-[#012169] w-14 h-14">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
+                    <div class="bg-red-100 p-3 rounded-xl border-2 border-red-200 text-[#C8102E] w-14 h-14 flex items-center justify-center">
+                        <i data-lucide="message-circle" class="w-8 h-8"></i>
                     </div>
-                    <h3 class="text-xl text-[#012169] leading-tight">Survival English</h3>
+                    <h3 class="text-xl text-[#C8102E] leading-tight font-royal font-bold">Survival English</h3>
                 </div>
-                <p class="text-sm text-gray-500 mb-4 font-sans">Do you know all the English needed to get around British Hills?</p>
-                <button class="game-btn group w-full block">
-                    <span class="font-bold text-[#012169] group-hover:scale-110 inline-block transition-transform">PLAY NOW</span>
-                </button>
+                <p class="text-sm text-gray-500 mb-4 font-sans">Rebuild scrambled sentences to communicate during your stay.</p>
+                <button class="font-bold text-[#C8102E] group-hover:scale-110 inline-block transition-transform w-full text-left">PLAY NOW ➔</button>
             </div>
 
             <!-- 3. British Manners -->
             <div class="adventure-card p-6 h-full" onclick="startGame('britishmanners.html')">
-                <div class="absolute top-0 left-0 w-full h-4 bg-[#F1C40F]"></div>
+                <div class="absolute top-0 left-0 w-full h-4 bg-[#8E44AD]"></div>
                 <div class="flex items-center space-x-3 mb-3 mt-2">
-                    <div class="bg-yellow-100 p-3 rounded-xl border-2 border-yellow-200 icon-sticker text-[#C5B358] w-14 h-14">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>
+                    <div class="bg-purple-100 p-3 rounded-xl border-2 border-purple-200 text-[#8E44AD] w-14 h-14 flex items-center justify-center">
+                        <i data-lucide="coffee" class="w-8 h-8"></i>
                     </div>
-                    <h3 class="text-xl text-[#C5B358] leading-tight">British Manners</h3>
+                    <h3 class="text-xl text-[#8E44AD] leading-tight font-royal font-bold">British Manners</h3>
                 </div>
-                <p class="text-sm text-gray-500 mb-4 font-sans">Think you know all about manners in the UK?</p>
-                <button class="game-btn group w-full block">
-                    <span class="font-bold text-[#C5B358] group-hover:scale-110 inline-block transition-transform">PLAY NOW</span>
-                </button>
+                <p class="text-sm text-gray-500 mb-4 font-sans">Learn proper dining etiquette and social grace.</p>
+                <button class="font-bold text-[#8E44AD] group-hover:scale-110 inline-block transition-transform w-full text-left">PLAY NOW ➔</button>
             </div>
 
             <!-- 4. Commonwealth Quiz -->
             <div class="adventure-card p-6 h-full" onclick="startGame('commonwealthquiz.html')">
                 <div class="absolute top-0 left-0 w-full h-4 bg-[#27AE60]"></div>
                 <div class="flex items-center space-x-3 mb-3 mt-2">
-                    <div class="bg-green-100 p-3 rounded-xl border-2 border-green-200 icon-sticker text-[#27AE60] w-14 h-14">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 14.14 14.14"/><path d="m14.83 9.17-5.66 5.66"/></svg>
+                    <div class="bg-green-100 p-3 rounded-xl border-2 border-green-200 text-[#27AE60] w-14 h-14 flex items-center justify-center">
+                        <i data-lucide="globe" class="w-8 h-8"></i>
                     </div>
-                    <h3 class="text-xl text-[#27AE60] leading-tight">Commonwealth Quiz</h3>
+                    <h3 class="text-xl text-[#27AE60] leading-tight font-royal font-bold">Commonwealth</h3>
                 </div>
-                <p class="text-sm text-gray-500 mb-4 font-sans">What do you know about the Commonwealth?</p>
-                <button class="game-btn group w-full block">
-                    <span class="font-bold text-[#27AE60] group-hover:scale-110 inline-block transition-transform">PLAY NOW</span>
-                </button>
+                <p class="text-sm text-gray-500 mb-4 font-sans">Stamp the correct passport for items from around the world.</p>
+                <button class="font-bold text-[#27AE60] group-hover:scale-110 inline-block transition-transform w-full text-left">PLAY NOW ➔</button>
             </div>
 
             <!-- 5. Directions -->
             <div class="adventure-card p-6 h-full" onclick="startGame('directions.html')">
                 <div class="absolute top-0 left-0 w-full h-4 bg-[#16A085]"></div>
                 <div class="flex items-center space-x-3 mb-3 mt-2">
-                    <div class="bg-teal-100 p-3 rounded-xl border-2 border-teal-200 icon-sticker text-[#16A085] w-14 h-14">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                    <div class="bg-teal-100 p-3 rounded-xl border-2 border-teal-200 text-[#16A085] w-14 h-14 flex items-center justify-center">
+                        <i data-lucide="map" class="w-8 h-8"></i>
                     </div>
-                    <h3 class="text-xl text-[#16A085] leading-tight">Fun with Directions</h3>
+                    <h3 class="text-xl text-[#16A085] leading-tight font-royal font-bold">Directions</h3>
                 </div>
                 <p class="text-sm text-gray-500 mb-4 font-sans">Get the mouse to the cheese! Watch out for the cat.</p>
-                <button class="game-btn group w-full block">
-                    <span class="font-bold text-[#16A085] group-hover:scale-110 inline-block transition-transform">PLAY NOW</span>
-                </button>
+                <button class="font-bold text-[#16A085] group-hover:scale-110 inline-block transition-transform w-full text-left">PLAY NOW ➔</button>
             </div>
 
             <!-- 6. Baking Challenge -->
             <div class="adventure-card p-6 h-full" onclick="startGame('baking.html')">
                 <div class="absolute top-0 left-0 w-full h-4 bg-[#E67E22]"></div>
                 <div class="flex items-center space-x-3 mb-3 mt-2">
-                    <div class="bg-orange-100 p-3 rounded-xl border-2 border-orange-200 icon-sticker text-[#E67E22] w-14 h-14">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v2"/><path d="M12 8v2"/><path d="M17 8v2"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg>
+                    <div class="bg-orange-100 p-3 rounded-xl border-2 border-orange-200 text-[#E67E22] w-14 h-14 flex items-center justify-center">
+                        <i data-lucide="chef-hat" class="w-8 h-8"></i>
                     </div>
-                    <h3 class="text-xl text-[#E67E22] leading-tight">Baking Challenge</h3>
+                    <h3 class="text-xl text-[#E67E22] leading-tight font-royal font-bold">Baking Challenge</h3>
                 </div>
                 <p class="text-sm text-gray-500 mb-4 font-sans">Step into the kitchen and test your baking vocabulary!</p>
-                <button class="game-btn group w-full block">
-                    <span class="font-bold text-[#E67E22] group-hover:scale-110 inline-block transition-transform">PLAY NOW</span>
-                </button>
+                <button class="font-bold text-[#E67E22] group-hover:scale-110 inline-block transition-transform w-full text-left">PLAY NOW ➔</button>
             </div>
 
         </div>
@@ -265,7 +210,7 @@
         <!-- Leaderboard Section -->
         <div id="leaderboard-section" class="w-full bg-white border-4 border-[#5D4037] rounded-xl shadow-[8px_8px_0px_#5D4037] overflow-hidden mb-12">
             <div class="bg-[#5D4037] p-4 text-center">
-                <h2 class="text-2xl text-[#F1C40F] drop-shadow-md">🏆 Leaderboard</h2>
+                <h2 class="text-2xl text-[#F1C40F] drop-shadow-md font-royal font-bold">🏆 Leaderboard</h2>
             </div>
             
             <!-- Category Tabs -->
@@ -280,243 +225,321 @@
             </div>
 
             <!-- Table -->
-            <div class="p-4 overflow-x-auto">
-                <table class="w-full leader-table text-sm md:text-base">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr>
-                            <th class="w-16">Rank</th>
-                            <th>Challenger</th>
-                            <th class="text-right">Town/City</th>
-                            <th class="text-right">Score</th>
+                        <tr class="bg-gray-100 text-gray-500 text-xs uppercase tracking-wider">
+                            <th class="p-4 w-16">Rank</th>
+                            <th class="p-4">Name</th>
+                            <th class="p-4 text-right">Town</th>
+                            <th class="p-4 text-right">Score</th>
                         </tr>
                     </thead>
-                    <tbody id="leaderboard-body">
-                        <!-- Rows will be injected by JS -->
-                        <tr><td colspan="4" class="text-center py-8 text-gray-400">Loading scores...</td></tr>
+                    <tbody id="leaderboard-body" class="divide-y divide-gray-200">
+                        <tr><td colspan="4" class="text-center py-8 text-gray-400">Loading Leaderboard...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
-
     </main>
 
-    <!-- Footer -->
-    <footer class="w-full text-center py-10 mt-8 text-[#5D4037]/60 text-sm font-sans">
-        <div class="flex justify-center items-center space-x-2 mt-2">
-            <span class="w-2 h-2 rounded-full bg-[#5D4037]/40"></span>
-            <span class="w-2 h-2 rounded-full bg-[#5D4037]/40"></span>
-            <span class="w-2 h-2 rounded-full bg-[#5D4037]/40"></span>
-        </div>
-        <div class="mt-4">
-            <button onclick="resetPassport()" class="underline hover:text-[#5D4037]">Reset Passport (Dev Only)</button>
-        </div>
-    </footer>
-
-    <!-- Passport Modal -->
-    <div id="passport-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-[#FDFBF7] w-full max-w-md rounded-2xl border-4 border-[#5D4037] shadow-[10px_10px_0px_rgba(0,0,0,0.4)] overflow-hidden relative">
+    <!-- === SHOP MODAL === -->
+    <div id="shop-modal" class="hidden fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl fade-in overflow-hidden border-4 border-amber-500">
+            <!-- Shop Header -->
+            <div class="bg-amber-100 p-4 border-b border-amber-200 flex justify-between items-center shrink-0">
+                <h2 class="text-2xl font-royal font-bold text-amber-900 flex items-center gap-2">
+                    <i data-lucide="store" class="w-6 h-6"></i> BH Rewards Shop
+                </h2>
+                <button onclick="closeModals()" class="text-amber-700 hover:bg-amber-200 p-2 rounded-full transition">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
             
-            <!-- Top Decoration -->
-            <div class="bg-[#C8102E] h-4 w-full"></div>
-            <div class="bg-[#012169] h-4 w-full"></div>
+            <div class="p-4 bg-green-50 text-center border-b border-green-100 shrink-0">
+                <span class="text-sm text-green-700 font-bold uppercase tracking-widest">Your Balance</span>
+                <div class="text-3xl font-bold text-green-700">£ <span id="shop-balance">0</span></div>
+            </div>
 
-            <div class="p-8 text-center">
-                <div class="w-20 h-20 bg-white rounded-full border-4 border-[#5D4037] mx-auto mb-4 flex items-center justify-center text-3xl shadow-md">
-                   🇬🇧
+            <!-- Shop Items Grid -->
+            <div class="flex-1 overflow-y-auto p-4 bg-slate-50">
+                <div id="shop-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <!-- Javascript injects items here -->
                 </div>
-                
-                <h2 class="text-2xl text-[#5D4037] mb-2">Challenger's Passport</h2>
-                <p class="text-gray-600 text-sm mb-6 font-sans">
-                    Welcome the British Hills Champion Challenges! Enter your details to join the leaderboard and track your adventure.
-                </p>
-
-                <form id="passport-form" class="space-y-4 font-sans text-left">
-                    <div>
-                        <label class="block text-[#5D4037] font-bold text-xs uppercase mb-1">Nickname</label>
-                        <input type="text" id="input-nickname" required maxlength="12" placeholder="e.g. Harry Potter"
-                            class="w-full p-3 rounded-lg border-2 border-[#D7CCC8] bg-white focus:border-[#5D4037] focus:outline-none transition-colors">
-                    </div>
-                    <div>
-                        <label class="block text-[#5D4037] font-bold text-xs uppercase mb-1">Town / City</label>
-                        <input type="text" id="input-town" required maxlength="15" placeholder="e.g. Shirakawa"
-                            class="w-full p-3 rounded-lg border-2 border-[#D7CCC8] bg-white focus:border-[#5D4037] focus:outline-none transition-colors">
-                    </div>
-                    
-                    <button type="submit" 
-                        class="w-full mt-4 bg-[#F1C40F] text-[#5D4037] font-bold py-3 rounded-xl border-b-4 border-[#B7950B] hover:bg-[#F4D03F] active:border-b-0 active:translate-y-1 transition-all">
-                        Enter the Challenge Room
-                    </button>
-                </form>
             </div>
         </div>
     </div>
 
-    <!-- Firebase & Logic (DEPLOYMENT READY) -->
-    <script type="module">
-        // 1. IMPORT FIREBASE (Using version 12.9.0 as requested)
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+    <!-- === TROPHY ROOM MODAL === -->
+    <div id="trophy-modal" class="hidden fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl fade-in overflow-hidden border-4 border-[#5D4037]">
+            <div class="bg-[#5D4037] p-4 border-b border-[#3E2723] flex justify-between items-center shrink-0 text-white">
+                <h2 class="text-2xl font-royal font-bold text-[#F1C40F] flex items-center gap-2">
+                    <i data-lucide="award" class="w-6 h-6"></i> Your Trophy Room
+                </h2>
+                <button onclick="closeModals()" class="text-white hover:bg-[#3E2723] p-2 rounded-full transition">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
 
-        // 2. YOUR CONFIGURATION (Exact keys provided)
+            <div class="flex-1 overflow-y-auto p-6 bg-slate-50">
+                <p id="trophy-empty-msg" class="text-center text-slate-400 mt-10 hidden">Your shelf is empty. Visit the shop to buy souvenirs!</p>
+                <div id="trophy-grid" class="grid grid-cols-3 md:grid-cols-4 gap-6">
+                    <!-- Owned items injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Code -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+
+        // --- Config ---
         const firebaseConfig = {
-           apiKey: "AIzaSyAIjDKXYOTzZIBpc4LFn0cSAwsy020x5G0",
-           authDomain: "british-hills-leaderboard.firebaseapp.com",
-           projectId: "british-hills-leaderboard",
-           storageBucket: "british-hills-leaderboard.firebasestorage.app",
-           messagingSenderId: "1035640631485",
-           appId: "1:1035640631485:web:ff52f6924553f973e307d4"
+            apiKey: "AIzaSyAIjDKXYOTzZIBpc4LFn0cSAwsy020x5G0",
+            authDomain: "british-hills-leaderboard.firebaseapp.com",
+            projectId: "british-hills-leaderboard",
+            storageBucket: "british-hills-leaderboard.firebasestorage.app",
+            messagingSenderId: "1035640631485",
+            appId: "1:1035640631485:web:ff52f6924553f973e307d4"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-
-        // --- Logic starts here ---
+        
         let currentUser = null;
-        let currentTab = 'overall';
         let allUsersData = [];
+        let currentTab = 'overall';
 
-        // --- UI Elements ---
-        const modal = document.getElementById('passport-modal');
-        const passportForm = document.getElementById('passport-form');
-        const userProfileDiv = document.getElementById('user-profile');
-        const profileNameSpan = document.getElementById('profile-name');
-        const welcomeMsg = document.getElementById('welcome-msg');
+        // --- SHOP ITEMS DATA ---
+        const SHOP_ITEMS = [
+            { id: 'scone', name: 'Virtual Scone', price: 50, icon: 'assets/item_scone.png', emoji: '🧁' },
+            { id: 'tea', name: 'Cup of Tea', price: 100, icon: 'assets/item_tea.png', emoji: '☕' },
+            { id: 'bus', name: 'Double-Decker', price: 250, icon: 'assets/item_bus.png', emoji: '🚌' },
+            { id: 'guard', name: 'Guard Helmet', price: 400, icon: 'assets/item_guard.png', emoji: '💂' },
+            { id: 'sword', name: 'Excalibur', price: 500, icon: 'assets/item_sword.png', emoji: '🗡️' },
+            { id: 'crown', name: 'Jewelled Crown', price: 1000, icon: 'assets/item_crown.png', emoji: '👑' }
+        ];
+
+        let userBankBalance = 0;
+        let userInventory = [];
+
+        // DOM Elements
         const leaderboardBody = document.getElementById('leaderboard-body');
-        const inputNickname = document.getElementById('input-nickname');
-        const inputTown = document.getElementById('input-town');
+        const loginForm = document.getElementById('login-form');
+        const idCard = document.getElementById('id-card');
+        const bankDisplay = document.getElementById('bank-balance');
+        const shopBalanceDisplay = document.getElementById('shop-balance');
+        const shelfItemsContainer = document.getElementById('shelf-items');
 
-        // --- 1. Authentication & Passport Check ---
-        async function initAuth() {
-            // NOTE: For deployment, we use anonymous auth by default.
-            // If testing in a special environment with custom tokens, add that logic back here.
-            await signInAnonymously(auth).catch(error => {
-                console.error("Auth Error:", error);
-                // If you see this error locally, check 'Authorized Domains' in Firebase Console
-            });
-        }
+        // Init Lucide Icons
+        lucide.createIcons();
 
-        initAuth();
-
+        // Check Login State
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
-                console.log("Logged in as:", user.uid);
+                const userRef = doc(db, 'users', user.uid);
                 
-                // 1. Check Session Storage first (fastest)
-                const sessionNick = sessionStorage.getItem('bh_nickname');
-                const sessionTown = sessionStorage.getItem('bh_town');
-
-                if (sessionNick && sessionTown) {
-                    updateUIForUser(sessionNick);
-                    // Ensure Firestore matches session (sync background)
-                    syncUserToFirestore(sessionNick, sessionTown);
-                } else {
-                    // 2. If no session, check Firestore (in case they cleared cache but are same auth user)
-                    // NOTE: Using 'users' collection now (Production Path)
-                    const userDocRef = doc(db, 'users', user.uid);
-                    try {
-                        const docSnap = await getDoc(userDocRef);
-                        if (docSnap.exists()) {
-                            const data = docSnap.data();
-                            saveToSession(data.nickname, data.town);
-                            updateUIForUser(data.nickname);
-                        } else {
-                            // 3. New user -> Show Modal
-                            showModal();
+                // Real-time listener for THIS user's document (for instant bank/inventory updates)
+                onSnapshot(userRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        
+                        // Handle Auth UI
+                        if (data.nickname) {
+                            document.getElementById('student-name').textContent = data.nickname;
+                            document.getElementById('student-town').textContent = data.town || 'Unknown';
+                            loginForm.classList.add('hidden');
+                            idCard.classList.remove('hidden');
                         }
-                    } catch (e) {
-                        console.error("Error fetching user:", e);
-                        showModal(); // Fallback
+
+                        // Handle Currency & Inventory
+                        userBankBalance = data.bank_balance || 0;
+                        userInventory = data.inventory || [];
+                        
+                        // Update UI
+                        bankDisplay.textContent = userBankBalance;
+                        shopBalanceDisplay.textContent = userBankBalance;
+                        renderShelf();
+                        renderShop(); // Refresh shop buttons (owned/affordable states)
                     }
-                }
-
-                // Start listening to leaderboard
-                subscribeToLeaderboard();
+                });
+            } else {
+                currentUser = null;
+                loginForm.classList.remove('hidden');
+                idCard.classList.add('hidden');
+                bankDisplay.textContent = "0";
+                shelfItemsContainer.innerHTML = '';
+                signInAnonymously(auth);
             }
         });
 
-        // --- 2. Modal Logic ---
-        function showModal() {
-            modal.classList.remove('hidden');
-        }
-
-        function hideModal() {
-            modal.classList.add('hidden');
-        }
-
-        passportForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const nick = inputNickname.value.trim();
-            const town = inputTown.value.trim();
-
-            if (nick && town) {
-                // Save locally
-                saveToSession(nick, town);
-                updateUIForUser(nick);
-                hideModal();
-
-                // Save to cloud
-                await syncUserToFirestore(nick, town);
-            }
-        });
-
-        function saveToSession(nick, town) {
-            sessionStorage.setItem('bh_nickname', nick);
-            sessionStorage.setItem('bh_town', town);
-        }
-
-        function updateUIForUser(nick) {
-            profileNameSpan.textContent = nick;
-            userProfileDiv.classList.remove('hidden');
-            welcomeMsg.textContent = `Good luck, ${nick}!`;
-        }
-
-        async function syncUserToFirestore(nick, town) {
+        // Register Function
+        window.registerUser = async () => {
             if (!currentUser) return;
-            // NOTE: Using 'users' collection (Production Path)
-            const userRef = doc(db, 'users', currentUser.uid);
+            const nickname = document.getElementById('input-name').value.trim();
+            const town = document.getElementById('input-town').value.trim();
             
-            // We use setDoc with merge to avoid overwriting scores if they exist
+            if (!nickname) { alert("Please enter your name!"); return; }
+
+            const userRef = doc(db, 'users', currentUser.uid);
             await setDoc(userRef, {
-                nickname: nick,
+                nickname: nickname,
                 town: town,
+                scores: {},
+                bank_balance: 0,
+                inventory: [],
+                createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             }, { merge: true });
-        }
+        };
 
-        // --- 3. Leaderboard Logic ---
-        function subscribeToLeaderboard() {
-            // NOTE: Using 'users' collection (Production Path)
-            const usersRef = collection(db, 'users');
+        // Logout
+        window.logout = async () => {
+            await auth.signOut();
+            window.location.reload();
+        };
+
+        // --- SHOP & INVENTORY LOGIC ---
+        
+        window.openShop = () => {
+            if(!currentUser) { alert("Please register your passport to use the shop!"); return; }
+            renderShop();
+            document.getElementById('shop-modal').classList.remove('hidden');
+        };
+
+        window.openTrophyRoom = () => {
+            if(!currentUser) { alert("Please register your passport to view trophies!"); return; }
+            renderTrophyRoom();
+            document.getElementById('trophy-modal').classList.remove('hidden');
+        };
+
+        window.closeModals = () => {
+            document.getElementById('shop-modal').classList.add('hidden');
+            document.getElementById('trophy-modal').classList.add('hidden');
+        };
+
+        function renderShelf() {
+            shelfItemsContainer.innerHTML = '';
+            // Show up to 5 items on the small shelf
+            const displayItems = userInventory.slice(-5); // Get the 5 most recently bought
             
-            onSnapshot(usersRef, (snapshot) => {
-                allUsersData = [];
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    allUsersData.push(data);
-                });
-                renderLeaderboard();
-            }, (error) => {
-                console.error("Leaderboard error:", error);
-                leaderboardBody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-red-500">Could not load scores. (Check Console)</td></tr>`;
+            displayItems.forEach(itemId => {
+                const itemData = SHOP_ITEMS.find(i => i.id === itemId);
+                if(itemData) {
+                    const el = document.createElement('div');
+                    el.className = "w-10 h-10 bg-white rounded-md shadow-sm border border-gray-200 flex items-center justify-center text-xl transform -translate-y-1 overflow-hidden";
+                    // Try image, fallback to emoji
+                    el.innerHTML = `
+                        <img src="${itemData.icon}" class="w-full h-full object-contain p-1" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                        <div style="display:none;">${itemData.emoji}</div>
+                    `;
+                    shelfItemsContainer.appendChild(el);
+                }
             });
         }
+
+        function renderShop() {
+            const grid = document.getElementById('shop-grid');
+            grid.innerHTML = '';
+
+            SHOP_ITEMS.forEach(item => {
+                const isOwned = userInventory.includes(item.id);
+                const canAfford = userBankBalance >= item.price;
+                
+                const card = document.createElement('div');
+                card.className = "bg-white border-2 border-slate-200 rounded-xl p-4 flex flex-col items-center text-center relative overflow-hidden transition " + (isOwned ? "opacity-70 grayscale" : "");
+                
+                let btnHTML = "";
+                if (isOwned) {
+                    btnHTML = `<button disabled class="mt-4 w-full py-2 bg-slate-200 text-slate-500 font-bold rounded-lg cursor-not-allowed">Owned</button>`;
+                } else if (!canAfford) {
+                    btnHTML = `<button disabled class="mt-4 w-full py-2 bg-slate-100 text-slate-400 font-bold rounded-lg cursor-not-allowed">£ ${item.price}</button>`;
+                } else {
+                    btnHTML = `<button onclick="buyItem('${item.id}', ${item.price})" class="mt-4 w-full py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg shadow-sm active:scale-95 transition-transform">Buy £${item.price}</button>`;
+                }
+
+                card.innerHTML = `
+                    <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-3xl mb-3 border border-slate-100 shadow-inner">
+                        <img src="${item.icon}" class="w-full h-full object-contain p-2" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                        <div style="display:none;">${item.emoji}</div>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-sm leading-tight h-8">${item.name}</h4>
+                    ${btnHTML}
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        window.buyItem = async (itemId, price) => {
+            if (userBankBalance >= price) {
+                const newBalance = userBankBalance - price;
+                const newInventory = [...userInventory, itemId];
+                
+                const userRef = doc(db, 'users', currentUser.uid);
+                await updateDoc(userRef, {
+                    bank_balance: newBalance,
+                    inventory: newInventory
+                });
+                
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            }
+        };
+
+        function renderTrophyRoom() {
+            const grid = document.getElementById('trophy-grid');
+            const msg = document.getElementById('trophy-empty-msg');
+            grid.innerHTML = '';
+            
+            if(userInventory.length === 0) {
+                msg.classList.remove('hidden');
+            } else {
+                msg.classList.add('hidden');
+                userInventory.forEach(itemId => {
+                    const itemData = SHOP_ITEMS.find(i => i.id === itemId);
+                    if(itemData) {
+                        const card = document.createElement('div');
+                        card.className = "flex flex-col items-center bg-white border border-slate-200 p-4 rounded-xl shadow-sm";
+                        card.innerHTML = `
+                            <div class="w-16 h-16 flex items-center justify-center text-4xl mb-2">
+                                <img src="${itemData.icon}" class="w-full h-full object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                                <div style="display:none;">${itemData.emoji}</div>
+                            </div>
+                            <span class="text-xs font-bold text-slate-600 text-center">${itemData.name}</span>
+                        `;
+                        grid.appendChild(card);
+                    }
+                });
+            }
+        }
+
+        // --- LEADERBOARD LOGIC ---
+
+        const usersRef = collection(db, 'users');
+        onSnapshot(usersRef, (snapshot) => {
+            allUsersData = [];
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.nickname) { allUsersData.push(data); }
+            });
+            renderLeaderboard();
+        });
 
         window.switchTab = (tabName) => {
             currentTab = tabName;
-            
-            // Update Tab UI
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('tab-active', 'bg-white', 'text-[#5D4037]'); // Reset
+                btn.classList.remove('tab-active', 'bg-white', 'text-[#5D4037]');
                 if (btn.id === `tab-${tabName}`) {
-                    btn.classList.add('tab-active'); // Active style
+                    btn.classList.add('tab-active');
                 } else {
-                    btn.classList.add('bg-white', 'text-[#5D4037]'); // Inactive style
+                    btn.classList.add('bg-white', 'text-[#5D4037]');
                 }
             });
-
             renderLeaderboard();
         };
 
@@ -525,9 +548,9 @@
             const thirtyDaysAgo = new Date();
             thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-            // 2. Filter out anyone whose 'updatedAt' is older than 30 days
+            // 2. Filter out old data
             let activeUsers = allUsersData.filter(user => {
-                if (!user.updatedAt) return false; // Ignore corrupted/old data
+                if (!user.updatedAt) return false;
                 const userDate = new Date(user.updatedAt);
                 return userDate >= thirtyDaysAgo;
             });
@@ -538,7 +561,6 @@
                 let displayScore = 0;
 
                 if (currentTab === 'overall') {
-                    // Sum of all games
                     displayScore = (scores.knowledge || 0) + 
                                    (scores.survival || 0) + 
                                    (scores.manners || 0) + 
@@ -546,20 +568,15 @@
                                    (scores.directions || 0) +
                                    (scores.baking || 0);
                 } else {
-                    // Specific game score
                     displayScore = scores[currentTab] || 0;
                 }
                 
                 return { ...user, displayScore };
             });
 
-            // Sort Descending
             sortedUsers.sort((a, b) => b.displayScore - a.displayScore);
-
-            // Take Top 50
             const topUsers = sortedUsers.slice(0, 50);
 
-            // Render HTML
             leaderboardBody.innerHTML = '';
             
             if (topUsers.length === 0) {
@@ -585,33 +602,24 @@
             });
         }
 
-        // --- Helpers ---
+        // Helpers
         window.startGame = (url) => {
+            if (!currentUser) {
+                alert("Please Register your Passport first!");
+                document.getElementById('input-name').focus();
+                return;
+            }
             window.location.href = url;
         };
 
-        window.resetPassport = () => {
-            sessionStorage.clear();
-            location.reload();
-        };
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            return text
+        function escapeHtml(unsafe) {
+            return unsafe
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;")
                 .replace(/"/g, "&quot;")
                 .replace(/'/g, "&#039;");
         }
-
-        // Edit profile click
-        userProfileDiv.addEventListener('click', () => {
-            inputNickname.value = sessionStorage.getItem('bh_nickname') || '';
-            inputTown.value = sessionStorage.getItem('bh_town') || '';
-            showModal();
-        });
-
     </script>
 </body>
 </html>
