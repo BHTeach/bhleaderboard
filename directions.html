@@ -296,11 +296,15 @@
             const playerRef = useRef(player);
             const catRef = useRef(cat);
             const gameStateRef = useRef(gameState);
+            
+            // CRITICAL FIX: We must use a Ref for mazeData so the Microphone can "see" the dynamically generated maze!
+            const mazeDataRef = useRef(mazeData);
             const shouldListenRef = useRef(false);
 
             useEffect(() => { playerRef.current = player; }, [player]);
             useEffect(() => { catRef.current = cat; }, [cat]);
             useEffect(() => { gameStateRef.current = gameState; }, [gameState]);
+            useEffect(() => { mazeDataRef.current = mazeData; }, [mazeData]);
 
             // Timer Logic
             useEffect(() => {
@@ -386,8 +390,8 @@
             };
 
             const checkGameStatus = (p, c) => {
-                if (!mazeData) return false;
-                const grid = mazeData.grid;
+                if (!mazeDataRef.current) return false;
+                const grid = mazeDataRef.current.grid;
                 if (grid[p.y][p.x] === 3) { setGameState('WON'); playWinSound(); return true; }
                 if (p.x === c.x && p.y === c.y) { setGameState('LOST'); playLoseSound(); return true; }
                 return false;
@@ -405,7 +409,7 @@
                     const cmd = commandQueueRef.current.shift();
                     let nextP = { ...playerRef.current };
                     let nextC = { ...catRef.current };
-                    const grid = mazeData.grid;
+                    const grid = mazeDataRef.current.grid; // Reads from the Ref!
 
                     if (cmd.type === "turn") {
                         nextP.dir = (nextP.dir + cmd.change + 4) % 4;
@@ -418,7 +422,7 @@
                             nextP.x = tx; nextP.y = ty;
                             setPlayer(nextP); playMoveSound(); setPlayerAnim("animate-hop");
                         } else { 
-                            playBumpSound(); setPlayerAnim("animate-bonk"); setTranscript("💥 BONK!"); 
+                            playBumpSound(); setPlayerAnim("animate-bonk"); setTranscript("BONK!"); 
                         }
                     }
                     
@@ -446,7 +450,7 @@
             const addManualCommand = (cmd) => {
                 if (gameStateRef.current !== 'PLAYING') return;
                 commandQueueRef.current.push(cmd);
-                setTranscript(`✅ ${cmd.action.toUpperCase()}`);
+                setTranscript(cmd.action.toUpperCase());
                 if (!isProcessingRef.current) processQueue();
             };
 
@@ -462,28 +466,24 @@
                 const result = event.results[currentResultIndex];
                 if (!result) return;
                 
-                const currentTranscript = result[0].transcript.toLowerCase();
-                const textToProcess = currentTranscript.substring(processedLengthRef.current);
-                
-                // Show raw mic input for visual feedback
-                if (currentTranscript.trim().length > 0 && textToProcess.trim().length > 0) {
-                    setTranscript(`🎤 ${textToProcess.trim().substring(0, 15)}...`);
-                }
+                const fullTranscript = result[0].transcript.toLowerCase();
+                const newText = fullTranscript.substring(processedLengthRef.current);
+                if (newText.length === 0) return;
 
-                // Simplified keywords: User can say "go forward", "move forward", or just "forward"
+                // Exact match logic from your previous working version
                 const commands = [
-                    { phrase: "forward", action: "Forward", type: "move" },
-                    { phrase: "back", action: "Back", type: "move" },
-                    { phrase: "left", action: "Left", type: "turn", change: -1 },
-                    { phrase: "right", action: "Right", type: "turn", change: 1 }
+                    { phrase: "go forward", action: "Forward", type: "move" },
+                    { phrase: "go back", action: "Back", type: "move" },
+                    { phrase: "turn left", action: "Left", type: "turn", change: -1 },
+                    { phrase: "turn right", action: "Right", type: "turn", change: 1 }
                 ];
 
                 let matchFound = false;
                 for (let cmd of commands) {
-                    const idx = textToProcess.indexOf(cmd.phrase);
+                    const idx = newText.indexOf(cmd.phrase);
                     if (idx !== -1) {
                         commandQueueRef.current.push(cmd);
-                        setTranscript(`✅ ${cmd.action.toUpperCase()}`);
+                        setTranscript(cmd.action.toUpperCase());
                         processedLengthRef.current += (idx + cmd.phrase.length);
                         matchFound = true;
                         break; 
