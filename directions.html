@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Manor House Cat & Mouse</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Retro Font -->
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior: none;
+            font-family: 'VT323', monospace;
+            color: #262626;
+            transition: background-color 0.5s ease;
+            background-color: #0c0a09;
+        }
+        
+        canvas, img, svg {
+            image-rendering: pixelated;
+            shape-rendering: crispEdges;
+        }
+
+        .maze-container {
+            position: relative;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.7), inset 0 0 50px rgba(0,0,0,0.5);
+            border-radius: 4px;
+            transition: all 0.5s ease;
+            overflow: hidden;
+        }
+
+        .maze-grid {
+            display: grid;
+            gap: 0px; 
+            width: 100%;
+            height: 100%;
+        }
+        
+        .cell {
+            position: relative;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- MANOR THEME --- */
+        .theme-manor body { 
+            background-color: #0c0a09;
+            background-image: radial-gradient(circle at center, #1c1917 0%, #0c0a09 100%);
+        }
+
+        .theme-manor .maze-container { 
+            background-color: #2d1202; 
+            border: 12px solid;
+            border-image: linear-gradient(135deg, #78350f 0%, #fde047 25%, #b45309 50%, #fde047 75%, #78350f 100%) 1;
+        }
+        
+        .theme-manor .floor {
+            background-color: #f5f5f4;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(0,0,0,0.03) 0%, transparent 50%),
+                linear-gradient(45deg, #d4d4d8 25%, transparent 25%), 
+                linear-gradient(-45deg, #d4d4d8 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #d4d4d8 75%), 
+                linear-gradient(-45deg, transparent 75%, #d4d4d8 75%),
+                linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%);
+            background-size: 100% 100%, 60px 60px, 60px 60px, 60px 60px, 60px 60px, 100% 100%;
+            background-position: 0 0, 0 0, 0 30px, 30px -30px, -30px 0px, 0 0;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .theme-manor .wall {
+            background-color: #451a03;
+            background-image: 
+                repeating-linear-gradient(90deg, transparent, transparent 18px, rgba(0,0,0,0.3) 20px),
+                linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.1) 12%, transparent 12%),
+                linear-gradient(to bottom, #78350f, #451a03);
+            box-shadow: 
+                inset 1px 1px 2px rgba(255,255,255,0.05),
+                inset -1px -1px 2px rgba(0,0,0,0.4);
+        }
+        
+        .theme-manor .start-cell { 
+            background-color: #7f1d1d;
+            background-image: radial-gradient(#991b1b 20%, transparent 20%);
+            background-size: 8px 8px;
+            border: 2px solid #b45309;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        .theme-manor .end-cell { 
+            background-color: rgba(253, 224, 71, 0.2);
+            border: 2px dashed #fde047;
+        }
+        
+        .theme-manor .ui-panel { 
+            background-color: #1c1917; 
+            border: 2px solid #fde047;
+            color: #fde047; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 20px rgba(253, 224, 71, 0.1);
+            border-radius: 2px;
+        }
+        
+        .theme-manor .btn-primary { 
+            background: linear-gradient(to bottom, #b45309, #78350f);
+            border: 2px solid #fde047;
+            color: #fde047;
+            text-shadow: 0 2px 0 rgba(0,0,0,0.5);
+        }
+        
+        .theme-manor .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(to bottom, #d97706, #b45309);
+        }
+
+        @keyframes idle-bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @keyframes hop { 0% { transform: scale(1) translateY(0); } 50% { transform: scale(1.2) translateY(-10%); } 100% { transform: scale(1) translateY(0); } }
+        @keyframes bonk { 0% { transform: translateX(0); } 25% { transform: translateX(-5px) rotate(-5deg); } 75% { transform: translateX(5px) rotate(5deg); } 100% { transform: translateX(0); } }
+
+        .animate-idle { animation: idle-bounce 2s infinite ease-in-out; }
+        .animate-hop { animation: hop 0.2s ease-out; }
+        .animate-bonk { animation: bonk 0.2s ease-in-out; }
+
+        .safe-padding {
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
+    </style>
+</head>
+<body class="h-[100dvh] w-screen overflow-hidden theme-manor">
+    <div id="root" class="h-full w-full"></div>
+
+    <script type="text/babel">
+        // --- Pixel Components ---
+        const PixelMouse = ({ dir }) => (
+            <svg viewBox="0 0 16 16" width="80%" height="80%" style={{ transform: `rotate(${dir * 90}deg)`, transition: 'transform 0.2s' }}>
+                <rect x="5" y="4" width="6" height="8" fill="#a1a1aa" />
+                <rect x="4" y="2" width="3" height="3" fill="#71717a" />
+                <rect x="9" y="2" width="3" height="3" fill="#71717a" />
+                <rect x="7" y="12" width="2" height="3" fill="#fda4af" />
+                <rect x="6" y="5" width="1" height="1" fill="#000" />
+                <rect x="9" y="5" width="1" height="1" fill="#000" />
+            </svg>
+        );
+
+        const PixelCat = () => (
+            <svg viewBox="0 0 16 16" width="80%" height="80%">
+                <rect x="4" y="4" width="8" height="7" fill="#444" />
+                <path d="M4 4 L4 1 L7 4 Z" fill="#222" />
+                <path d="M12 4 L12 1 L9 4 Z" fill="#222" />
+                <rect x="5" y="6" width="2" height="1" fill="#fff" />
+                <rect x="9" y="6" width="2" height="1" fill="#fff" />
+                <rect x="6" y="6" width="1" height="1" fill="#000" />
+                <rect x="9" y="6" width="1" height="1" fill="#000" />
+                <rect x="7" y="8" width="2" height="1" fill="#000" />
+            </svg>
+        );
+
+        const PixelCheese = () => (
+            <svg viewBox="0 0 16 16" width="80%" height="80%">
+                <rect x="4" y="6" width="8" height="6" fill="#fbbf24" />
+                <rect x="6" y="4" width="4" height="2" fill="#fbbf24" />
+                <rect x="5" y="7" width="1" height="1" fill="#d97706" />
+                <rect x="8" y="9" width="1" height="1" fill="#d97706" />
+                <rect x="10" y="7" width="1" height="1" fill="#d97706" />
+            </svg>
+        );
+
+        // --- Maze Generation Utilities ---
+        const generateFairMaze = (size) => {
+            const grid = Array(size).fill().map(() => Array(size).fill(1));
+            
+            // 1. Recursive Backtracking
+            const walk = (x, y) => {
+                grid[y][x] = 0;
+                const neighbors = [
+                    [x, y - 2], [x, y + 2], [x - 2, y], [x + 2, y]
+                ].sort(() => Math.random() - 0.5);
+
+                for (const [nx, ny] of neighbors) {
+                    if (nx > 0 && nx < size - 1 && ny > 0 && ny < size - 1 && grid[ny][nx] === 1) {
+                        grid[(y + ny) / 2][(x + nx) / 2] = 0;
+                        walk(nx, ny);
+                    }
+                }
+            };
+            walk(1, 1);
+
+            // 2. Add Loops (Creating multiple paths)
+            let wallsRemoved = 0;
+            const targetWallsToRemove = 4;
+            for (let i = 0; i < 50 && wallsRemoved < targetWallsToRemove; i++) {
+                let rx = Math.floor(Math.random() * (size - 2)) + 1;
+                let ry = Math.floor(Math.random() * (size - 2)) + 1;
+                if (grid[ry][rx] === 1) {
+                    const horiz = grid[ry][rx-1] === 0 && grid[ry][rx+1] === 0;
+                    const vert = grid[ry-1][rx] === 0 && grid[ry+1][rx] === 0;
+                    if (horiz || vert) {
+                        grid[ry][rx] = 0;
+                        wallsRemoved++;
+                    }
+                }
+            }
+
+            grid[1][1] = 2; // Start marker
+
+            // 3. BFS for Goal Placement
+            const dists = Array(size).fill().map(() => Array(size).fill(-1));
+            const queue = [{x: 1, y: 1, d: 0}];
+            dists[1][1] = 0;
+            const fairCandidates = [];
+
+            while (queue.length > 0) {
+                const curr = queue.shift();
+                if (curr.d >= 18 && curr.d <= 24) fairCandidates.push(curr);
+                
+                [[0,1],[0,-1],[1,0],[-1,0]].forEach(([dx, dy]) => {
+                    const nx = curr.x + dx, ny = curr.y + dy;
+                    if (nx >= 0 && ny >= 0 && nx < size && ny < size && grid[ny][nx] !== 1 && dists[ny][nx] === -1) {
+                        dists[ny][nx] = curr.d + 1;
+                        queue.push({x: nx, y: ny, d: curr.d + 1});
+                    }
+                });
+            }
+
+            const goal = fairCandidates.length > 0 
+                ? fairCandidates[Math.floor(Math.random() * fairCandidates.length)]
+                : {x: size-2, y: size-2};
+            
+            grid[goal.y][goal.x] = 3; 
+
+            // 4. Cat Placement
+            const catCandidates = [];
+            for (let y = 1; y < size - 1; y++) {
+                for (let x = 1; x < size - 1; x++) {
+                    const dStart = dists[y][x];
+                    const dGoal = Math.abs(x - goal.x) + Math.abs(y - goal.y);
+                    if (grid[y][x] === 0 && dStart > 12 && dGoal > 4) {
+                        catCandidates.push({x, y});
+                    }
+                }
+            }
+            const catStart = catCandidates[Math.floor(Math.random() * catCandidates.length)] || {x: size-2, y: 1};
+
+            return { grid, start: { x: 1, y: 1, dir: 1 }, cat: catStart };
+        };
+
+        const { useState, useEffect, useRef } = React;
+
+        const GRID_SIZE = 11;
+        const DIRECTIONS = [
+            { dx: 0, dy: -1, label: 'North' },
+            { dx: 1, dy: 0, label: 'East' },
+            { dx: 0, dy: 1, label: 'South' },
+            { dx: -1, dy: 0, label: 'West' },
+        ];
+
+        const audioCtxRef = { current: null };
+
+        function App() {
+            const [appState, setAppState] = useState('MENU');
+            const [gameState, setGameState] = useState('START');
+            const [mazeData, setMazeData] = useState(null);
+            
+            const [player, setPlayer] = useState({ x: 1, y: 1, dir: 1 });
+            const [cat, setCat] = useState({ x: 9, y: 1 });
+            const [isListening, setIsListening] = useState(false);
+            const [transcript, setTranscript] = useState("");
+            const [playerAnim, setPlayerAnim] = useState(""); 
+            
+            // SCORE / TIMER STATE
+            const [elapsedTime, setElapsedTime] = useState(0);
+            
+            const commandQueueRef = useRef([]);
+            const isProcessingRef = useRef(false);
+            const recognitionRef = useRef(null);
+            
+            const processedIndexRef = useRef(0);
+            const processedLengthRef = useRef(0);
+            const playerRef = useRef(player);
+            const catRef = useRef(cat);
+            const gameStateRef = useRef(gameState);
+            const shouldListenRef = useRef(false);
+
+            useEffect(() => { playerRef.current = player; }, [player]);
+            useEffect(() => { catRef.current = cat; }, [cat]);
+            useEffect(() => { gameStateRef.current = gameState; }, [gameState]);
+
+            // Timer Logic
+            useEffect(() => {
+                let timerInterval;
+                if (gameState === 'PLAYING') {
+                    timerInterval = setInterval(() => {
+                        setElapsedTime(prev => prev + 1);
+                    }, 1000);
+                }
+                return () => clearInterval(timerInterval);
+            }, [gameState]);
+
+            // Save Score Logic
+            useEffect(() => {
+                if (gameState === 'WON') {
+                    // Start with 100, lose 1 pt per second, minimum 10 points
+                    const finalScore = Math.max(10, 100 - elapsedTime);
+                    if (typeof window.saveScore === 'function') {
+                        window.saveScore('directions', finalScore);
+                    }
+                }
+            }, [gameState, elapsedTime]);
+
+            const initAudio = () => {
+                if (!audioCtxRef.current) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    audioCtxRef.current = new AudioContext();
+                }
+                if (audioCtxRef.current.state === 'suspended') audioCtxRef.current.resume();
+            };
+
+            const playTone = (freq, type, duration) => {
+                if (!audioCtxRef.current) return;
+                const osc = audioCtxRef.current.createOscillator();
+                const gain = audioCtxRef.current.createGain();
+                osc.type = type; 
+                osc.frequency.setValueAtTime(freq, audioCtxRef.current.currentTime);
+                gain.gain.setValueAtTime(0.05, audioCtxRef.current.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtxRef.current.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtxRef.current.destination);
+                osc.start();
+                osc.stop(audioCtxRef.current.currentTime + duration);
+            };
+
+            const playMoveSound = () => playTone(400, 'sine', 0.1); 
+            const playBumpSound = () => playTone(150, 'sawtooth', 0.2);
+            const playWinSound = () => { playTone(523, 'sine', 0.1); setTimeout(() => playTone(659, 'sine', 0.1), 100); setTimeout(() => playTone(783, 'sine', 0.2), 200); };
+            const playLoseSound = () => { playTone(300, 'sawtooth', 0.2); setTimeout(() => playTone(200, 'sawtooth', 0.4), 200); };
+            const playListenSound = () => playTone(880, 'sine', 0.1);
+
+            const generateNewMaze = () => {
+                const data = generateFairMaze(GRID_SIZE);
+                setMazeData(data);
+                setPlayer(data.start);
+                setCat(data.cat);
+                setGameState('START');
+                setTranscript("Ready!");
+                setPlayerAnim("");
+                setElapsedTime(0); // Reset Timer
+                commandQueueRef.current = [];
+                isProcessingRef.current = false;
+            };
+
+            const getNextCatMove = (cPos, pPos, grid) => {
+                const queue = [{ x: cPos.x, y: cPos.y, path: [] }];
+                const visited = new Set([`${cPos.x},${cPos.y}`]);
+                let its = 0;
+                while (queue.length > 0 && its < 300) {
+                    its++;
+                    const curr = queue.shift();
+                    if (curr.x === pPos.x && curr.y === pPos.y) return curr.path.length > 0 ? curr.path[0] : cPos;
+                    const moves = [{dx:0,dy:-1},{dx:0,dy:1},{dx:-1,dy:0},{dx:1,dy:0}];
+                    for (let m of moves) {
+                        const nx = curr.x+m.dx, ny = curr.y+m.dy;
+                        if (nx>=0 && ny>=0 && nx<GRID_SIZE && ny<GRID_SIZE && grid[ny][nx]!==1 && !visited.has(`${nx},${ny}`)) {
+                            visited.add(`${nx},${ny}`);
+                            queue.push({ x: nx, y: ny, path: [...curr.path, {x: nx, y: ny}] });
+                        }
+                    }
+                }
+                return cPos;
+            };
+
+            const checkGameStatus = (p, c) => {
+                if (!mazeData) return false;
+                const grid = mazeData.grid;
+                if (grid[p.y][p.x] === 3) { setGameState('WON'); playWinSound(); return true; }
+                if (p.x === c.x && p.y === c.y) { setGameState('LOST'); playLoseSound(); return true; }
+                return false;
+            };
+
+            const processQueue = () => {
+                if (commandQueueRef.current.length === 0 || gameStateRef.current !== 'PLAYING') {
+                    isProcessingRef.current = false;
+                    return;
+                }
+                isProcessingRef.current = true;
+                const cmd = commandQueueRef.current.shift();
+                let nextP = { ...playerRef.current };
+                let nextC = { ...catRef.current };
+                const grid = mazeData.grid;
+
+                if (cmd.type === "turn") {
+                    nextP.dir = (nextP.dir + cmd.change + 4) % 4;
+                    setPlayer(nextP); playMoveSound(); setPlayerAnim("animate-hop");
+                } else {
+                    const dir = DIRECTIONS[nextP.dir];
+                    const mult = cmd.action === "Forward" ? 1 : -1;
+                    const tx = nextP.x + (dir.dx * mult), ty = nextP.y + (dir.dy * mult);
+                    if (tx>=0 && ty>=0 && tx<GRID_SIZE && ty<GRID_SIZE && grid[ty][tx]!==1) {
+                        nextP.x = tx; nextP.y = ty;
+                        setPlayer(nextP); playMoveSound(); setPlayerAnim("animate-hop");
+                    } else { playBumpSound(); setPlayerAnim("animate-bonk"); setTranscript("BONK!"); }
+                }
+                if (checkGameStatus(nextP, nextC)) return;
+                if (cmd.type === "move") { nextC = getNextCatMove(nextC, nextP, grid); setCat(nextC); }
+                if (checkGameStatus(nextP, nextC)) return;
+                setTimeout(processQueue, 250);
+            };
+
+            const addManualCommand = (cmd) => {
+                if (gameStateRef.current !== 'PLAYING') return;
+                commandQueueRef.current.push(cmd);
+                setTranscript(cmd.action.toUpperCase());
+                if (!isProcessingRef.current) processQueue();
+            };
+
+            const handleSpeechResult = (event) => {
+                if (gameStateRef.current !== 'PLAYING') return;
+                const result = event.results[event.resultIndex];
+                if (!result) return;
+                const fullTranscript = result[0].transcript.toLowerCase();
+                const newText = fullTranscript.substring(processedLengthRef.current);
+                const commands = [
+                    { phrase: "go forward", action: "Forward", type: "move" },
+                    { phrase: "go back", action: "Back", type: "move" },
+                    { phrase: "turn left", action: "Left", type: "turn", change: -1 },
+                    { phrase: "turn right", action: "Right", type: "turn", change: 1 }
+                ];
+                commands.forEach(cmd => {
+                    const idx = newText.indexOf(cmd.phrase);
+                    if (idx !== -1) {
+                        commandQueueRef.current.push(cmd);
+                        setTranscript(cmd.action.toUpperCase());
+                        processedLengthRef.current += (idx + cmd.phrase.length);
+                        if (!isProcessingRef.current) processQueue();
+                    }
+                });
+            };
+
+            useEffect(() => {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (SpeechRecognition) {
+                    const rec = new SpeechRecognition();
+                    rec.continuous = true; rec.interimResults = true;
+                    rec.onstart = () => { setIsListening(true); setTranscript("Listening..."); };
+                    rec.onend = () => {
+                        setIsListening(false);
+                        if (shouldListenRef.current && gameStateRef.current === 'PLAYING') try { rec.start(); } catch(e){}
+                    };
+                    rec.onresult = handleSpeechResult;
+                    recognitionRef.current = rec;
+                }
+            }, []);
+
+            const toggleListen = () => {
+                initAudio();
+                if (isListening) { shouldListenRef.current = false; recognitionRef.current.stop(); }
+                else { shouldListenRef.current = true; playListenSound(); recognitionRef.current.start(); }
+            };
+
+            if (appState === 'MENU') {
+                return (
+                    <div className="h-full w-full flex flex-col items-center justify-center p-4 space-y-6 relative">
+                        {/* Map Back Button */}
+                        <button onClick={() => window.location.href = 'index.html'} className="absolute top-6 left-6 text-amber-600 hover:text-amber-400 font-bold text-xl uppercase tracking-widest flex items-center gap-2">
+                            ← Back to Map
+                        </button>
+                        
+                        <div className="text-center">
+                            <h1 className="text-7xl text-amber-500 mb-6 tracking-widest" style={{textShadow: "6px 6px 0px rgba(0,0,0,0.8)"}}>Manor House Cat & Mouse</h1>
+                        </div>
+                        <button onClick={() => { setAppState('GAME'); generateNewMaze(); initAudio(); }} className="relative w-full max-w-sm group overflow-hidden rounded border-4 border-amber-600 bg-amber-900 hover:bg-amber-800 h-40 transition-all shadow-2xl active:scale-95">
+                            <div className="absolute inset-0 flex flex-col items-center justify-center text-amber-100 z-10">
+                                <div className="text-6xl mb-2">🏰</div>
+                                <span className="text-4xl font-bold tracking-wider uppercase">Enter the Manor House</span>
+                            </div>
+                            <div className="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PGNpcmNsZSBjeD0iMTAiIGN5PSIxMCIgcj0iNSIgZmlsbD0iIzAwMCIvPjwvc3ZnPg==')]"></div>
+                        </button>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="safe-padding flex flex-col md:flex-row h-full w-full items-center justify-center p-4 gap-6">
+                    <div className="flex-1 h-full max-h-[95vh] aspect-square flex items-center justify-center relative">
+                        {gameState === 'START' && (
+                            <div className="absolute inset-0 z-20 bg-black/85 backdrop-blur-md flex flex-col items-center justify-center rounded shadow-2xl p-8 text-center border-4 border-amber-600/50 m-2">
+                                <button onClick={() => setGameState('PLAYING')} className="mt-6 px-12 py-6 bg-amber-600 text-white text-4xl font-bold border-b-8 border-amber-950 active:border-b-0 active:translate-y-2 rounded uppercase shadow-2xl tracking-widest">start</button>
+                                <button onClick={() => setAppState('MENU')} className="mt-6 text-amber-200 text-xl underline uppercase tracking-widest">Go back to the menu</button>
+                            </div>
+                        )}
+                        {gameState === 'WON' && (
+                            <div className="absolute inset-0 z-20 bg-amber-600/90 flex flex-col items-center justify-center rounded text-white border-8 border-amber-300">
+                                <div className="text-8xl mb-4 animate-bounce">🧀</div>
+                                <h2 className="text-6xl font-bold mb-4 uppercase tracking-widest">YOU DID IT!</h2>
+                                <div className="text-4xl text-amber-200 mb-8 tracking-widest font-bold">
+                                    TIME: {elapsedTime}s | SCORE: {Math.max(10, 100 - elapsedTime)}
+                                </div>
+                                <div className="flex gap-4">
+                                    <button onClick={generateNewMaze} className="px-8 py-4 bg-white text-amber-900 text-2xl font-bold rounded shadow-lg border-b-4 border-gray-300">New Maze</button>
+                                    <button onClick={() => window.location.href = 'index.html'} className="px-8 py-4 bg-amber-950 text-white text-2xl font-bold rounded shadow-lg border-b-4 border-black">Map</button>
+                                </div>
+                            </div>
+                        )}
+                        {gameState === 'LOST' && (
+                            <div className="absolute inset-0 z-20 bg-red-950/95 flex flex-col items-center justify-center rounded text-white border-8 border-red-600">
+                                <div className="text-8xl mb-4">🚪</div>
+                                <h2 className="text-6xl font-bold mb-8 uppercase tracking-widest">OOPS! CAUGHT!</h2>
+                                <div className="flex gap-4">
+                                    <button onClick={generateNewMaze} className="px-8 py-4 bg-white text-red-900 text-2xl font-bold rounded shadow-lg border-b-4 border-gray-300">Try Again</button>
+                                    <button onClick={() => window.location.href = 'index.html'} className="px-8 py-4 bg-black text-white text-2xl font-bold rounded shadow-lg border-b-4 border-gray-900">Map</button>
+                                </div>
+                            </div>
+                        )}
+                        <div className="maze-container w-full h-full">
+                            <div className="maze-grid" style={{ gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)` }}>
+                                {mazeData && mazeData.grid.map((row, y) => row.map((cell, x) => (
+                                    <div key={`${x}-${y}`} className={`cell ${cell === 1 ? 'wall' : 'floor'} ${cell === 2 ? 'start-cell' : cell === 3 ? 'end-cell' : ''}`}>
+                                        {player.x === x && player.y === y && <div className={`absolute inset-0 z-10 flex items-center justify-center ${playerAnim || 'animate-idle'}`}><PixelMouse dir={player.dir} /></div>}
+                                        {cat.x === x && cat.y === y && <div className="absolute inset-0 z-10 flex items-center justify-center animate-idle"><PixelCat /></div>}
+                                        {cell === 3 && <div className="absolute inset-0 flex items-center justify-center animate-pulse"><PixelCheese /></div>}
+                                    </div>
+                                )))}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="w-full md:w-1/3 flex flex-col gap-6 justify-center p-4">
+                        <div className="ui-panel p-6 relative">
+                            <div className="absolute -top-3 left-4 bg-amber-600 text-white px-3 py-1 text-sm font-bold rounded tracking-widest uppercase">Maze Log</div>
+                            <div className="absolute -top-3 right-4 bg-amber-800 text-white px-3 py-1 text-sm font-bold rounded tracking-widest uppercase">
+                                Time: {elapsedTime}s | Pts: {Math.max(10, 100 - elapsedTime)}
+                            </div>
+                            <div className="text-5xl text-center uppercase tracking-widest h-12 flex items-center justify-center font-bold opacity-90">{transcript || "..."}</div>
+                        </div>
+                        <button onClick={toggleListen} disabled={gameState !== 'PLAYING'} className={`btn-primary w-full py-8 text-4xl font-bold uppercase tracking-widest border-b-8 active:border-b-0 active:translate-y-2 rounded shadow-2xl ${isListening ? 'animate-pulse brightness-125' : ''}`}>
+                            {isListening ? "SILENCE MIC" : "VOICE CONTROL"}
+                        </button>
+                        <div className="grid grid-cols-2 gap-4 font-bold text-lg">
+                            <button onClick={() => addManualCommand({ action: "Forward", type: "move" })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 p-3 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">GO FORWARD</button>
+                            <button onClick={() => addManualCommand({ action: "Back", type: "move" })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 p-3 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">GO BACKWARD</button>
+                            <button onClick={() => addManualCommand({ action: "Left", type: "turn", change: -1 })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 p-3 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">TURN LEFT</button>
+                            <button onClick={() => addManualCommand({ action: "Right", type: "turn", change: 1 })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 p-3 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">TURN RIGHT</button>
+                        </div>
+                        <button onClick={() => setAppState('MENU')} className="text-center text-xl font-bold text-amber-500 opacity-60 hover:opacity-100 uppercase tracking-widest">← EXIT TO MENU</button>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+
+    <!-- === FIREBASE LOGIC === -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAIjDKXYOTzZIBpc4LFn0cSAwsy020x5G0",
+            authDomain: "british-hills-leaderboard.firebaseapp.com",
+            projectId: "british-hills-leaderboard",
+            storageBucket: "british-hills-leaderboard.firebasestorage.app",
+            messagingSenderId: "1035640631485",
+            appId: "1:1035640631485:web:ff52f6924553f973e307d4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        let currentUser = null;
+
+        // Auth Listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                console.log("Player ready:", user.uid);
+            } else {
+                signInAnonymously(auth).catch(e => console.error(e));
+            }
+        });
+
+        // --- SAVE SCORE FUNCTION ---
+        window.saveScore = async (gameId, newScore) => {
+            if (!currentUser) {
+                console.warn("Not logged in. Score won't be saved to Leaderboard.");
+                return;
+            }
+
+            const userRef = doc(db, 'users', currentUser.uid);
+
+            try {
+                const docSnap = await getDoc(userRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    const currentScores = data.scores || {};
+                    const previousScore = currentScores[gameId] || 0;
+
+                    // Only update if higher
+                    if (newScore > previousScore) {
+                        const updateData = {};
+                        updateData[`scores.${gameId}`] = newScore;
+                        updateData['updatedAt'] = new Date().toISOString();
+
+                        await updateDoc(userRef, updateData);
+                        
+                        // Small timeout to not disrupt React state changes too jarringly
+                        setTimeout(() => {
+                            alert(`🎉 New Personal Best: ${newScore}! Saved to Leaderboard.`);
+                        }, 500);
+                        
+                    } else {
+                        console.log(`Score ${newScore} did not beat ${previousScore}`);
+                    }
+                }
+            } catch (error) {
+                console.error("Save failed:", error);
+            }
+        };
+    </script>
+</body>
+</html>
