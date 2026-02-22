@@ -496,38 +496,44 @@
             }
 
             return (
-                <div className="safe-padding flex flex-col md:flex-row h-full w-full items-center justify-center p-4 gap-6">
-                    <div className="flex-1 h-full max-h-[95vh] aspect-square flex items-center justify-center relative">
-                        {gameState === 'START' && (
-                            <div className="absolute inset-0 z-20 bg-black/85 backdrop-blur-md flex flex-col items-center justify-center rounded shadow-2xl p-8 text-center border-4 border-amber-600/50 m-2">
-                                <button onClick={() => setGameState('PLAYING')} className="mt-6 px-12 py-6 bg-amber-600 text-white text-4xl font-bold border-b-8 border-amber-950 active:border-b-0 active:translate-y-2 rounded uppercase shadow-2xl tracking-widest">start</button>
-                                <button onClick={() => setAppState('MENU')} className="mt-6 text-amber-200 text-xl underline uppercase tracking-widest">Go back to the menu</button>
-                            </div>
-                        )}
-                        {gameState === 'WON' && (
-                            <div className="absolute inset-0 z-20 bg-amber-600/90 flex flex-col items-center justify-center rounded text-white border-8 border-amber-300">
-                                <div className="text-8xl mb-4 animate-bounce">🧀</div>
-                                <h2 className="text-6xl font-bold mb-4 uppercase tracking-widest">YOU DID IT!</h2>
-                                <div className="text-4xl text-amber-200 mb-8 tracking-widest font-bold">
-                                    TIME: {elapsedTime}s | SCORE: {Math.max(10, 100 - elapsedTime)}
+                <div className="safe-padding flex flex-col h-full w-full">
+                    
+                    {/* 1. DISCREET TOP NAV & SCORE */}
+                    <div className="w-full flex justify-between items-center px-4 pt-4 pb-2 text-amber-500 uppercase tracking-widest font-bold shrink-0 z-10">
+                        <button onClick={() => setAppState('MENU')} className="hover:text-amber-300 flex items-center gap-1 text-lg">
+                            ← MENU
+                        </button>
+                        <div className="text-right bg-amber-950/60 px-3 py-1 rounded border border-amber-800/50 shadow-inner text-sm md:text-base">
+                            TIME: {elapsedTime}S | PTS: {Math.max(10, 100 - elapsedTime)}
+                        </div>
+                    </div>
+
+                    {/* 2. MAZE AREA (Expands to fill top half) */}
+                    <div className="flex-1 w-full flex items-center justify-center p-4 min-h-0 relative">
+                        <div className="maze-container aspect-square max-h-full max-w-full relative">
+                            
+                            {/* OVERLAYS (Now contained perfectly inside the square maze) */}
+                            {gameState === 'START' && (
+                                <div className="absolute inset-0 z-20 bg-black/85 backdrop-blur-sm flex flex-col items-center justify-center text-center">
+                                    <button onClick={() => setGameState('PLAYING')} className="px-8 py-4 bg-amber-600 text-white text-4xl font-bold border-b-8 border-amber-950 active:border-b-0 active:translate-y-2 rounded uppercase shadow-2xl tracking-widest">start</button>
                                 </div>
-                                <div className="flex gap-4">
-                                    <button onClick={generateNewMaze} className="px-8 py-4 bg-white text-amber-900 text-2xl font-bold rounded shadow-lg border-b-4 border-gray-300">New Maze</button>
-                                    <button onClick={() => window.location.href = 'index.html'} className="px-8 py-4 bg-amber-950 text-white text-2xl font-bold rounded shadow-lg border-b-4 border-black">Map</button>
+                            )}
+                            {gameState === 'WON' && (
+                                <div className="absolute inset-0 z-20 bg-amber-600/95 flex flex-col items-center justify-center text-white text-center p-2">
+                                    <div className="text-6xl mb-2 animate-bounce">🧀</div>
+                                    <h2 className="text-4xl md:text-5xl font-bold mb-4 uppercase tracking-widest">YOU DID IT!</h2>
+                                    <button onClick={generateNewMaze} className="px-6 py-3 bg-white text-amber-900 text-xl font-bold rounded shadow-lg border-b-4 border-gray-300 mt-2">New Maze</button>
                                 </div>
-                            </div>
-                        )}
-                        {gameState === 'LOST' && (
-                            <div className="absolute inset-0 z-20 bg-red-950/95 flex flex-col items-center justify-center rounded text-white border-8 border-red-600">
-                                <div className="text-8xl mb-4">🚪</div>
-                                <h2 className="text-6xl font-bold mb-8 uppercase tracking-widest">OOPS! CAUGHT!</h2>
-                                <div className="flex gap-4">
-                                    <button onClick={generateNewMaze} className="px-8 py-4 bg-white text-red-900 text-2xl font-bold rounded shadow-lg border-b-4 border-gray-300">Try Again</button>
-                                    <button onClick={() => window.location.href = 'index.html'} className="px-8 py-4 bg-black text-white text-2xl font-bold rounded shadow-lg border-b-4 border-gray-900">Map</button>
+                            )}
+                            {gameState === 'LOST' && (
+                                <div className="absolute inset-0 z-20 bg-red-950/95 flex flex-col items-center justify-center text-white text-center p-2">
+                                    <div className="text-6xl mb-2">🚪</div>
+                                    <h2 className="text-4xl md:text-5xl font-bold mb-4 uppercase tracking-widest">CAUGHT!</h2>
+                                    <button onClick={generateNewMaze} className="px-6 py-3 bg-white text-red-900 text-xl font-bold rounded shadow-lg border-b-4 border-gray-300 mt-2">Try Again</button>
                                 </div>
-                            </div>
-                        )}
-                        <div className="maze-container w-full h-full">
+                            )}
+
+                            {/* ACTUAL GRID */}
                             <div className="maze-grid" style={{ gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)` }}>
                                 {mazeData && mazeData.grid.map((row, y) => row.map((cell, x) => (
                                     <div key={`${x}-${y}`} className={`cell ${cell === 1 ? 'wall' : 'floor'} ${cell === 2 ? 'start-cell' : cell === 3 ? 'end-cell' : ''}`}>
@@ -539,25 +545,22 @@
                             </div>
                         </div>
                     </div>
-                    <div className="w-full md:w-1/3 flex flex-col gap-6 justify-center p-4">
-                        <div className="ui-panel p-6 relative">
-                            <div className="absolute -top-3 left-4 bg-amber-600 text-white px-3 py-1 text-sm font-bold rounded tracking-widest uppercase">Maze Log</div>
-                            <div className="absolute -top-3 right-4 bg-amber-800 text-white px-3 py-1 text-sm font-bold rounded tracking-widest uppercase">
-                                Time: {elapsedTime}s | Pts: {Math.max(10, 100 - elapsedTime)}
-                            </div>
-                            <div className="text-5xl text-center uppercase tracking-widest h-12 flex items-center justify-center font-bold opacity-90">{transcript || "..."}</div>
+
+                    {/* 3. CONTROLS AREA (Tucked at the bottom) */}
+                    <div className="w-full max-w-md mx-auto p-4 flex flex-col gap-4 shrink-0 mb-2">
+                        <div className="grid grid-cols-2 gap-3 font-bold text-lg md:text-xl">
+                            <button onClick={() => addManualCommand({ action: "Forward", type: "move" })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 py-4 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">FORWARD</button>
+                            <button onClick={() => addManualCommand({ action: "Back", type: "move" })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 py-4 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">BACKWARD</button>
+                            <button onClick={() => addManualCommand({ action: "Left", type: "turn", change: -1 })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 py-4 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">TURN LEFT</button>
+                            <button onClick={() => addManualCommand({ action: "Right", type: "turn", change: 1 })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 py-4 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">TURN RIGHT</button>
                         </div>
-                        <button onClick={toggleListen} disabled={gameState !== 'PLAYING'} className={`btn-primary w-full py-8 text-4xl font-bold uppercase tracking-widest border-b-8 active:border-b-0 active:translate-y-2 rounded shadow-2xl ${isListening ? 'animate-pulse brightness-125' : ''}`}>
-                            {isListening ? "SILENCE MIC" : "VOICE CONTROL"}
+                        
+                        {/* Shrunken Voice Control Button */}
+                        <button onClick={toggleListen} disabled={gameState !== 'PLAYING'} className={`btn-primary w-full py-3 text-xl font-bold uppercase tracking-widest border-b-4 active:border-b-0 active:translate-y-1 rounded shadow-lg ${isListening ? 'animate-pulse brightness-125' : ''}`}>
+                            {isListening ? "SILENCE MIC" : "🎤 VOICE CONTROL"}
                         </button>
-                        <div className="grid grid-cols-2 gap-4 font-bold text-lg">
-                            <button onClick={() => addManualCommand({ action: "Forward", type: "move" })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 p-3 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">GO FORWARD</button>
-                            <button onClick={() => addManualCommand({ action: "Back", type: "move" })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 p-3 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">GO BACKWARD</button>
-                            <button onClick={() => addManualCommand({ action: "Left", type: "turn", change: -1 })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 p-3 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">TURN LEFT</button>
-                            <button onClick={() => addManualCommand({ action: "Right", type: "turn", change: 1 })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 p-3 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">TURN RIGHT</button>
-                        </div>
-                        <button onClick={() => setAppState('MENU')} className="text-center text-xl font-bold text-amber-500 opacity-60 hover:opacity-100 uppercase tracking-widest">← EXIT TO MENU</button>
                     </div>
+
                 </div>
             );
         }
