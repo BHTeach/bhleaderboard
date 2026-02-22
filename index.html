@@ -90,24 +90,6 @@
 
     <!-- Main Content Container -->
     <main class="w-full max-w-3xl px-4 flex flex-col gap-8">
-        
-        <!-- ID Card (Only shows if logged in) -->
-        <div id="id-card" class="hidden bg-white border-2 border-[#5D4037] rounded-xl p-4 shadow-md flex items-center justify-between">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-800 border-2 border-blue-300">
-                    <i data-lucide="user" class="w-6 h-6"></i>
-                </div>
-                <div>
-                    <div class="text-xs text-gray-500 font-bold uppercase tracking-widest">Student ID</div>
-                    <div id="student-name" class="font-bold text-lg text-[#5D4037]">Name</div>
-                    <div id="student-town" class="text-sm text-gray-600">Town</div>
-                </div>
-            </div>
-            <!-- Replaced Logout with Edit -->
-            <button onclick="editPassport()" class="text-xs text-[#012169] hover:text-blue-700 underline font-bold px-3 py-2 flex flex-col items-center transition-colors">
-                <i data-lucide="edit-3" class="w-4 h-4 mb-1"></i> Edit
-            </button>
-        </div>
 
         <!-- Games Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
@@ -226,6 +208,25 @@
                 </table>
             </div>
         </div>
+        
+        <!-- ID Card (Only shows if logged in) -->
+        <div id="id-card" class="hidden bg-white border-2 border-[#5D4037] rounded-xl p-4 shadow-md flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-800 border-2 border-blue-300">
+                    <i data-lucide="user" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500 font-bold uppercase tracking-widest">Student ID</div>
+                    <div id="student-name" class="font-bold text-lg text-[#5D4037]">Name</div>
+                    <div id="student-town" class="text-sm text-gray-600">Town</div>
+                </div>
+            </div>
+            <!-- Replaced Logout with Edit -->
+            <button onclick="editPassport()" class="text-xs text-[#012169] hover:text-blue-700 underline font-bold px-3 py-2 flex flex-col items-center transition-colors">
+                <i data-lucide="edit-3" class="w-4 h-4 mb-1"></i> Edit
+            </button>
+        </div>
+
     </main>
 
     <!-- === SHOP MODAL === -->
