@@ -103,7 +103,10 @@
                     <div id="student-town" class="text-sm text-gray-600">Town</div>
                 </div>
             </div>
-            <button onclick="logout()" class="text-xs text-red-500 hover:text-red-700 underline font-bold px-2 py-1">Logout</button>
+            <!-- Replaced Logout with Edit -->
+            <button onclick="editPassport()" class="text-xs text-[#012169] hover:text-blue-700 underline font-bold px-3 py-2 flex flex-col items-center transition-colors">
+                <i data-lucide="edit-3" class="w-4 h-4 mb-1"></i> Edit
+            </button>
         </div>
 
         <!-- Games Grid -->
@@ -294,7 +297,7 @@
                     <input type="text" id="input-town" class="w-full border-2 border-gray-300 rounded-xl p-4 outline-none focus:border-[#C8102E] bg-slate-50 font-bold" placeholder="e.g. Shirakawa">
                 </div>
                 <button onclick="registerUser()" class="w-full bg-[#C8102E] text-white font-bold text-lg py-4 rounded-xl shadow-lg hover:bg-red-800 transition transform active:scale-95 mt-4">
-                    Create Passport
+                    Confirm Details
                 </button>
             </div>
         </div>
@@ -326,7 +329,7 @@
 
         // --- SHOP ITEMS DATA ---
         const SHOP_ITEMS = [
-            { id: 'scone', name: 'Virtual Scone', price: 50, icon: 'assets/item_scone.png', emoji: '🧁' },
+            { id: 'scone', name: 'Scone', price: 50, icon: 'assets/item_scone.png', emoji: '🧁' },
             { id: 'tea', name: 'Cup of Tea', price: 100, icon: 'assets/item_tea.png', emoji: '☕' },
             { id: 'bus', name: 'Double-Decker', price: 250, icon: 'assets/item_bus.png', emoji: '🚌' },
             { id: 'guard', name: 'Guard Helmet', price: 400, icon: 'assets/item_guard.png', emoji: '💂' },
@@ -395,7 +398,18 @@
             }
         });
 
-        // Register Function
+        // Show Edit Passport Form
+        window.editPassport = () => {
+            const currentName = document.getElementById('student-name').textContent;
+            const currentTown = document.getElementById('student-town').textContent;
+            
+            document.getElementById('input-name').value = currentName !== 'Name' ? currentName : '';
+            document.getElementById('input-town').value = currentTown !== 'Unknown' ? currentTown : '';
+            
+            loginModal.classList.remove('hidden');
+        };
+
+        // Register / Update Function
         window.registerUser = async () => {
             if (!currentUser) return;
             const nickname = document.getElementById('input-name').value.trim();
@@ -404,21 +418,16 @@
             if (!nickname) { alert("Please enter your name!"); return; }
 
             const userRef = doc(db, 'users', currentUser.uid);
+            
+            // Note: We use merge: true and strictly define ONLY the fields we want to update.
+            // This prevents overwriting the student's scores, inventory, or bank balance if they are just editing their name.
             await setDoc(userRef, {
                 nickname: nickname,
                 town: town,
-                scores: {},
-                bank_balance: 0,
-                inventory: [],
-                createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             }, { merge: true });
-        };
-
-        // Logout
-        window.logout = async () => {
-            await auth.signOut();
-            window.location.reload();
+            
+            document.getElementById('login-modal').classList.add('hidden');
         };
 
         // --- SHOP & INVENTORY LOGIC ---
