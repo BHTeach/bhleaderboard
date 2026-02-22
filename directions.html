@@ -431,46 +431,76 @@
 
             const handleSpeechResult = (event) => {
                 if (gameStateRef.current !== 'PLAYING') return;
-                const result = event.results[event.resultIndex];
+
+                const currentResultIndex = event.resultIndex;
+                if (currentResultIndex > processedIndexRef.current) {
+                    processedIndexRef.current = currentResultIndex;
+                    processedLengthRef.current = 0;
+                }
+
+                const result = event.results[currentResultIndex];
                 if (!result) return;
+                
                 const fullTranscript = result[0].transcript.toLowerCase();
                 const newText = fullTranscript.substring(processedLengthRef.current);
+                if (newText.length === 0) return;
+
                 const commands = [
                     { phrase: "go forward", action: "Forward", type: "move" },
                     { phrase: "go back", action: "Back", type: "move" },
                     { phrase: "turn left", action: "Left", type: "turn", change: -1 },
                     { phrase: "turn right", action: "Right", type: "turn", change: 1 }
                 ];
-                commands.forEach(cmd => {
+
+                let matchFound = false;
+                for (let cmd of commands) {
                     const idx = newText.indexOf(cmd.phrase);
                     if (idx !== -1) {
                         commandQueueRef.current.push(cmd);
                         setTranscript(cmd.action.toUpperCase());
                         processedLengthRef.current += (idx + cmd.phrase.length);
-                        if (!isProcessingRef.current) processQueue();
+                        matchFound = true;
+                        break; 
                     }
-                });
+                }
+                if (matchFound && !isProcessingRef.current) processQueue();
             };
 
             useEffect(() => {
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                 if (SpeechRecognition) {
-                    const rec = new SpeechRecognition();
-                    rec.continuous = true; rec.interimResults = true;
-                    rec.onstart = () => { setIsListening(true); setTranscript("Listening..."); };
-                    rec.onend = () => {
+                    const recognition = new SpeechRecognition();
+                    recognition.continuous = true;
+                    recognition.interimResults = true;
+                    recognition.lang = 'en-US';
+
+                    recognition.onstart = () => { setIsListening(true); setTranscript("Listening..."); };
+                    recognition.onend = () => {
                         setIsListening(false);
-                        if (shouldListenRef.current && gameStateRef.current === 'PLAYING') try { rec.start(); } catch(e){}
+                        if (shouldListenRef.current && gameStateRef.current === 'PLAYING') {
+                            try { recognition.start(); } catch (e) {}
+                        }
                     };
-                    rec.onresult = handleSpeechResult;
-                    recognitionRef.current = rec;
+                    recognition.onresult = handleSpeechResult;
+                    recognitionRef.current = recognition;
                 }
+                return () => { shouldListenRef.current = false; if (recognitionRef.current) recognitionRef.current.abort(); };
             }, []);
 
-            const toggleListen = () => {
+            const toggleListen = (e) => {
+                if (e) e.preventDefault(); // Prevents double-firing on touch screens
+                if (!recognitionRef.current) return;
                 initAudio();
-                if (isListening) { shouldListenRef.current = false; recognitionRef.current.stop(); }
-                else { shouldListenRef.current = true; playListenSound(); recognitionRef.current.start(); }
+                if (isListening) {
+                    shouldListenRef.current = false;
+                    recognitionRef.current.stop();
+                } else {
+                    shouldListenRef.current = true;
+                    playListenSound();
+                    try { recognitionRef.current.start(); } catch (err) {
+                         // iOS quirk: if already started, ignore
+                    }
+                }
             };
 
             if (appState === 'MENU') {
@@ -555,8 +585,8 @@
                             <button onClick={() => addManualCommand({ action: "Right", type: "turn", change: 1 })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 py-4 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">TURN RIGHT</button>
                         </div>
                         
-                        {/* Shrunken Voice Control Button */}
-                        <button onClick={toggleListen} disabled={gameState !== 'PLAYING'} className={`btn-primary w-full py-2 text-base md:text-lg font-bold uppercase tracking-widest border-b-4 active:border-b-0 active:translate-y-1 rounded shadow-lg flex items-center justify-center gap-2 ${isListening ? 'animate-pulse brightness-125' : ''}`}>
+                        {/* Shrunken Voice Control Button WITH TOUCH/MOUSE BINDINGS */}
+                        <button onMouseDown={toggleListen} onTouchStart={toggleListen} disabled={gameState !== 'PLAYING'} className={`btn-primary w-full py-2 text-base md:text-lg font-bold uppercase tracking-widest border-b-4 active:border-b-0 active:translate-y-1 rounded shadow-lg flex items-center justify-center gap-2 ${isListening ? 'animate-pulse brightness-125' : ''}`}>
                             <span className="text-xl">{isListening ? "🔇" : "🎤"}</span> {isListening ? "SILENCE MIC" : "VOICE CONTROL"}
                         </button>
                     </div>
