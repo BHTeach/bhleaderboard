@@ -48,9 +48,8 @@
         .glow-epic { filter: drop-shadow(0 0 12px rgba(250, 204, 21, 0.8)); }
         
         /* Pedestals */
-        .pedestal-common { background: linear-gradient(to right, #9ca3af, #f3f4f6, #9ca3af); border-bottom: 2px solid #4b5563; }
-        .pedestal-rare { background: linear-gradient(to right, #60a5fa, #bfdbfe, #60a5fa); border-bottom: 2px solid #2563eb; }
-        .pedestal-epic { background: linear-gradient(to right, #fbbf24, #fef08a, #fbbf24); border-bottom: 2px solid #b45309; }
+        .pedestal-silver { background: linear-gradient(to right, #9ca3af, #f8fafc, #9ca3af); border-bottom: 2px solid #4b5563; }
+        .pedestal-gold { background: linear-gradient(to right, #fbbf24, #fef08a, #fbbf24); border-bottom: 2px solid #b45309; }
 
         /* Cabinet Cubby */
         .cabinet-cubby {
@@ -349,11 +348,11 @@
         // Updated to PNG and added rarity tiers!
         const SHOP_ITEMS = [
             { id: 'scone', name: 'Scone', price: 50, icon: 'assets/item_scone.png', emoji: '🧁', tier: 'common' },
-            { id: 'tea', name: 'Cup of Tea', price: 100, icon: 'assets/item_tea.png', emoji: '☕', tier: 'common' },
-            { id: 'bus', name: 'Double-Decker', price: 250, icon: 'assets/item_bus.png', emoji: '🚌', tier: 'rare' },
-            { id: 'guard', name: 'Guard Helmet', price: 400, icon: 'assets/item_guard.png', emoji: '💂', tier: 'rare' },
+            { id: 'tea', name: 'Tea', price: 100, icon: 'assets/item_tea.png', emoji: '☕', tier: 'common' },
+            { id: 'bus', name: 'Bus', price: 250, icon: 'assets/item_bus.png', emoji: '🚌', tier: 'rare' },
+            { id: 'guard', name: 'Helmet', price: 400, icon: 'assets/item_guard.png', emoji: '💂', tier: 'rare' },
             { id: 'sword', name: 'Excalibur', price: 500, icon: 'assets/item_sword.png', emoji: '🗡️', tier: 'epic' },
-            { id: 'crown', name: 'Jewelled Crown', price: 1000, icon: 'assets/item_crown.png', emoji: '👑', tier: 'epic' }
+            { id: 'crown', name: 'Crown', price: 1000, icon: 'assets/item_crown.png', emoji: '👑', tier: 'epic' }
         ];
 
         let userBankBalance = 0;
@@ -552,7 +551,7 @@
                     const itemData = SHOP_ITEMS.find(i => i.id === itemId);
                     if(itemData) {
                         let glowClass = itemData.tier === 'epic' ? 'glow-epic' : (itemData.tier === 'rare' ? 'glow-rare' : '');
-                        let pedClass = `pedestal-${itemData.tier}`;
+                        let pedClass = itemData.tier === 'epic' ? 'pedestal-gold' : 'pedestal-silver';
 
                         const card = document.createElement('div');
                         // Cabinet cubby styling
