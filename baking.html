@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BH Baking Challenge</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #fffbeb; /* amber-50 */
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-royal {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Animations */
+        .fade-enter {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Falling Item Animation */
+        .falling-item {
+            position: absolute;
+            top: -60px; /* Start above screen */
+            animation: dropDown linear forwards;
+            user-select: none;
+            cursor: pointer;
+        }
+
+        @keyframes dropDown {
+            from { top: -60px; transform: rotate(var(--rot-start)); }
+            to { top: 110%; transform: rotate(var(--rot-end)); }
+        }
+
+        /* Pause state for animations when book is open */
+        .is-paused .falling-item {
+            animation-play-state: paused !important;
+        }
+
+        /* Point floaters */
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-40px) scale(1.2); }
+        }
+        .point-float {
+            position: absolute;
+            pointer-events: none;
+            font-weight: bold;
+            font-size: 1.25rem;
+            animation: floatUp 0.8s ease-out forwards;
+            z-index: 50;
+        }
+
+        .score-positive { color: #16a34a; } /* green-600 */
+        .score-negative { color: #dc2626; } /* red-600 */
+
+        /* Recipe Book styling */
+        .book-page {
+            background-image: repeating-linear-gradient(transparent, transparent 31px, #e2e8f0 31px, #e2e8f0 32px);
+            background-attachment: local;
+            line-height: 32px;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col text-slate-800">
+
+    <!-- === START SCREEN === -->
+    <div id="start-screen" class="absolute inset-0 z-40 flex flex-col items-center justify-center p-6 bg-slate-50">
+        <button onclick="goHome()" class="absolute top-6 left-6 text-slate-500 hover:text-amber-900 transition-colors flex items-center gap-2 font-bold text-sm">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Map
+        </button>
+
+        <div class="text-center max-w-md w-full fade-enter">
+            <!-- Logo / Icon -->
+            <div class="w-24 h-24 bg-amber-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border-4 border-amber-200 text-white">
+                <i data-lucide="chef-hat" class="w-12 h-12"></i>
+            </div>
+
+            <h1 class="text-4xl md:text-5xl font-royal font-bold text-amber-900 mb-8">BH Baking Challenge!</h1>
+
+            <div class="bg-white p-6 rounded-2xl shadow-md border-2 border-slate-200 mb-8 text-left space-y-4">
+                <div class="flex items-start gap-3 text-slate-700">
+                    <div class="bg-amber-100 p-2 rounded-lg text-amber-700 shrink-0 mt-0.5">
+                        <i data-lucide="book-open" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold block">Check the Recipe Book</span>
+                        <span class="text-sm text-slate-500">The Head Chef will tell you what we are baking. Open the book to see what ingredients you need.</span>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 text-slate-700">
+                    <div class="bg-green-100 p-2 rounded-lg text-green-700 shrink-0 mt-0.5">
+                        <i data-lucide="mouse-pointer-click" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold block">Catch the Ingredients!</span>
+                        <span class="text-sm text-slate-500">Tap the correct ingredients as they fall. <br><span class="text-green-600 font-bold">+10 pts</span> for correct items. <span class="text-red-600 font-bold">-10 pts</span> for wrong items.</span>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="startGame()" class="w-full py-4 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl shadow-lg transform transition active:scale-95 text-xl flex items-center justify-center gap-2">
+                Enter the Kitchen <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- === GAME SCREEN === -->
+    <div id="game-screen" class="hidden absolute inset-0 z-10 flex flex-col bg-slate-50">
+        
+        <!-- Header -->
+        <div class="h-16 bg-white shadow-sm flex items-center justify-between px-4 shrink-0 z-20 border-b border-amber-200">
+            <div class="flex items-center gap-3">
+                <button onclick="openRecipeBook()" class="flex items-center justify-center gap-2 bg-amber-100 hover:bg-amber-200 text-amber-900 px-3 py-2 rounded-lg font-bold text-sm border border-amber-300 transition-colors shadow-sm active:scale-95">
+                    <i data-lucide="book" class="w-4 h-4"></i> <span class="hidden sm:inline">Recipe Book</span>
+                </button>
+            </div>
+
+            <div class="flex flex-col items-center">
+                <span class="text-xs text-amber-700 font-bold uppercase tracking-widest" id="chef-announcement">We are making:</span>
+                <span class="text-lg font-royal font-bold text-slate-800" id="current-recipe-name">Scones</span>
+            </div>
+
+            <div class="flex flex-col items-end min-w-[4rem]">
+                <span class="text-xs text-slate-400 font-bold uppercase">Score</span>
+                <span id="score-display" class="text-xl font-bold text-amber-600">0</span>
+            </div>
+        </div>
+
+        <!-- Falling Area -->
+        <div id="falling-container" class="flex-1 relative overflow-hidden bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PGRlZnM+PHBhdHRlcm4gaWQ9ImEiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTAgMGg0MHY0MEgweiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik00MCAwaC0xdjQwSDB2LTFoNDBWMHptLTIwIDIwaC0xdjIwSDB2LTFoMjBWMjB6IiBmaWxsPSIjZTE1OTVkIiBmaWxsLW9wYWNpdHk9IjAuMDUiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjYSkiLz48L3N2Zz4=')]">
+            <!-- Ingredients spawn here -->
+        </div>
+
+        <!-- Collection Tray (Bottom) -->
+        <div class="h-28 bg-white border-t-4 border-amber-800 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] p-4 shrink-0 z-20 flex flex-col justify-center">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 text-center">Mixing Bowl</span>
+            <div id="collection-tray" class="flex flex-wrap items-center justify-center gap-2">
+                <!-- Collected item badges go here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- === RECIPE BOOK MODAL === -->
+    <div id="recipe-book-modal" class="hidden absolute inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-amber-50 rounded-r-3xl rounded-l-md p-6 max-w-md w-full shadow-2xl relative border-l-8 border-amber-900 fade-enter min-h-[400px] flex flex-col">
+            
+            <button onclick="closeRecipeBook()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-800 bg-white rounded-full p-1 shadow-sm">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            
+            <h2 class="text-2xl font-royal font-bold text-amber-900 mb-1 border-b-2 border-amber-200 pb-2 flex items-center gap-2">
+                <i data-lucide="chef-hat" class="w-6 h-6"></i> BH Cookbook
+            </h2>
+            
+            <div class="flex justify-between items-center text-sm font-bold text-slate-500 mb-4 mt-2 uppercase tracking-widest">
+                <button onclick="prevPage()" id="btn-prev-page" class="hover:text-amber-700 flex items-center"><i data-lucide="chevron-left" class="w-4 h-4"></i> Prev</button>
+                <span id="page-indicator">Page 1 / 4</span>
+                <button onclick="nextPage()" id="btn-next-page" class="hover:text-amber-700 flex items-center">Next <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+            </div>
+
+            <!-- Page Content -->
+            <div class="book-page flex-1 p-2">
+                <h3 id="book-recipe-name" class="text-xl font-bold text-slate-800 mb-2 font-royal">Recipe Name</h3>
+                <ul id="book-ingredients-list" class="list-disc pl-5 text-slate-700 font-bold space-y-1">
+                    <!-- Ingredients listed here -->
+                </ul>
+            </div>
+
+            <button onclick="closeRecipeBook()" class="w-full mt-6 py-3 bg-amber-800 hover:bg-amber-900 text-white font-bold rounded-xl shadow transition transform active:scale-95">
+                Back to Kitchen
+            </button>
+        </div>
+    </div>
+
+    <!-- === RESULTS SCREEN === -->
+    <div id="results-screen" class="hidden absolute inset-0 z-40 flex flex-col items-center justify-center p-6 bg-slate-50/95 backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full text-center border-t-8 border-amber-700 fade-enter">
+            
+            <div class="mb-6">
+                <div id="result-icon" class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto shadow-inner text-amber-700 text-4xl">
+                    <i data-lucide="award" class="w-10 h-10"></i>
+                </div>
+            </div>
+
+            <h2 class="text-3xl font-royal font-bold text-slate-800 mb-2">Baking Complete!</h2>
+            <p class="text-slate-500 mb-6">The chef thanks you for your help!</p>
+
+            <div class="bg-amber-50 p-4 rounded-xl border border-amber-100 mb-8">
+                <span class="block text-xs text-amber-600 font-bold uppercase mb-1">Total Score</span>
+                <span id="final-score" class="text-5xl font-bold text-amber-900">0</span>
+            </div>
+
+            <div class="space-y-3">
+                <button onclick="startGame()" class="w-full py-4 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl shadow transition transform active:scale-95 text-lg">
+                    Play Again
+                </button>
+                <button onclick="goHome()" class="block w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition">
+                    Back to Map
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const recipes = [
+            {
+                name: "Traditional Scones",
+                ingredients: ["Flour", "Butter", "Sugar", "Milk", "Baking Powder", "Salt"]
+            },
+            {
+                name: "Shortbread",
+                ingredients: ["Butter", "Sugar", "Flour"]
+            },
+            {
+                name: "Blueberry Muffins",
+                ingredients: ["Flour", "Sugar", "Eggs", "Milk", "Butter", "Blueberries", "Baking Powder"]
+            },
+            {
+                name: "Victoria Sponge",
+                ingredients: ["Butter", "Sugar", "Eggs", "Flour", "Strawberry Jam", "Double Cream"]
+            }
+        ];
+
+        // Items that fall but are NOT in any recipe (or are generally wrong)
+        const distractors = [
+            "Soy Sauce", "Chicken", "Cheese", "Garlic", "Onion", "Fish", 
+            "Pepper", "Pasta", "Rice", "Tomato", "Vinegar", "Chilli", 
+            "Mustard", "Ketchup", "Beef", "Pork", "Carrot", "Potato", "Flower"
+        ];
+
+        // --- STATE ---
+        let score = 0;
+        let currentRecipeIndex = 0;
+        let neededIngredients = [];
+        let collectedIngredients = [];
+        let spawnIntervalId = null;
+        let isGameRunning = false;
+        
+        // Book State
+        let currentBookPage = 0;
+
+        // --- DOM ELEMENTS ---
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const recipeBookModal = document.getElementById('recipe-book-modal');
+        
+        const currentRecipeNameDisplay = document.getElementById('current-recipe-name');
+        const scoreDisplay = document.getElementById('score-display');
+        const fallingContainer = document.getElementById('falling-container');
+        const collectionTray = document.getElementById('collection-tray');
+
+        // --- INITIALIZATION ---
+        lucide.createIcons();
+
+        function goHome() {
+            window.location.href = 'index.html';
+        }
+
+        function startGame() {
+            score = 0;
+            currentRecipeIndex = 0;
+            updateScoreDisplay();
+            
+            startScreen.classList.add('hidden');
+            resultsScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            
+            startRecipeLevel();
+        }
+
+        function updateScoreDisplay() {
+            scoreDisplay.textContent = score;
+        }
+
+        // --- LEVEL LOGIC ---
+        function startRecipeLevel() {
+            const recipe = recipes[currentRecipeIndex];
+            currentRecipeNameDisplay.textContent = recipe.name;
+            
+            neededIngredients = [...recipe.ingredients];
+            collectedIngredients = [];
+            
+            // Render blank slots in tray
+            renderTray();
+
+            // Clear play area
+            fallingContainer.innerHTML = '';
+            
+            isGameRunning = true;
+            fallingContainer.classList.remove('is-paused');
+            startSpawning();
+        }
+
+        function renderTray() {
+            collectionTray.innerHTML = '';
+            const recipe = recipes[currentRecipeIndex];
+            
+            recipe.ingredients.forEach(ing => {
+                const isCollected = collectedIngredients.includes(ing);
+                const div = document.createElement('div');
+                
+                if (isCollected) {
+                    div.className = "px-3 py-1 bg-green-100 text-green-800 border-2 border-green-500 rounded-full font-bold text-sm flex items-center gap-1 fade-enter";
+                    div.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> ${ing}`;
+                } else {
+                    div.className = "px-3 py-1 bg-slate-100 text-slate-400 border-2 border-dashed border-slate-300 rounded-full font-bold text-sm flex items-center gap-1";
+                    div.innerHTML = `? ? ?`;
+                }
+                collectionTray.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        // --- SPAWNING LOGIC ---
+        function startSpawning() {
+            // Spawn an item every 1.2 seconds
+            spawnIntervalId = setInterval(spawnItem, 1200);
+        }
+
+        function stopSpawning() {
+            clearInterval(spawnIntervalId);
+        }
+
+        function spawnItem() {
+            if (!isGameRunning) return;
+
+            // Decide what to spawn: 50% chance needed item, 50% chance distractor
+            // BUT if all needed are collected, don't spawn them!
+            let wordToSpawn = "";
+
+            if (neededIngredients.length > 0 && Math.random() < 0.6) {
+                // Pick a random needed ingredient
+                const randIndex = Math.floor(Math.random() * neededIngredients.length);
+                wordToSpawn = neededIngredients[randIndex];
+            } else {
+                // Pick a random distractor
+                // Combine global distractors + already collected items + ingredients from OTHER recipes to be tricky
+                let pool = [...distractors, ...collectedIngredients];
+                recipes.forEach((r, idx) => {
+                    if (idx !== currentRecipeIndex) {
+                        pool = pool.concat(r.ingredients);
+                    }
+                });
+                
+                // Remove duplicates and currently needed ingredients from the pool
+                pool = Array.from(new Set(pool)).filter(item => !neededIngredients.includes(item));
+                
+                const randIndex = Math.floor(Math.random() * pool.length);
+                wordToSpawn = pool[randIndex];
+            }
+
+            createFallingElement(wordToSpawn);
+        }
+
+        function createFallingElement(word) {
+            const btn = document.createElement('button');
+            
+            // Random styling for variety
+            const colors = ['bg-white', 'bg-amber-50', 'bg-orange-50'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            btn.className = `falling-item ${randomColor} px-4 py-3 rounded-xl shadow-md border-2 border-slate-200 font-bold text-slate-700 active:scale-95 transition-transform`;
+            btn.textContent = word;
+
+            // Random horizontal position (5% to 75% to keep it on screen)
+            const leftPos = 5 + Math.random() * 70;
+            btn.style.left = `${leftPos}%`;
+
+            // Random rotation animation
+            const rotStart = (Math.random() - 0.5) * 30; // -15deg to +15deg
+            const rotEnd = (Math.random() - 0.5) * 60;
+            btn.style.setProperty('--rot-start', `${rotStart}deg`);
+            btn.style.setProperty('--rot-end', `${rotEnd}deg`);
+
+            // Random speed (between 3.5s and 5.5s)
+            const duration = 3.5 + Math.random() * 2;
+            btn.style.animationDuration = `${duration}s`;
+
+            // Click handler
+            btn.onclick = (e) => handleItemClick(e, btn, word);
+
+            // Clean up when it falls off screen
+            btn.onanimationend = () => {
+                if (btn.parentNode) btn.remove();
+            };
+
+            fallingContainer.appendChild(btn);
+        }
+
+        function showFloatingPoints(x, y, amountOrText) {
+            const floater = document.createElement('div');
+            
+            if (typeof amountOrText === 'number') {
+                floater.className = `point-float ${amountOrText > 0 ? 'score-positive' : 'score-negative'}`;
+                floater.textContent = amountOrText > 0 ? `+${amountOrText}` : amountOrText;
+            } else {
+                floater.className = `point-float text-blue-500 whitespace-nowrap`;
+                floater.textContent = amountOrText;
+            }
+            
+            floater.style.left = `${x}px`;
+            floater.style.top = `${y - 20}px`;
+            
+            document.body.appendChild(floater);
+            
+            setTimeout(() => {
+                if(floater.parentNode) floater.remove();
+            }, 800);
+        }
+
+        function handleItemClick(event, element, word) {
+            if (!isGameRunning) return;
+
+            const rect = element.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top;
+
+            if (neededIngredients.includes(word)) {
+                // Correct item
+                score += 10;
+                showFloatingPoints(x, y, 10);
+                
+                // Remove from needed, add to collected
+                neededIngredients = neededIngredients.filter(ing => ing !== word);
+                collectedIngredients.push(word);
+                
+                // Visual pop
+                confetti({
+                    particleCount: 20,
+                    spread: 40,
+                    origin: { x: x / window.innerWidth, y: y / window.innerHeight },
+                    colors: ['#f59e0b', '#ffffff'] // amber-500
+                });
+
+                renderTray();
+                checkWinCondition();
+
+            } else if (collectedIngredients.includes(word)) {
+                // Already collected item
+                showFloatingPoints(x, y, "Already added!");
+                // No points deducted, no shake animation
+
+            } else {
+                // Incorrect item
+                score -= 10;
+                if (score < 0) score = 0; // Floor at 0
+                showFloatingPoints(x, y, -10);
+                
+                // Shake effect on the container to indicate error
+                fallingContainer.classList.remove('shake');
+                void fallingContainer.offsetWidth; // Reflow
+                // Quick inline keyframes logic for shake
+                fallingContainer.style.animation = "shake 0.4s cubic-bezier(.36,.07,.19,.97) both";
+                setTimeout(() => fallingContainer.style.animation = "", 400);
+            }
+
+            updateScoreDisplay();
+            element.remove(); // Destroy clicked item
+        }
+
+        function checkWinCondition() {
+            if (neededIngredients.length === 0) {
+                // Level Complete!
+                isGameRunning = false;
+                stopSpawning();
+                
+                // Bonus points
+                score += 20;
+                updateScoreDisplay();
+
+                // Big Confetti
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+
+                // Small delay, then next recipe or end game
+                setTimeout(() => {
+                    currentRecipeIndex++;
+                    if (currentRecipeIndex < recipes.length) {
+                        startRecipeLevel();
+                    } else {
+                        endGame();
+                    }
+                }, 2000);
+            }
+        }
+
+        function endGame() {
+            gameScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            document.getElementById('final-score').textContent = score;
+
+            // --- FIREBASE SCORE SAVING TRIGGER ---
+            if (typeof window.saveScore === 'function') {
+                window.saveScore('baking', score);
+            }
+        }
+
+        // --- RECIPE BOOK MODAL LOGIC ---
+        function openRecipeBook() {
+            isGameRunning = false;
+            stopSpawning();
+            fallingContainer.classList.add('is-paused'); // CSS handles pausing animations
+            
+            currentBookPage = currentRecipeIndex; // Open to current recipe by default
+            renderBookPage();
+            
+            recipeBookModal.classList.remove('hidden');
+        }
+
+        function closeRecipeBook() {
+            recipeBookModal.classList.add('hidden');
+            
+            isGameRunning = true;
+            fallingContainer.classList.remove('is-paused');
+            startSpawning();
+        }
+
+        function renderBookPage() {
+            const recipe = recipes[currentBookPage];
+            document.getElementById('book-recipe-name').textContent = recipe.name;
+            document.getElementById('page-indicator').textContent = `Page ${currentBookPage + 1} / ${recipes.length}`;
+            
+            const listContainer = document.getElementById('book-ingredients-list');
+            listContainer.innerHTML = '';
+            
+            recipe.ingredients.forEach(ing => {
+                const li = document.createElement('li');
+                li.textContent = ing;
+                listContainer.appendChild(li);
+            });
+
+            // Handle buttons
+            document.getElementById('btn-prev-page').style.visibility = currentBookPage === 0 ? 'hidden' : 'visible';
+            document.getElementById('btn-next-page').style.visibility = currentBookPage === recipes.length - 1 ? 'hidden' : 'visible';
+        }
+
+        function prevPage() {
+            if (currentBookPage > 0) {
+                currentBookPage--;
+                renderBookPage();
+            }
+        }
+
+        function nextPage() {
+            if (currentBookPage < recipes.length - 1) {
+                currentBookPage++;
+                renderBookPage();
+            }
+        }
+
+        // Extra global animation for shaking errors
+        const styleSheet = document.createElement("style");
+        styleSheet.innerText = `
+            @keyframes shake {
+                10%, 90% { transform: translate3d(-2px, 0, 0); }
+                20%, 80% { transform: translate3d(4px, 0, 0); }
+                30%, 50%, 70% { transform: translate3d(-8px, 0, 0); }
+                40%, 60% { transform: translate3d(8px, 0, 0); }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+
+    </script>
+
+    <!-- === FIREBASE LOGIC (DO NOT EDIT KEYS) === -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAIjDKXYOTzZIBpc4LFn0cSAwsy020x5G0",
+            authDomain: "british-hills-leaderboard.firebaseapp.com",
+            projectId: "british-hills-leaderboard",
+            storageBucket: "british-hills-leaderboard.firebasestorage.app",
+            messagingSenderId: "1035640631485",
+            appId: "1:1035640631485:web:ff52f6924553f973e307d4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        let currentUser = null;
+
+        // Auth Listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                console.log("Player ready:", user.uid);
+            } else {
+                signInAnonymously(auth).catch(e => console.error(e));
+            }
+        });
+
+        // --- SAVE SCORE FUNCTION ---
+        window.saveScore = async (gameId, newScore) => {
+            if (!currentUser) {
+                console.warn("Not logged in. Score won't be saved to Leaderboard.");
+                return;
+            }
+
+            const userRef = doc(db, 'users', currentUser.uid);
+
+            try {
+                // 1. Check existing score
+                const docSnap = await getDoc(userRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    const currentScores = data.scores || {};
+                    const previousScore = currentScores[gameId] || 0;
+
+                    // 2. Only update if higher
+                    if (newScore > previousScore) {
+                        const updateData = {};
+                        updateData[`scores.${gameId}`] = newScore;
+                        updateData['updatedAt'] = new Date().toISOString();
+
+                        await updateDoc(userRef, updateData);
+                        
+                        setTimeout(() => {
+                            alert(`🎉 New Personal Best: ${newScore}! Saved to Leaderboard.`);
+                        }, 500);
+                        
+                    } else {
+                        console.log(`Score ${newScore} did not beat ${previousScore}`);
+                    }
+                }
+            } catch (error) {
+                console.error("Save failed:", error);
+            }
+        };
+    </script>
+</body>
+</html>
