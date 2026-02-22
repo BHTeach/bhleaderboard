@@ -398,34 +398,55 @@
                     isProcessingRef.current = false;
                     return;
                 }
+                
                 isProcessingRef.current = true;
-                const cmd = commandQueueRef.current.shift();
-                let nextP = { ...playerRef.current };
-                let nextC = { ...catRef.current };
-                const grid = mazeData.grid;
+                
+                try {
+                    const cmd = commandQueueRef.current.shift();
+                    let nextP = { ...playerRef.current };
+                    let nextC = { ...catRef.current };
+                    const grid = mazeData.grid;
 
-                if (cmd.type === "turn") {
-                    nextP.dir = (nextP.dir + cmd.change + 4) % 4;
-                    setPlayer(nextP); playMoveSound(); setPlayerAnim("animate-hop");
-                } else {
-                    const dir = DIRECTIONS[nextP.dir];
-                    const mult = cmd.action === "Forward" ? 1 : -1;
-                    const tx = nextP.x + (dir.dx * mult), ty = nextP.y + (dir.dy * mult);
-                    if (tx>=0 && ty>=0 && tx<GRID_SIZE && ty<GRID_SIZE && grid[ty][tx]!==1) {
-                        nextP.x = tx; nextP.y = ty;
+                    if (cmd.type === "turn") {
+                        nextP.dir = (nextP.dir + cmd.change + 4) % 4;
                         setPlayer(nextP); playMoveSound(); setPlayerAnim("animate-hop");
-                    } else { playBumpSound(); setPlayerAnim("animate-bonk"); setTranscript("BONK!"); }
+                    } else {
+                        const dir = DIRECTIONS[nextP.dir];
+                        const mult = cmd.action === "Forward" ? 1 : -1;
+                        const tx = nextP.x + (dir.dx * mult), ty = nextP.y + (dir.dy * mult);
+                        if (tx>=0 && ty>=0 && tx<GRID_SIZE && ty<GRID_SIZE && grid[ty][tx]!==1) {
+                            nextP.x = tx; nextP.y = ty;
+                            setPlayer(nextP); playMoveSound(); setPlayerAnim("animate-hop");
+                        } else { 
+                            playBumpSound(); setPlayerAnim("animate-bonk"); setTranscript("💥 BONK!"); 
+                        }
+                    }
+                    
+                    if (checkGameStatus(nextP, nextC)) {
+                        isProcessingRef.current = false;
+                        return;
+                    }
+                    
+                    if (cmd.type === "move") { 
+                        nextC = getNextCatMove(nextC, nextP, grid); 
+                        setCat(nextC); 
+                    }
+                    
+                    if (checkGameStatus(nextP, nextC)) {
+                        isProcessingRef.current = false;
+                        return;
+                    }
+                } catch (e) {
+                    console.error("Queue error:", e);
                 }
-                if (checkGameStatus(nextP, nextC)) return;
-                if (cmd.type === "move") { nextC = getNextCatMove(nextC, nextP, grid); setCat(nextC); }
-                if (checkGameStatus(nextP, nextC)) return;
+                
                 setTimeout(processQueue, 250);
             };
 
             const addManualCommand = (cmd) => {
                 if (gameStateRef.current !== 'PLAYING') return;
                 commandQueueRef.current.push(cmd);
-                setTranscript(cmd.action.toUpperCase());
+                setTranscript(`✅ ${cmd.action.toUpperCase()}`);
                 if (!isProcessingRef.current) processQueue();
             };
 
@@ -441,23 +462,28 @@
                 const result = event.results[currentResultIndex];
                 if (!result) return;
                 
-                const fullTranscript = result[0].transcript.toLowerCase();
-                const newText = fullTranscript.substring(processedLengthRef.current);
-                if (newText.length === 0) return;
+                const currentTranscript = result[0].transcript.toLowerCase();
+                const textToProcess = currentTranscript.substring(processedLengthRef.current);
+                
+                // Show raw mic input for visual feedback
+                if (currentTranscript.trim().length > 0 && textToProcess.trim().length > 0) {
+                    setTranscript(`🎤 ${textToProcess.trim().substring(0, 15)}...`);
+                }
 
+                // Simplified keywords: User can say "go forward", "move forward", or just "forward"
                 const commands = [
-                    { phrase: "go forward", action: "Forward", type: "move" },
-                    { phrase: "go back", action: "Back", type: "move" },
-                    { phrase: "turn left", action: "Left", type: "turn", change: -1 },
-                    { phrase: "turn right", action: "Right", type: "turn", change: 1 }
+                    { phrase: "forward", action: "Forward", type: "move" },
+                    { phrase: "back", action: "Back", type: "move" },
+                    { phrase: "left", action: "Left", type: "turn", change: -1 },
+                    { phrase: "right", action: "Right", type: "turn", change: 1 }
                 ];
 
                 let matchFound = false;
                 for (let cmd of commands) {
-                    const idx = newText.indexOf(cmd.phrase);
+                    const idx = textToProcess.indexOf(cmd.phrase);
                     if (idx !== -1) {
                         commandQueueRef.current.push(cmd);
-                        setTranscript(cmd.action.toUpperCase());
+                        setTranscript(`✅ ${cmd.action.toUpperCase()}`);
                         processedLengthRef.current += (idx + cmd.phrase.length);
                         matchFound = true;
                         break; 
@@ -487,9 +513,11 @@
                 return () => { shouldListenRef.current = false; if (recognitionRef.current) recognitionRef.current.abort(); };
             }, []);
 
-            const toggleListen = (e) => {
-                if (e) e.preventDefault(); // Prevents double-firing on touch screens
-                if (!recognitionRef.current) return;
+            const toggleListen = () => {
+                if (!recognitionRef.current) {
+                    alert("Voice Control is not supported in this browser. Please use Safari on iOS, or Chrome on Desktop.");
+                    return;
+                }
                 initAudio();
                 if (isListening) {
                     shouldListenRef.current = false;
@@ -497,9 +525,7 @@
                 } else {
                     shouldListenRef.current = true;
                     playListenSound();
-                    try { recognitionRef.current.start(); } catch (err) {
-                         // iOS quirk: if already started, ignore
-                    }
+                    try { recognitionRef.current.start(); } catch (err) {}
                 }
             };
 
@@ -577,16 +603,16 @@
                     </div>
 
                     {/* 3. CONTROLS AREA (Tucked at the bottom) */}
-                    <div className="w-full mx-auto p-4 flex flex-col gap-3 shrink-0 mb-2">
+                    <div className="w-full mx-auto p-4 flex flex-col gap-3 shrink-0 mb-2 select-none">
                         <div className="grid grid-cols-2 gap-3 font-bold text-lg md:text-xl">
-                            <button onClick={() => addManualCommand({ action: "Forward", type: "move" })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 py-4 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">GO FORWARD</button>
-                            <button onClick={() => addManualCommand({ action: "Back", type: "move" })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 py-4 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">GO BACKWARD</button>
-                            <button onClick={() => addManualCommand({ action: "Left", type: "turn", change: -1 })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 py-4 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">TURN LEFT</button>
-                            <button onClick={() => addManualCommand({ action: "Right", type: "turn", change: 1 })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 py-4 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black">TURN RIGHT</button>
+                            <button onClick={() => addManualCommand({ action: "Forward", type: "move" })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 py-4 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black select-none">GO FORWARD</button>
+                            <button onClick={() => addManualCommand({ action: "Back", type: "move" })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 py-4 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black select-none">GO BACKWARD</button>
+                            <button onClick={() => addManualCommand({ action: "Left", type: "turn", change: -1 })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 py-4 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black select-none">TURN LEFT</button>
+                            <button onClick={() => addManualCommand({ action: "Right", type: "turn", change: 1 })} disabled={gameState !== 'PLAYING'} className="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 py-4 border-2 border-amber-800 rounded uppercase tracking-widest shadow-sm text-black select-none">TURN RIGHT</button>
                         </div>
                         
-                        {/* Shrunken Voice Control Button WITH TOUCH/MOUSE BINDINGS */}
-                        <button onMouseDown={toggleListen} onTouchStart={toggleListen} disabled={gameState !== 'PLAYING'} className={`btn-primary w-full py-2 text-base md:text-lg font-bold uppercase tracking-widest border-b-4 active:border-b-0 active:translate-y-1 rounded shadow-lg flex items-center justify-center gap-2 ${isListening ? 'animate-pulse brightness-125' : ''}`}>
+                        {/* Shrunken Voice Control Button */}
+                        <button onClick={toggleListen} disabled={gameState !== 'PLAYING'} className={`btn-primary w-full py-2 text-base md:text-lg font-bold uppercase tracking-widest border-b-4 active:border-b-0 active:translate-y-1 rounded shadow-lg flex items-center justify-center gap-2 select-none ${isListening ? 'animate-pulse brightness-125' : ''}`}>
                             <span className="text-xl">{isListening ? "🔇" : "🎤"}</span> {isListening ? "SILENCE MIC" : "VOICE CONTROL"}
                         </button>
                     </div>
