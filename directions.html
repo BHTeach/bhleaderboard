@@ -700,7 +700,8 @@
                     if (gameId === 'commonwealth' && newScore >= 100 && !currentAchievements.includes('traveler')) {
                         currentAchievements.push('traveler'); newlyUnlocked.push('World Traveler');
                     }
-                    if (gameId === 'directions' && newScore >= 100 && !currentAchievements.includes('navigator')) {
+                    // CHANGED TO 80 HERE!
+                    if (gameId === 'directions' && newScore >= 80 && !currentAchievements.includes('navigator')) {
                         currentAchievements.push('navigator'); newlyUnlocked.push('The Navigator');
                     }
                     if (gameId === 'baking' && newScore >= 100 && !currentAchievements.includes('baker')) {
