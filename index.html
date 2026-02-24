@@ -95,8 +95,9 @@
         
         <!-- Shop Button (Moved here, made prominent) -->
         <button onclick="openShop()" id="main-shop-btn" class="mb-6 mt-2 relative group bg-white hover:bg-amber-50 text-[#5D4037] px-6 py-3 rounded-xl border-4 border-[#5D4037] shadow-[4px_4px_0px_#5D4037] flex items-center gap-3 transition-all active:translate-y-1 active:shadow-[0px_0px_0px_#5D4037]">
-            <div class="bg-amber-100 p-2 rounded-lg border-2 border-amber-200 text-amber-700">
-                <i data-lucide="store" class="w-6 h-6"></i>
+            <div class="bg-amber-100 w-10 h-10 rounded-lg border-2 border-amber-200 flex items-center justify-center overflow-hidden">
+                <img src="assets/valogo.png" alt="Shop Icon" class="w-full h-full object-contain p-1" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                <i data-lucide="store" class="w-6 h-6 text-amber-700" style="display:none;"></i>
             </div>
             <span class="text-xl font-royal font-bold uppercase tracking-wider">Rewards Shop</span>
             
