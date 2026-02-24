@@ -507,12 +507,11 @@
                 currentUser = user;
                 console.log("Player ready:", user.uid);
             } else {
-                // If they lost connection or session, try to sign in silently
                 signInAnonymously(auth).catch(e => console.error(e));
             }
         });
 
-        // --- SAVE SCORE FUNCTION ---
+        // --- SAVE SCORE & ACHIEVEMENTS FUNCTION ---
         window.saveScore = async (gameId, newScore) => {
             if (!currentUser) {
                 console.warn("Not logged in. Score won't be saved to Leaderboard.");
@@ -522,21 +521,55 @@
             const userRef = doc(db, 'users', currentUser.uid);
 
             try {
-                // 1. Check existing score & bank balance
                 const docSnap = await getDoc(userRef);
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     const currentScores = data.scores || {};
                     const previousScore = currentScores[gameId] || 0;
                     const currentBank = data.bank_balance || 0;
+                    
+                    // Grab their current stamps, and set up an array to track new ones!
+                    let currentAchievements = data.achievements || [];
+                    let newlyUnlocked = [];
 
-                    // 2. ALWAYS award money & update timestamp
+                    // 1. UNIVERSAL STAMPS (Grind & Economy)
+                    if (!currentAchievements.includes('get_paid')) {
+                        currentAchievements.push('get_paid');
+                        newlyUnlocked.push('Get Paid!');
+                    }
+                    
+                    if ((currentBank + newScore) >= 1000 && !currentAchievements.includes('high_roller')) {
+                        currentAchievements.push('high_roller');
+                        newlyUnlocked.push('High Roller');
+                    }
+
+                    // 2. MASTERY STAMPS (Skill-based)
+                    if (gameId === 'knowledge' && newScore >= 100 && !currentAchievements.includes('historian')) {
+                        currentAchievements.push('historian'); newlyUnlocked.push('The Historian');
+                    }
+                    if (gameId === 'survival' && newScore >= 500 && !currentAchievements.includes('survivor')) {
+                        currentAchievements.push('survivor'); newlyUnlocked.push('The Survivor');
+                    }
+                    if (gameId === 'manners' && newScore >= 100 && !currentAchievements.includes('etiquette')) {
+                        currentAchievements.push('etiquette'); newlyUnlocked.push('Etiquette Expert');
+                    }
+                    if (gameId === 'commonwealth' && newScore >= 100 && !currentAchievements.includes('traveler')) {
+                        currentAchievements.push('traveler'); newlyUnlocked.push('World Traveler');
+                    }
+                    if (gameId === 'directions' && newScore >= 100 && !currentAchievements.includes('navigator')) {
+                        currentAchievements.push('navigator'); newlyUnlocked.push('The Navigator');
+                    }
+                    if (gameId === 'baking' && newScore >= 100 && !currentAchievements.includes('baker')) {
+                        currentAchievements.push('baker'); newlyUnlocked.push('Master Baker');
+                    }
+
+                    // 3. UPDATE FIREBASE
                     const updateData = {
                         bank_balance: currentBank + newScore,
+                        achievements: currentAchievements,
                         updatedAt: new Date().toISOString()
                     };
 
-                    // 3. Only update if higher
                     let isNewBest = false;
                     if (newScore > previousScore) {
                         updateData[`scores.${gameId}`] = newScore;
@@ -545,12 +578,24 @@
 
                     await updateDoc(userRef, updateData);
                     
+                    // 4. TRIGGER POP-UP ALERTS
                     setTimeout(() => {
+                        let msg = "";
+                        
+                        // Score & Money Alert
                         if (isNewBest) {
-                            alert(`🎉 New Personal Best: ${newScore}!\n💰 You also earned £${newScore} for the shop!`);
+                            msg += `🎉 New Personal Best: ${newScore}!\n`;
                         } else {
-                            alert(`💰 Good job! You earned £${newScore} for the shop!`);
+                            msg += `💰 Good job!\n`;
                         }
+                        msg += `You earned £${newScore} for the shop!\n`;
+                        
+                        // Achievement Alert
+                        if (newlyUnlocked.length > 0) {
+                            msg += `\n🏆 ACHIEVEMENT UNLOCKED:\n⭐ ` + newlyUnlocked.join('\n⭐ ');
+                        }
+                        
+                        alert(msg);
                     }, 500);
                 }
             } catch (error) {
