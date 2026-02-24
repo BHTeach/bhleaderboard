@@ -30,7 +30,7 @@
         .tab-active { background-color: #5D4037 !important; color: #F1C40F !important; }
         
         .rank-badge {
-            width: 28px; height: 28px; rounded-full; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white;
+            width: 28px; height: 28px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white;
         }
         .rank-1 { background: linear-gradient(135deg, #FFD700, #F59E0B); box-shadow: 0 2px 4px rgba(245,158,11,0.4); }
         .rank-2 { background: linear-gradient(135deg, #E2E8F0, #94A3B8); }
@@ -86,7 +86,7 @@
             <span class="text-green-600">£</span> <span id="bank-balance">0</span>
         </div>
         
-        <!-- Logo (Moved here, made smaller) -->
+        <!-- Logo -->
         <div class="w-12 h-12 bg-white rounded-full border-2 border-[#5D4037] shadow-[2px_2px_0px_#5D4037] flex items-center justify-center overflow-hidden z-10 relative">
             <img src="assets/logo.png" 
                  alt="British Hills Logo" 
@@ -99,7 +99,7 @@
     <!-- Header Section -->
     <header class="w-full max-w-3xl px-6 pt-2 pb-6 flex flex-col items-center text-center relative z-10">
         
-        <!-- Shop Button (Moved here, made prominent) -->
+        <!-- Shop Button -->
         <button onclick="openShop()" id="main-shop-btn" class="mb-6 mt-2 relative group bg-white hover:bg-amber-50 text-[#5D4037] px-6 py-3 rounded-xl border-4 border-[#5D4037] shadow-[4px_4px_0px_#5D4037] flex items-center gap-3 transition-all active:translate-y-1 active:shadow-[0px_0px_0px_#5D4037]">
             <div class="bg-amber-100 w-10 h-10 rounded-lg border-2 border-amber-200 flex items-center justify-center overflow-hidden">
                 <img src="assets/valogo.png" alt="Shop Icon" class="w-full h-full object-contain p-1" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
@@ -107,7 +107,7 @@
             </div>
             <span class="text-xl font-royal font-bold uppercase tracking-wider">Rewards Shop</span>
             
-            <!-- Notification Dot (Hidden by default) -->
+            <!-- Notification Dot -->
             <div id="shop-notification" class="hidden absolute -top-2 -right-2 flex h-5 w-5">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
               <span class="relative inline-flex rounded-full h-5 w-5 bg-red-500 border-2 border-white shadow-md"></span>
@@ -117,11 +117,9 @@
         <!-- The Display Shelf -->
         <div onclick="openTrophyRoom()" class="w-full max-w-xs mx-auto mt-0 mb-6 cursor-pointer group">
             <div class="wood-shelf h-4 rounded-full w-full relative z-0 mt-12 transition-transform group-hover:scale-[1.02] group-active:scale-95">
-                <!-- Items sit ON the shelf -->
                 <div id="shelf-items" class="absolute bottom-3 left-0 w-full flex justify-center gap-2 px-4 items-end">
                     <!-- Javascript injects up to 5 items here -->
                 </div>
-                <!-- Empty Shelf Signboard -->
                 <div id="empty-shelf-sign" onclick="openShop(); event.stopPropagation();" class="hidden absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-[#5D4037] text-amber-100 text-[11px] font-bold px-3 py-1.5 rounded border-2 border-[#3E2723] shadow-[0_4px_4px_rgba(0,0,0,0.5)] flex items-center gap-1 z-20 whitespace-nowrap hover:bg-[#8B5A2B] transition-colors">
                     <i data-lucide="shopping-bag" class="w-3 h-3"></i> Get Souvenirs!
                 </div>
@@ -259,7 +257,7 @@
             </div>
         </div>
         
-        <!-- Open Passport Button (Replaced the static ID Card) -->
+        <!-- Open Passport Button -->
         <button id="id-card" onclick="openPassport()" class="hidden w-full bg-[#012169] text-white rounded-xl p-4 shadow-lg border-4 border-blue-900 flex items-center justify-between hover:bg-blue-900 transition-colors group mb-6">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center border-2 border-white/30 group-hover:scale-110 transition-transform">
@@ -321,6 +319,69 @@
                     <!-- Stamps injected here -->
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- === SHOP MODAL === -->
+    <div id="shop-modal" class="hidden fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl fade-in overflow-hidden border-4 border-amber-500">
+            <!-- Shop Header -->
+            <div class="bg-amber-100 p-4 border-b border-amber-200 flex justify-between items-center shrink-0">
+                <h2 class="text-2xl font-royal font-bold text-amber-900 flex items-center gap-2">
+                    <i data-lucide="store" class="w-6 h-6"></i> BH Rewards Shop
+                </h2>
+                <button onclick="closeModals()" class="text-amber-700 hover:bg-amber-200 p-2 rounded-full transition">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <div class="p-4 bg-green-50 text-center border-b border-green-100 shrink-0">
+                <span class="text-sm text-green-700 font-bold uppercase tracking-widest">Your Balance</span>
+                <div class="text-3xl font-bold text-green-700">£ <span id="shop-balance">0</span></div>
+            </div>
+
+            <!-- Shop Items Grid -->
+            <div class="flex-1 overflow-y-auto p-4 bg-slate-50">
+                <div id="shop-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <!-- Javascript injects items here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- === TROPHY ROOM MODAL === -->
+    <div id="trophy-modal" class="hidden fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl fade-in overflow-hidden border-4 border-[#5D4037]">
+            <div class="bg-[#5D4037] p-4 border-b border-[#3E2723] flex justify-between items-center shrink-0 text-white">
+                <h2 class="text-2xl font-royal font-bold text-[#F1C40F] flex items-center gap-2">
+                    <i data-lucide="award" class="w-6 h-6"></i> Your Trophy Room
+                </h2>
+                <button onclick="closeModals()" class="text-white hover:bg-[#3E2723] p-2 rounded-full transition">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 bg-[#4A3224]">
+                <p id="trophy-empty-msg" class="text-center text-amber-200/50 mt-10 hidden font-bold">Your shelf is empty. Visit the shop to buy souvenirs!</p>
+                <div id="trophy-grid" class="grid grid-cols-3 md:grid-cols-4 gap-4">
+                    <!-- Owned items injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- === ITEM INFO MODAL === -->
+    <div id="item-info-modal" class="hidden fixed inset-0 z-[70] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl fade-in relative border-4 border-[#5D4037] text-center">
+            <button onclick="closeItemInfoModal()" class="absolute top-3 right-3 text-slate-400 hover:text-slate-800 bg-slate-100 rounded-full p-2 transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div id="info-pedestal" class="w-24 h-24 mx-auto flex items-center justify-center text-7xl mb-4 relative mt-2">
+                <!-- image/emoji injected here -->
+            </div>
+            <h3 id="info-name" class="font-royal text-2xl font-bold text-[#5D4037] mb-2">Item Name</h3>
+            <div id="info-rarity" class="text-[10px] font-bold uppercase tracking-widest mb-4 inline-block px-3 py-1 rounded">Rarity</div>
+            <p id="info-desc" class="text-slate-600 font-sans leading-relaxed text-sm bg-slate-50 p-4 rounded-xl border border-slate-100">Description goes here.</p>
         </div>
     </div>
 
@@ -410,7 +471,6 @@
         let currentTab = 'overall';
 
         // --- SHOP ITEMS DATA ---
-        // Updated to PNG and added rarity tiers!
         const SHOP_ITEMS = [
             { id: 'scone', name: 'Scone', price: 50, icon: 'assets/item_scone.png', emoji: '🧁', tier: 'common', description: 'A delicious British baked treat. We usually eat them with sweet jam and thick cream.' },
             { id: 'tea', name: 'Tea', price: 100, icon: 'assets/item_tea.png', emoji: '☕', tier: 'common', description: 'A very popular hot drink in Britain! It is often enjoyed with a little milk.' },
@@ -463,7 +523,7 @@
                 currentUser = user;
                 const userRef = doc(db, 'users', user.uid);
                 
-                // Real-time listener for THIS user's document (for instant bank/inventory updates)
+                // Real-time listener for THIS user's document
                 onSnapshot(userRef, (docSnap) => {
                     if (docSnap.exists()) {
                         const data = docSnap.data();
@@ -490,8 +550,8 @@
                         bankDisplay.textContent = userBankBalance;
                         shopBalanceDisplay.textContent = userBankBalance;
                         renderShelf();
-                        renderShop(); // Refresh shop buttons (owned/affordable states)
-                        renderPassportStamps(); // Refresh stamp book
+                        renderShop(); 
+                        renderPassportStamps(); 
                     } else {
                         // User exists in auth but no database document yet
                         loginModal.classList.remove('hidden');
@@ -565,7 +625,6 @@
                 const card = document.createElement('div');
                 card.className = `border-2 p-3 rounded-xl flex flex-col items-center text-center transition-all ${isUnlocked ? 'bg-white border-blue-200 shadow-md' : 'bg-slate-100 border-dashed border-slate-300 opacity-60'}`;
                 
-                // Add a random rotation variable to CSS to make the stamps look "stamped" on
                 const randomRot = Math.random();
                 
                 if (isUnlocked) {
@@ -595,25 +654,26 @@
         window.openShop = () => {
             if(!currentUser) { alert("Please register your passport to use the shop!"); return; }
             renderShop();
-            document.getElementById('shop-modal').classList.remove('hidden');
+            document.getElementById('shop-modal')?.classList.remove('hidden');
         };
 
         window.openTrophyRoom = () => {
             if(!currentUser) { alert("Please register your passport to view trophies!"); return; }
             renderTrophyRoom();
-            document.getElementById('trophy-modal').classList.remove('hidden');
+            document.getElementById('trophy-modal')?.classList.remove('hidden');
         };
 
         window.closeModals = () => {
-            document.getElementById('shop-modal').classList.add('hidden');
-            document.getElementById('trophy-modal').classList.add('hidden');
-            document.getElementById('item-info-modal').classList.add('hidden');
-            document.getElementById('passport-modal').classList.add('hidden');
-            document.getElementById('full-leaderboard-modal').classList.add('hidden');
+            // Added optional chaining (?) just in case, but all elements are now guaranteed to be here!
+            document.getElementById('shop-modal')?.classList.add('hidden');
+            document.getElementById('trophy-modal')?.classList.add('hidden');
+            document.getElementById('item-info-modal')?.classList.add('hidden');
+            document.getElementById('passport-modal')?.classList.add('hidden');
+            document.getElementById('full-leaderboard-modal')?.classList.add('hidden');
         };
 
         window.openFullLeaderboard = () => {
-            document.getElementById('full-leaderboard-modal').classList.remove('hidden');
+            document.getElementById('full-leaderboard-modal')?.classList.remove('hidden');
         };
 
         window.showItemInfo = (itemId) => {
@@ -637,11 +697,11 @@
                 <div style="display:none;" class="filter drop-shadow-xl ${glowClass}">${item.emoji}</div>
             `;
 
-            document.getElementById('item-info-modal').classList.remove('hidden');
+            document.getElementById('item-info-modal')?.classList.remove('hidden');
         };
 
         window.closeItemInfoModal = () => {
-            document.getElementById('item-info-modal').classList.add('hidden');
+            document.getElementById('item-info-modal')?.classList.add('hidden');
         };
 
         function renderShelf() {
@@ -659,7 +719,6 @@
                     const itemData = SHOP_ITEMS.find(i => i.id === itemId);
                     if(itemData) {
                         const el = document.createElement('div');
-                        // Removed white background/borders. Added flex-end and z-10 so they sit ON the shelf.
                         el.className = "w-12 h-12 flex items-end justify-center transform hover:scale-110 transition-transform cursor-pointer -mb-1 z-10";
                         el.onclick = (e) => { e.stopPropagation(); showItemInfo(itemData.id); };
                         el.innerHTML = `
@@ -671,7 +730,6 @@
                 });
             }
             
-            // Check if we should ping the shop button
             updateShopNotification();
         }
         
@@ -713,7 +771,6 @@
 
                 let glowClass = item.tier === 'epic' ? 'glow-epic' : (item.tier === 'rare' ? 'glow-rare' : '');
 
-                // Velvet display box inside the shop card
                 card.innerHTML = `
                     <div class="w-full aspect-square bg-gradient-to-br from-red-800 to-red-950 rounded-lg flex items-center justify-center text-5xl mb-3 border-2 border-amber-600/50 shadow-[inset_0_4px_8px_rgba(0,0,0,0.6)] relative overflow-hidden">
                         <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.15)_0%,transparent_60%)]"></div>
@@ -732,11 +789,9 @@
                 const newBalance = userBankBalance - price;
                 const newInventory = [...userInventory, itemId];
                 
-                // Check Shop-based Achievements!
                 let newAchievements = [...userAchievements];
                 const itemData = SHOP_ITEMS.find(i => i.id === itemId);
                 
-                // Changed from === 1 to >= 1 to catch existing accounts!
                 if (newInventory.length >= 1 && !newAchievements.includes('go_shopping')) newAchievements.push('go_shopping');
                 if (newInventory.length >= 5 && !newAchievements.includes('collector')) newAchievements.push('collector');
                 if (itemData && itemData.tier === 'epic' && !newAchievements.includes('crown_jewels')) newAchievements.push('crown_jewels');
@@ -768,18 +823,14 @@
                         let pedClass = itemData.tier === 'epic' ? 'pedestal-gold' : 'pedestal-silver';
 
                         const card = document.createElement('div');
-                        // Cabinet cubby styling
                         card.className = "cabinet-cubby flex flex-col items-center justify-end p-2 rounded-lg relative h-32 md:h-40 group hover:bg-[#3A2216] transition-colors cursor-pointer";
                         card.onclick = () => showItemInfo(itemData.id);
                         
                         card.innerHTML = `
-                            <!-- Item Image -->
                             <div class="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center text-5xl mb-1 z-10 ${glowClass} transform group-hover:scale-110 transition-transform duration-300">
                                 <img src="${itemData.icon}" class="w-full h-full object-contain filter drop-shadow-[0_8px_6px_rgba(0,0,0,0.8)]" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
                                 <div style="display:none;" class="filter drop-shadow-xl">${itemData.emoji}</div>
                             </div>
-                            
-                            <!-- Pedestal -->
                             <div class="w-3/4 h-3 md:h-4 rounded-t-sm shadow-lg z-0 ${pedClass}"></div>
                         `;
                         grid.appendChild(card);
@@ -796,7 +847,7 @@
             snapshot.forEach(doc => {
                 const data = doc.data();
                 if (data.nickname) { 
-                    data.uid = doc.id; // Save their exact Firebase ID so we can find 'You' in the list
+                    data.uid = doc.id; 
                     allUsersData.push(data); 
                 }
             });
@@ -817,18 +868,15 @@
         };
 
         function renderLeaderboard() {
-            // 1. Calculate the date exactly 30 days ago
             const thirtyDaysAgo = new Date();
             thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-            // 2. Filter out old data
             let activeUsers = allUsersData.filter(user => {
                 if (!user.updatedAt) return false;
                 const userDate = new Date(user.updatedAt);
                 return userDate >= thirtyDaysAgo;
             });
 
-            // 3. Map scores for the active tab
             let sortedUsers = activeUsers.map(user => {
                 const scores = user.scores || {};
                 let displayScore = 0;
@@ -849,7 +897,6 @@
 
             sortedUsers.sort((a, b) => b.displayScore - a.displayScore);
             
-            // --- NEW RANKING LOGIC (Calculate for everyone!) ---
             let currentRank = 1;
             let previousScore = null;
 
@@ -861,14 +908,12 @@
                 previousScore = user.displayScore;
             });
 
-            // Get Top 10 (max 15 rows for main display)
             const topUsers = [];
             for (let i = 0; i < sortedUsers.length; i++) {
                 if (topUsers.length >= 15 || sortedUsers[i].displayRank > 10) break;
                 topUsers.push(sortedUsers[i]);
             }
 
-            // Render Main Leaderboard
             leaderboardBody.innerHTML = '';
             
             if (topUsers.length === 0) {
@@ -898,7 +943,6 @@
                 });
                 leaderboardBody.innerHTML = mainTableHTML;
 
-                // Add current user to bottom of main table if not in top 10
                 if (currentUser) {
                     const myData = sortedUsers.find(u => u.uid === currentUser.uid);
                     const isInTopUsers = topUsers.some(u => u.uid === currentUser.uid);
@@ -921,7 +965,6 @@
                 }
             }
             
-            // Render Full Leaderboard Modal
             const fullBody = document.getElementById('full-leaderboard-body');
             if (fullBody) {
                 if (sortedUsers.length === 0) {
@@ -956,7 +999,6 @@
             lucide.createIcons();
         }
 
-        // Helpers
         window.startGame = (url) => {
             if (!currentUser) {
                 alert("Please Register your Passport first!");
