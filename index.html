@@ -293,6 +293,21 @@
         </div>
     </div>
 
+    <!-- === ITEM INFO MODAL === -->
+    <div id="item-info-modal" class="hidden fixed inset-0 z-[70] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl fade-in relative border-4 border-[#5D4037] text-center">
+            <button onclick="closeItemInfoModal()" class="absolute top-3 right-3 text-slate-400 hover:text-slate-800 bg-slate-100 rounded-full p-2 transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div id="info-pedestal" class="w-24 h-24 mx-auto flex items-center justify-center text-7xl mb-4 relative mt-2">
+                <!-- image/emoji injected here -->
+            </div>
+            <h3 id="info-name" class="font-royal text-2xl font-bold text-[#5D4037] mb-2">Item Name</h3>
+            <div id="info-rarity" class="text-[10px] font-bold uppercase tracking-widest mb-4 inline-block px-3 py-1 rounded">Rarity</div>
+            <p id="info-desc" class="text-slate-600 font-sans leading-relaxed text-sm bg-slate-50 p-4 rounded-xl border border-slate-100">Description goes here.</p>
+        </div>
+    </div>
+
     <!-- === LOGIN MODAL === -->
     <div id="login-modal" class="hidden fixed inset-0 z-[60] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl border-4 border-[#C8102E] fade-in text-center relative overflow-hidden">
@@ -347,12 +362,12 @@
         // --- SHOP ITEMS DATA ---
         // Updated to PNG and added rarity tiers!
         const SHOP_ITEMS = [
-            { id: 'scone', name: 'Scone', price: 50, icon: 'assets/item_scone.png', emoji: '🧁', tier: 'common' },
-            { id: 'tea', name: 'Tea', price: 100, icon: 'assets/item_tea.png', emoji: '☕', tier: 'common' },
-            { id: 'bus', name: 'Bus', price: 250, icon: 'assets/item_bus.png', emoji: '🚌', tier: 'rare' },
-            { id: 'guard', name: 'Helmet', price: 400, icon: 'assets/item_guard.png', emoji: '💂', tier: 'rare' },
-            { id: 'sword', name: 'Excalibur', price: 500, icon: 'assets/item_sword.png', emoji: '🗡️', tier: 'epic' },
-            { id: 'crown', name: 'Crown', price: 1000, icon: 'assets/item_crown.png', emoji: '👑', tier: 'epic' }
+            { id: 'scone', name: 'Scone', price: 50, icon: 'assets/item_scone.png', emoji: '🧁', tier: 'common', description: 'A delicious British baked treat. We usually eat them with sweet jam and thick cream.' },
+            { id: 'tea', name: 'Tea', price: 100, icon: 'assets/item_tea.png', emoji: '☕', tier: 'common', description: 'A very popular hot drink in Britain! It is often enjoyed with a little milk.' },
+            { id: 'bus', name: 'Bus', price: 250, icon: 'assets/item_bus.png', emoji: '🚌', tier: 'rare', description: 'The famous red double-decker bus is a symbol of London. It has two floors for passengers!' },
+            { id: 'guard', name: 'Helmet', price: 400, icon: 'assets/item_guard.png', emoji: '💂', tier: 'rare', description: "A tall black hat worn by the King's Guard. The guards are famous for standing very still." },
+            { id: 'sword', name: 'Excalibur', price: 500, icon: 'assets/item_sword.png', emoji: '🗡️', tier: 'epic', description: 'The magical sword of King Arthur. Legends say only the true king could pull it from a stone!' },
+            { id: 'crown', name: 'Crown', price: 1000, icon: 'assets/item_crown.png', emoji: '👑', tier: 'epic', description: "St Edward's Crown was made in 1661 and has 444 gemstones such as rubies, and sapphires." }
         ];
 
         let userBankBalance = 0;
@@ -467,6 +482,34 @@
             document.getElementById('trophy-modal').classList.add('hidden');
         };
 
+        window.showItemInfo = (itemId) => {
+            const item = SHOP_ITEMS.find(i => i.id === itemId);
+            if (!item) return;
+            
+            document.getElementById('info-name').textContent = item.name;
+            document.getElementById('info-desc').textContent = item.description;
+            
+            // Rarity badge styling
+            const rarityBadge = document.getElementById('info-rarity');
+            rarityBadge.textContent = item.tier;
+            if(item.tier === 'epic') { rarityBadge.className = "text-[10px] font-bold uppercase tracking-widest mb-4 inline-block px-3 py-1 rounded bg-yellow-100 text-yellow-800 border border-yellow-300"; }
+            else if(item.tier === 'rare') { rarityBadge.className = "text-[10px] font-bold uppercase tracking-widest mb-4 inline-block px-3 py-1 rounded bg-blue-100 text-blue-800 border border-blue-300"; }
+            else { rarityBadge.className = "text-[10px] font-bold uppercase tracking-widest mb-4 inline-block px-3 py-1 rounded bg-gray-100 text-gray-600 border border-gray-300"; }
+
+            // Image
+            let glowClass = item.tier === 'epic' ? 'glow-epic' : (item.tier === 'rare' ? 'glow-rare' : '');
+            document.getElementById('info-pedestal').innerHTML = `
+                <img src="${item.icon}" class="w-full h-full object-contain filter drop-shadow-[0_8px_6px_rgba(0,0,0,0.6)] ${glowClass}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                <div style="display:none;" class="filter drop-shadow-xl ${glowClass}">${item.emoji}</div>
+            `;
+
+            document.getElementById('item-info-modal').classList.remove('hidden');
+        };
+
+        window.closeItemInfoModal = () => {
+            document.getElementById('item-info-modal').classList.add('hidden');
+        };
+
         function renderShelf() {
             shelfItemsContainer.innerHTML = '';
             // Show up to 5 items on the small shelf
@@ -478,6 +521,7 @@
                     const el = document.createElement('div');
                     // Removed white background/borders. Added flex-end and z-10 so they sit ON the shelf.
                     el.className = "w-12 h-12 flex items-end justify-center transform hover:scale-110 transition-transform cursor-pointer -mb-1 z-10";
+                    el.onclick = (e) => { e.stopPropagation(); showItemInfo(itemData.id); };
                     el.innerHTML = `
                         <img src="${itemData.icon}" class="w-full max-h-full object-contain filter drop-shadow-[0_4px_3px_rgba(0,0,0,0.6)]" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
                         <div style="display:none;" class="text-3xl filter drop-shadow-md">${itemData.emoji}</div>
@@ -555,7 +599,8 @@
 
                         const card = document.createElement('div');
                         // Cabinet cubby styling
-                        card.className = "cabinet-cubby flex flex-col items-center justify-end p-2 rounded-lg relative h-32 md:h-40 group hover:bg-[#3A2216] transition-colors";
+                        card.className = "cabinet-cubby flex flex-col items-center justify-end p-2 rounded-lg relative h-32 md:h-40 group hover:bg-[#3A2216] transition-colors cursor-pointer";
+                        card.onclick = () => showItemInfo(itemData.id);
                         
                         card.innerHTML = `
                             <!-- Label tag at the top of the cubby -->
