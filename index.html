@@ -224,6 +224,7 @@
         <div id="leaderboard-section" class="w-full bg-white border-4 border-[#5D4037] rounded-xl shadow-[8px_8px_0px_#5D4037] overflow-hidden mb-12">
             <div class="bg-[#5D4037] p-4 text-center">
                 <h2 class="text-2xl text-[#F1C40F] drop-shadow-md font-royal font-bold">🏆 Leaderboard</h2>
+                <p class="text-amber-200 text-sm mt-1">Make it into the Top Ten and see your name here!</p>
             </div>
             
             <!-- Category Tabs -->
@@ -866,7 +867,28 @@
             });
 
             sortedUsers.sort((a, b) => b.displayScore - a.displayScore);
-            const topUsers = sortedUsers.slice(0, 50);
+            
+            // --- NEW RANKING LOGIC (Top 10, Ties allowed, Max 15 rows) ---
+            const topUsers = [];
+            let currentRank = 1;
+            let previousScore = null;
+
+            for (let i = 0; i < sortedUsers.length; i++) {
+                if (topUsers.length >= 15) break; // Hard cap at 15 rows to prevent long pages
+
+                const user = sortedUsers[i];
+                
+                // If the score is lower than the previous one, drop down a rank
+                if (previousScore !== null && user.displayScore < previousScore) {
+                    currentRank++; 
+                }
+
+                if (currentRank > 10) break; // Stop completely after Rank 10
+
+                user.displayRank = currentRank; // Store the calculated rank
+                topUsers.push(user);
+                previousScore = user.displayScore;
+            }
 
             leaderboardBody.innerHTML = '';
             
@@ -875,8 +897,8 @@
                 return;
             }
 
-            topUsers.forEach((user, index) => {
-                const rank = index + 1;
+            topUsers.forEach((user) => {
+                const rank = user.displayRank;
                 let rankClass = 'rank-other';
                 if (rank === 1) rankClass = 'rank-1';
                 if (rank === 2) rankClass = 'rank-2';
