@@ -389,9 +389,12 @@
         const SHOP_ITEMS = [
             { id: 'scone', name: 'Scone', price: 50, icon: 'assets/item_scone.png', emoji: '🧁', tier: 'common', description: 'A delicious British baked treat. We usually eat them with sweet jam and thick cream.' },
             { id: 'tea', name: 'Tea', price: 100, icon: 'assets/item_tea.png', emoji: '☕', tier: 'common', description: 'A very popular hot drink in Britain! It is often enjoyed with a little milk.' },
-            { id: 'bus', name: 'Bus', price: 250, icon: 'assets/item_bus.png', emoji: '🚌', tier: 'rare', description: 'The famous red double-decker bus is a symbol of London. It has two floors for passengers!' },
-            { id: 'guard', name: 'Helmet', price: 400, icon: 'assets/item_guard.png', emoji: '💂', tier: 'rare', description: "A tall black hat worn by the King's Guard. The guards are famous for standing very still." },
+            { id: 'bus', name: 'Double-Decker Bus', price: 250, icon: 'assets/item_bus.png', emoji: '🚌', tier: 'rare', description: 'The famous red double-decker bus is a symbol of London. It has two floors for passengers!' },
+            { id: 'afternoontea', name: 'Afternoon Tea', price: 250, icon: 'assets/afternoontea.png', emoji: '🫖', tier: 'rare', description: 'Afternoon tea started in the 19th century in England. There is both "high" and "low" tea.' },
+            { id: 'guard', name: 'King\'s Guard Helmet', price: 400, icon: 'assets/item_guard.png', emoji: '💂', tier: 'rare', description: "A tall black hat worn by the King's Guard. The guards are famous for standing very still." },
+            { id: 'unicorn', name: 'Unicorn', price: 450, icon: 'assets/unicorn.png', emoji: '🦄', tier: 'epic', description: 'Unicorns are the national symbol of Scotland, and symbolise purity and virtue.' },
             { id: 'sword', name: 'Excalibur', price: 500, icon: 'assets/item_sword.png', emoji: '🗡️', tier: 'epic', description: 'The magical sword of King Arthur. Legends say only the true king could pull it from a stone!' },
+            { id: 'welshdragon', name: 'Welsh Dragon', price: 600, icon: 'assets/welshdragon.png', emoji: '🐉', tier: 'epic', description: 'The Welsh Dragon is a red dragon. It appears on the Welsh flag.' },
             { id: 'crown', name: 'Crown', price: 1000, icon: 'assets/item_crown.png', emoji: '👑', tier: 'epic', description: "St Edward's Crown was made in 1661 and has 444 gemstones such as rubies, and sapphires." }
         ];
 
@@ -654,11 +657,6 @@
                         card.onclick = () => showItemInfo(itemData.id);
                         
                         card.innerHTML = `
-                            <!-- Label tag at the top of the cubby -->
-                            <div class="absolute top-2 left-0 w-full text-center z-10 opacity-70 group-hover:opacity-100 transition-opacity">
-                                <span class="text-[10px] md:text-xs font-bold text-amber-200 uppercase tracking-widest px-2">${itemData.name}</span>
-                            </div>
-                            
                             <!-- Item Image -->
                             <div class="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center text-5xl mb-1 z-10 ${glowClass} transform group-hover:scale-110 transition-transform duration-300">
                                 <img src="${itemData.icon}" class="w-full h-full object-contain filter drop-shadow-[0_8px_6px_rgba(0,0,0,0.8)]" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
