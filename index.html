@@ -757,7 +757,8 @@
                 let newAchievements = [...userAchievements];
                 const itemData = SHOP_ITEMS.find(i => i.id === itemId);
                 
-                if (newInventory.length === 1 && !newAchievements.includes('go_shopping')) newAchievements.push('go_shopping');
+                // Changed from === 1 to >= 1 to catch existing accounts!
+                if (newInventory.length >= 1 && !newAchievements.includes('go_shopping')) newAchievements.push('go_shopping');
                 if (newInventory.length >= 5 && !newAchievements.includes('collector')) newAchievements.push('collector');
                 if (itemData && itemData.tier === 'epic' && !newAchievements.includes('crown_jewels')) newAchievements.push('crown_jewels');
                 
