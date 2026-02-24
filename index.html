@@ -588,6 +588,29 @@
             
             if (!nickname) { alert("Please enter your name!"); return; }
 
+            // --- 1. ENGLISH CHARACTERS ONLY CHECK ---
+            // This allows A-Z, numbers, spaces, and basic punctuation (hyphens, apostrophes, periods).
+            const englishRegex = /^[a-zA-Z0-9\s.,'-]+$/;
+            if (!englishRegex.test(nickname) || (town !== "" && !englishRegex.test(town))) {
+                alert("Please use only English alphabet characters (Romaji) for your name and town!");
+                return;
+            }
+
+            // --- 2. PROFANITY FILTER (BASIC DICTIONARY) ---
+            // Add any inappropriate words to this list. Keep them lowercase.
+            const badWords = ['poop', 'crap', 'idiot', 'stupid', 'dumb']; 
+            
+            // Checks if any of the bad words are isolated in the text (so "ass" doesn't block "class")
+            const checkProfanity = (text) => {
+                const lower = text.toLowerCase();
+                return badWords.some(word => new RegExp(`\\b${word}\\b`, 'i').test(lower));
+            };
+
+            if (checkProfanity(nickname) || checkProfanity(town)) {
+                alert("Please choose a more appropriate name and town.");
+                return;
+            }
+
             // Give them the Official Citizen stamp for registering
             let newAchievements = [...userAchievements];
             if (!newAchievements.includes('official_citizen')) {
