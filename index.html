@@ -598,7 +598,13 @@
 
             // --- 2. PROFANITY FILTER (BASIC DICTIONARY) ---
             // Add any inappropriate words to this list. Keep them lowercase.
-            const badWords = ['poop', 'crap', 'idiot', 'stupid', 'dumb']; 
+            const badWords = [
+                'poop', 'crap', 'idiot', 'stupid', 'dumb', 'ugly', 'hate',
+                'ass', 'asshole', 'bitch', 'bastard', 'damn', 'fuck',
+                'shit', 'dick', 'cock', 'pussy', 'cunt', 'twat', 'wanker',
+                'tosser', 'slut', 'whore', 'boob', 'boobs', 'tits',
+                'penis', 'vagina', 'sex', 'porn', 'manko', 'nigger', 'whore' 
+            ]; 
             
             // Checks if any of the bad words are isolated in the text (so "ass" doesn't block "class")
             const checkProfanity = (text) => {
