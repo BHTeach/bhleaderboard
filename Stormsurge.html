@@ -13,19 +13,59 @@
         .danger { color: #f87171; animation: blink 1s infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .briefing-card { border-left: 4px solid #0ea5e9; background: rgba(15, 23, 42, 0.6); }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
-    <div id="main-container" class="max-w-5xl w-full p-8 rounded-xl status-box shadow-2xl border-2 border-sky-900">
+    
+    <!-- Phase 0: Mission Briefing (Front Page) -->
+    <div id="landing-section" class="max-w-4xl w-full p-8 rounded-xl status-box shadow-2xl border-2 border-sky-900">
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-black uppercase tracking-[0.2em] text-white mb-2">Storm Protocol</h1>
+            <p class="text-sky-500 font-bold uppercase tracking-widest text-sm">Emergency Mission Briefing</p>
+        </div>
+
+        <div class="space-y-6 text-slate-300 leading-relaxed">
+            <div class="briefing-card p-4">
+                <h2 class="text-sky-400 font-bold uppercase mb-2">The Situation</h2>
+                <p>A huge storm has hit the Manor House, and the power is out. We have <strong>65 minutes</strong> before the food spoils. You must start the generator before the time runs out. If you fail, dinner is cancelled!</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="briefing-card p-4">
+                    <h2 class="text-sky-400 font-bold uppercase mb-2">Communication</h2>
+                    <ul class="list-disc list-inside space-y-1 text-sm">
+                        <li>Use workplace tools (Zoom, Teams, etc.)</li>
+                        <li>Talk to other departments to find clues</li>
+                        <li>You can use Smartphones or Laptops</li>
+                        <li>You can use many devices at the same time</li>
+                    </ul>
+                </div>
+                <div class="briefing-card p-4 border-l-red-500">
+                    <h2 class="text-red-400 font-bold uppercase mb-2">Rules</h2>
+                    <ul class="list-disc list-inside space-y-1 text-sm">
+                        <li>Outside resources are allowed (Google)</li>
+                        <li class="text-red-300 font-bold">Penalty: Using Japanese mutes your department for 2 minutes</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <button id="startBtn" class="mt-10 w-full py-6 bg-sky-600 text-white font-black rounded-lg border-2 border-white hover:bg-sky-500 transition-all uppercase tracking-[0.3em] text-2xl shadow-[0_0_30px_rgba(2,132,199,0.4)]">
+            Begin Challenge
+        </button>
+    </div>
+
+    <!-- Phase 1: Dashboard Inputs -->
+    <div id="main-container" class="max-w-5xl w-full p-8 rounded-xl status-box shadow-2xl border-2 border-sky-900 hidden">
         <div class="flex justify-between items-center mb-6 border-b-2 border-sky-900 pb-4">
             <div>
                 <h1 class="text-3xl font-bold uppercase tracking-widest">Generator Dashboard</h1>
-                <p class="text-xs text-sky-600 mt-1 cursor-default select-none" id="version-trigger">BRITISH HILLS - EMERGENCY SYSTEMS V5.1</p>
+                <p class="text-xs text-sky-600 mt-1 cursor-default select-none" id="version-trigger">BRITISH HILLS - EMERGENCY SYSTEMS V5.2</p>
             </div>
             <div id="timer" class="text-4xl font-bold text-red-500">65:00</div>
         </div>
 
-        <!-- Phase 1: Inputs -->
         <div id="input-section">
             <h2 class="text-lg font-bold text-slate-400 uppercase tracking-widest mb-4 border-l-4 border-slate-500 pl-2">Primary Systems</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -74,11 +114,10 @@
         <div id="finalMessage" class="hidden flex flex-col items-center">
             <div class="w-full p-4 border-4 border-red-500 bg-red-950/20 text-red-400 rounded-lg text-center mb-8">
                 <h2 class="text-3xl font-black mb-2 danger">SYSTEM CRITICAL: OVERHEAT</h2>
-                <p class="font-bold">Manual Sync Required. Combine your Master Key Fragments and trace the active pattern to override.</p>
+                <p class="font-bold text-sm">Manual Sync Required. Combine your Master Key Fragments and trace the active pattern to override.</p>
             </div>
 
             <div class="flex flex-col items-center justify-center w-full">
-                <!-- Interactive Pattern Lock Canvas -->
                 <canvas id="pattern-lock" width="350" height="350" class="bg-slate-900 rounded-xl border-4 border-sky-900 shadow-[0_0_20px_rgba(2,132,199,0.3)] touch-none cursor-crosshair"></canvas>
                 <p id="feedback-text" class="mt-4 text-xs font-bold text-center h-4 text-red-400 uppercase tracking-widest"></p>
             </div>
@@ -97,56 +136,80 @@
         
         let timeLeft = 3900; 
         let secretCount = 0;
+        let countdown = null;
 
-        // Timer Logic
-        const timerDisplay = document.getElementById('timer');
-        const countdown = setInterval(() => {
-            if(timeLeft <= 0) {
-                clearInterval(countdown);
-                document.body.innerHTML = "<div class='text-red-500 text-6xl font-black p-20 text-center uppercase'>Session Expired. System Failure.</div>";
-                return;
-            }
-            timeLeft--;
-            const mins = Math.floor(timeLeft / 60);
-            const secs = timeLeft % 60;
-            timerDisplay.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        }, 1000);
+        // Challenge Start Logic
+        document.getElementById('startBtn').onclick = () => {
+            document.getElementById('landing-section').classList.add('hidden');
+            document.getElementById('main-container').classList.remove('hidden');
+            startTimer();
+        };
 
-        function updateStatus(id, isCorrect) {
+        function startTimer() {
+            const timerDisplay = document.getElementById('timer');
+            countdown = setInterval(() => {
+                if(timeLeft <= 0) {
+                    clearInterval(countdown);
+                    document.body.innerHTML = "<div class='text-red-500 text-6xl font-black p-20 text-center uppercase'>Session Expired. System Failure.</div>";
+                    return;
+                }
+                timeLeft--;
+                const mins = Math.floor(timeLeft / 60);
+                const secs = timeLeft % 60;
+                timerDisplay.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function updateStatus(id, inputVal, correctVal, isSpecialMatch = null) {
             const el = document.getElementById(id);
+            const rawVal = String(inputVal).trim();
+            
+            if (rawVal === "" || (typeof inputVal === 'number' && isNaN(inputVal))) {
+                el.textContent = "Waiting";
+                el.className = "mt-2 text-[10px] uppercase tracking-widest font-bold text-center text-slate-500";
+                return false;
+            }
+
+            const isCorrect = isSpecialMatch !== null ? isSpecialMatch : (inputVal === correctVal);
+
             if(isCorrect) {
                 el.textContent = "Verified";
                 el.className = "mt-2 text-[10px] uppercase tracking-widest font-bold text-center success";
+                return true;
             } else {
                 el.textContent = "Error";
                 el.className = "mt-2 text-[10px] uppercase tracking-widest font-bold text-center danger";
+                return false;
             }
         }
 
-        // Sequence Initialization
         document.getElementById('activateBtn').onclick = () => {
-            const valA = parseInt(document.getElementById('inputA').value);
-            const valB = parseInt(document.getElementById('inputB').value);
-            const valC = document.getElementById('inputC').value.toUpperCase();
-            const valA_sec = parseInt(document.getElementById('inputA_sec').value);
-            const valB_sec = parseInt(document.getElementById('inputB_sec').value);
-            const valC_sec = document.getElementById('inputC_sec').value.toUpperCase();
+            const rawA = document.getElementById('inputA').value;
+            const rawB = document.getElementById('inputB').value;
+            const rawC = document.getElementById('inputC').value.toUpperCase();
+            const rawA_sec = document.getElementById('inputA_sec').value;
+            const rawB_sec = document.getElementById('inputB_sec').value;
+            const rawC_sec = document.getElementById('inputC_sec').value.toUpperCase();
 
-            let isC_Correct = (valC === "DF" || valC === "FD");
-            let isA_Sec_Correct = (valA_sec === solA_sec1 || valA_sec === solA_sec2);
+            const valA = parseInt(rawA);
+            const valB = parseInt(rawB);
+            const valC = rawC;
+            const valA_sec = parseInt(rawA_sec);
+            const valB_sec = parseInt(rawB_sec);
+            const valC_sec = rawC_sec;
 
-            let allCorrect = (valA === solA && valB === solB && isC_Correct && isA_Sec_Correct && valB_sec === solB_sec && valC_sec === solC_sec);
+            const isA_Correct = updateStatus('statusA', valA, solA);
+            const isB_Correct = updateStatus('statusB', valB, solB);
+            const isC_Correct = updateStatus('statusC', valC, null, (valC === "DF" || valC === "FD"));
+            const isA_Sec_Correct = updateStatus('statusA_sec', valA_sec, null, (valA_sec === solA_sec1 || valA_sec === solA_sec2));
+            const isB_Sec_Correct = updateStatus('statusB_sec', valB_sec, solB_sec);
+            const isC_Sec_Correct = updateStatus('statusC_sec', valC_sec, solC_sec);
+
+            const allCorrect = (isA_Correct && isB_Correct && isC_Correct && isA_Sec_Correct && isB_Sec_Correct && isC_Sec_Correct);
 
             if (allCorrect) {
                 initiateFinale();
             } else {
-                updateStatus('statusA', valA === solA);
-                updateStatus('statusB', valB === solB);
-                updateStatus('statusC', isC_Correct);
-                updateStatus('statusA_sec', isA_Sec_Correct);
-                updateStatus('statusB_sec', valB_sec === solB_sec);
-                updateStatus('statusC_sec', valC_sec === solC_sec);
-
                 document.getElementById('activateBtn').textContent = "ERROR: SEQUENCE MISMATCH";
                 document.getElementById('activateBtn').classList.add('bg-red-800');
                 setTimeout(() => {
@@ -156,16 +219,12 @@
             }
         };
 
-        // Finale Phase Initiation
         function initiateFinale() {
             document.getElementById('input-section').classList.add('hidden');
             document.getElementById('finalMessage').classList.remove('hidden');
-            
-            // Start Canvas Setup
             initPatternLock();
         }
 
-        /* --- PATTERN LOCK LOGIC --- */
         function initPatternLock() {
             const canvas = document.getElementById('pattern-lock');
             const ctx = canvas.getContext('2d');
@@ -175,9 +234,8 @@
             let path = [];
             let isDrawing = false;
             let currentX, currentY;
-            let drawColor = '#38bdf8'; // Sky-400
+            let drawColor = '#38bdf8';
 
-            // Generate 3x3 grid nodes
             const padding = 50;
             const spacing = (canvas.width - padding * 2) / 2;
             let idCounter = 1;
@@ -189,36 +247,28 @@
 
             function draw() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                // Draw connecting lines
                 if (path.length > 0) {
                     ctx.beginPath();
                     ctx.strokeStyle = drawColor;
                     ctx.lineWidth = 10;
                     ctx.lineJoin = 'round';
                     ctx.lineCap = 'round';
-                    
                     const first = nodes.find(n => n.id === path[0]);
                     ctx.moveTo(first.x, first.y);
-                    
                     for (let i = 1; i < path.length; i++) {
                         const n = nodes.find(n => n.id === path[i]);
                         ctx.lineTo(n.x, n.y);
                     }
-                    if (isDrawing) {
-                        ctx.lineTo(currentX, currentY);
-                    }
+                    if (isDrawing) ctx.lineTo(currentX, currentY);
                     ctx.stroke();
                 }
-
-                // Draw Nodes
                 nodes.forEach(n => {
                     ctx.beginPath();
                     ctx.arc(n.x, n.y, 16, 0, Math.PI * 2);
                     ctx.fillStyle = path.includes(n.id) ? drawColor : '#1e293b';
                     ctx.fill();
                     ctx.lineWidth = 4;
-                    ctx.strokeStyle = '#0ea5e9'; // darker sky blue border
+                    ctx.strokeStyle = '#0ea5e9';
                     ctx.stroke();
                 });
             }
@@ -231,12 +281,12 @@
             }
 
             function checkNodeCollision(pos) {
-                const hitRadius = 30; // forgiving hit box
+                const hitRadius = 30;
                 nodes.forEach(n => {
                     const dist = Math.hypot(n.x - pos.x, n.y - pos.y);
                     if (dist < hitRadius && !path.includes(n.id)) {
                         path.push(n.id);
-                        drawColor = '#38bdf8'; // reset to blue if they hit a node
+                        drawColor = '#38bdf8';
                     }
                 });
             }
@@ -272,34 +322,28 @@
 
             function validatePattern() {
                 if (path.length === 0) return;
-
                 const pathStr = path.join("");
-                // The "Z" Shape from top left (1,2,3,5,7,8,9) OR bottom right (9,8,7,5,3,2,1)
                 if (pathStr === "1235789" || pathStr === "9875321") {
-                    drawColor = '#4ade80'; // Green success
+                    drawColor = '#4ade80';
                     draw();
                     setTimeout(success, 500);
                 } else {
-                    drawColor = '#ef4444'; // Red failure
+                    drawColor = '#ef4444';
                     draw();
                     feedback.textContent = "PATTERN INCORRECT. RELAY CIRCUIT FRAGMENTS.";
                     setTimeout(() => { path = []; draw(); }, 1000);
                 }
             }
 
-            // Event Listeners for Mouse and Touch
             canvas.addEventListener('mousedown', handleStart);
             canvas.addEventListener('mousemove', handleMove);
             window.addEventListener('mouseup', handleEnd);
-            
             canvas.addEventListener('touchstart', handleStart, {passive: false});
             canvas.addEventListener('touchmove', handleMove, {passive: false});
             window.addEventListener('touchend', handleEnd);
-
-            draw(); // Initial render
+            draw();
         }
 
-        // Success State
         function success() {
             document.getElementById('main-container').innerHTML = `
                 <div class="text-center py-12 animate-pulse">
@@ -316,7 +360,6 @@
             document.body.style.backgroundColor = "#064e3b";
         }
 
-        // Teacher Override (Click version number 5 times)
         document.getElementById('version-trigger').onclick = () => {
             secretCount++;
             if (secretCount >= 5) success();
