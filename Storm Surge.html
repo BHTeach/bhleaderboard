@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>British Hills Generator Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        body { font-family: 'JetBrains+Mono', monospace; background-color: #0f172a; color: #38bdf8; overflow-x: hidden; }
+        .status-box { border: 2px solid #1e293b; background: #1e293b55; }
+        .success { color: #4ade80; border-color: #4ade80; }
+        .danger { color: #f87171; animation: blink 1s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div id="main-container" class="max-w-5xl w-full p-8 rounded-xl status-box shadow-2xl border-2 border-sky-900">
+        <div class="flex justify-between items-center mb-6 border-b-2 border-sky-900 pb-4">
+            <div>
+                <h1 class="text-3xl font-bold uppercase tracking-widest">Generator Dashboard</h1>
+                <p class="text-xs text-sky-600 mt-1 cursor-default select-none" id="version-trigger">BRITISH HILLS - EMERGENCY SYSTEMS V5.1</p>
+            </div>
+            <div id="timer" class="text-4xl font-bold text-red-500">65:00</div>
+        </div>
+
+        <!-- Phase 1: Inputs -->
+        <div id="input-section">
+            <h2 class="text-lg font-bold text-slate-400 uppercase tracking-widest mb-4 border-l-4 border-slate-500 pl-2">Primary Systems</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
+                    <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room A: Voltage</label>
+                    <input type="number" id="inputA" placeholder="--" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white">
+                    <div id="statusA" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
+                </div>
+                <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
+                    <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room B: Freq.</label>
+                    <input type="number" id="inputB" placeholder="---" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white">
+                    <div id="statusB" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
+                </div>
+                <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
+                    <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room C: Press.</label>
+                    <input type="text" id="inputC" placeholder="--" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white uppercase" maxlength="2">
+                    <div id="statusC" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
+                </div>
+            </div>
+
+            <h2 class="text-lg font-bold text-slate-400 uppercase tracking-widest mb-4 border-l-4 border-slate-500 pl-2">Secondary Systems</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
+                    <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room A: Cooling</label>
+                    <input type="number" id="inputA_sec" placeholder="----" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white">
+                    <div id="statusA_sec" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
+                </div>
+                <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
+                    <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room B: Temp.</label>
+                    <input type="number" id="inputB_sec" placeholder="---" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white">
+                    <div id="statusB_sec" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
+                </div>
+                <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
+                    <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room C: Fuel</label>
+                    <input type="text" id="inputC_sec" placeholder="---" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white uppercase" maxlength="3">
+                    <div id="statusC_sec" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
+                </div>
+            </div>
+
+            <button id="activateBtn" class="w-full py-4 bg-sky-900 text-white font-bold rounded-lg border-2 border-sky-400 hover:bg-sky-700 transition-all uppercase tracking-widest text-xl">
+                Initialise Power Sequence
+            </button>
+        </div>
+
+        <!-- Phase 2: Pattern Lock Interface -->
+        <div id="finalMessage" class="hidden flex flex-col items-center">
+            <div class="w-full p-4 border-4 border-red-500 bg-red-950/20 text-red-400 rounded-lg text-center mb-8">
+                <h2 class="text-3xl font-black mb-2 danger">SYSTEM CRITICAL: OVERHEAT</h2>
+                <p class="font-bold">Manual Sync Required. Combine your Master Key Fragments and trace the active pattern to override.</p>
+            </div>
+
+            <div class="flex flex-col items-center justify-center w-full">
+                <!-- Interactive Pattern Lock Canvas -->
+                <canvas id="pattern-lock" width="350" height="350" class="bg-slate-900 rounded-xl border-4 border-sky-900 shadow-[0_0_20px_rgba(2,132,199,0.3)] touch-none cursor-crosshair"></canvas>
+                <p id="feedback-text" class="mt-4 text-xs font-bold text-center h-4 text-red-400 uppercase tracking-widest"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // System Solutions
+        const solA = 26; 
+        const solB = 124; 
+        const solC = "DF"; 
+        const solA_sec1 = 1488;
+        const solA_sec2 = 8814;
+        const solB_sec = 850; 
+        const solC_sec = "N7F";
+        
+        let timeLeft = 3900; 
+        let secretCount = 0;
+
+        // Timer Logic
+        const timerDisplay = document.getElementById('timer');
+        const countdown = setInterval(() => {
+            if(timeLeft <= 0) {
+                clearInterval(countdown);
+                document.body.innerHTML = "<div class='text-red-500 text-6xl font-black p-20 text-center uppercase'>Session Expired. System Failure.</div>";
+                return;
+            }
+            timeLeft--;
+            const mins = Math.floor(timeLeft / 60);
+            const secs = timeLeft % 60;
+            timerDisplay.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }, 1000);
+
+        function updateStatus(id, isCorrect) {
+            const el = document.getElementById(id);
+            if(isCorrect) {
+                el.textContent = "Verified";
+                el.className = "mt-2 text-[10px] uppercase tracking-widest font-bold text-center success";
+            } else {
+                el.textContent = "Error";
+                el.className = "mt-2 text-[10px] uppercase tracking-widest font-bold text-center danger";
+            }
+        }
+
+        // Sequence Initialization
+        document.getElementById('activateBtn').onclick = () => {
+            const valA = parseInt(document.getElementById('inputA').value);
+            const valB = parseInt(document.getElementById('inputB').value);
+            const valC = document.getElementById('inputC').value.toUpperCase();
+            const valA_sec = parseInt(document.getElementById('inputA_sec').value);
+            const valB_sec = parseInt(document.getElementById('inputB_sec').value);
+            const valC_sec = document.getElementById('inputC_sec').value.toUpperCase();
+
+            let isC_Correct = (valC === "DF" || valC === "FD");
+            let isA_Sec_Correct = (valA_sec === solA_sec1 || valA_sec === solA_sec2);
+
+            let allCorrect = (valA === solA && valB === solB && isC_Correct && isA_Sec_Correct && valB_sec === solB_sec && valC_sec === solC_sec);
+
+            if (allCorrect) {
+                initiateFinale();
+            } else {
+                updateStatus('statusA', valA === solA);
+                updateStatus('statusB', valB === solB);
+                updateStatus('statusC', isC_Correct);
+                updateStatus('statusA_sec', isA_Sec_Correct);
+                updateStatus('statusB_sec', valB_sec === solB_sec);
+                updateStatus('statusC_sec', valC_sec === solC_sec);
+
+                document.getElementById('activateBtn').textContent = "ERROR: SEQUENCE MISMATCH";
+                document.getElementById('activateBtn').classList.add('bg-red-800');
+                setTimeout(() => {
+                    document.getElementById('activateBtn').textContent = "Initialise Power Sequence";
+                    document.getElementById('activateBtn').classList.remove('bg-red-800');
+                }, 2000);
+            }
+        };
+
+        // Finale Phase Initiation
+        function initiateFinale() {
+            document.getElementById('input-section').classList.add('hidden');
+            document.getElementById('finalMessage').classList.remove('hidden');
+            
+            // Start Canvas Setup
+            initPatternLock();
+        }
+
+        /* --- PATTERN LOCK LOGIC --- */
+        function initPatternLock() {
+            const canvas = document.getElementById('pattern-lock');
+            const ctx = canvas.getContext('2d');
+            const feedback = document.getElementById('feedback-text');
+            
+            let nodes = [];
+            let path = [];
+            let isDrawing = false;
+            let currentX, currentY;
+            let drawColor = '#38bdf8'; // Sky-400
+
+            // Generate 3x3 grid nodes
+            const padding = 50;
+            const spacing = (canvas.width - padding * 2) / 2;
+            let idCounter = 1;
+            for(let row = 0; row < 3; row++) {
+                for(let col = 0; col < 3; col++) {
+                    nodes.push({ x: padding + col * spacing, y: padding + row * spacing, id: idCounter++ });
+                }
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw connecting lines
+                if (path.length > 0) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = drawColor;
+                    ctx.lineWidth = 10;
+                    ctx.lineJoin = 'round';
+                    ctx.lineCap = 'round';
+                    
+                    const first = nodes.find(n => n.id === path[0]);
+                    ctx.moveTo(first.x, first.y);
+                    
+                    for (let i = 1; i < path.length; i++) {
+                        const n = nodes.find(n => n.id === path[i]);
+                        ctx.lineTo(n.x, n.y);
+                    }
+                    if (isDrawing) {
+                        ctx.lineTo(currentX, currentY);
+                    }
+                    ctx.stroke();
+                }
+
+                // Draw Nodes
+                nodes.forEach(n => {
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, 16, 0, Math.PI * 2);
+                    ctx.fillStyle = path.includes(n.id) ? drawColor : '#1e293b';
+                    ctx.fill();
+                    ctx.lineWidth = 4;
+                    ctx.strokeStyle = '#0ea5e9'; // darker sky blue border
+                    ctx.stroke();
+                });
+            }
+
+            function getPointerPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: clientX - rect.left, y: clientY - rect.top };
+            }
+
+            function checkNodeCollision(pos) {
+                const hitRadius = 30; // forgiving hit box
+                nodes.forEach(n => {
+                    const dist = Math.hypot(n.x - pos.x, n.y - pos.y);
+                    if (dist < hitRadius && !path.includes(n.id)) {
+                        path.push(n.id);
+                        drawColor = '#38bdf8'; // reset to blue if they hit a node
+                    }
+                });
+            }
+
+            function handleStart(e) {
+                e.preventDefault();
+                isDrawing = true;
+                path = [];
+                drawColor = '#38bdf8';
+                feedback.textContent = "";
+                const pos = getPointerPos(e);
+                currentX = pos.x; currentY = pos.y;
+                checkNodeCollision(pos);
+                draw();
+            }
+
+            function handleMove(e) {
+                if (!isDrawing) return;
+                e.preventDefault();
+                const pos = getPointerPos(e);
+                currentX = pos.x; currentY = pos.y;
+                checkNodeCollision(pos);
+                draw();
+            }
+
+            function handleEnd(e) {
+                if (!isDrawing) return;
+                e.preventDefault();
+                isDrawing = false;
+                draw();
+                validatePattern();
+            }
+
+            function validatePattern() {
+                if (path.length === 0) return;
+
+                const pathStr = path.join("");
+                // The "Z" Shape from top left (1,2,3,5,7,8,9) OR bottom right (9,8,7,5,3,2,1)
+                if (pathStr === "1235789" || pathStr === "9875321") {
+                    drawColor = '#4ade80'; // Green success
+                    draw();
+                    setTimeout(success, 500);
+                } else {
+                    drawColor = '#ef4444'; // Red failure
+                    draw();
+                    feedback.textContent = "PATTERN INCORRECT. RELAY CIRCUIT FRAGMENTS.";
+                    setTimeout(() => { path = []; draw(); }, 1000);
+                }
+            }
+
+            // Event Listeners for Mouse and Touch
+            canvas.addEventListener('mousedown', handleStart);
+            canvas.addEventListener('mousemove', handleMove);
+            window.addEventListener('mouseup', handleEnd);
+            
+            canvas.addEventListener('touchstart', handleStart, {passive: false});
+            canvas.addEventListener('touchmove', handleMove, {passive: false});
+            window.addEventListener('touchend', handleEnd);
+
+            draw(); // Initial render
+        }
+
+        // Success State
+        function success() {
+            document.getElementById('main-container').innerHTML = `
+                <div class="text-center py-12 animate-pulse">
+                    <div class="w-32 h-32 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_80px_#4ade80]">
+                        <svg class="w-20 h-20 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <h1 class="text-7xl font-black text-green-400 mb-4 tracking-tighter">SUCCESS</h1>
+                    <p class="text-2xl text-white mb-8">Generator Synchronised. Power Grid Restored.</p>
+                    <div class="p-6 bg-slate-900 border-2 border-sky-900 rounded-lg inline-block">
+                        <p class="text-sky-400 font-bold uppercase tracking-widest text-sm">Operation Success: Power Restored to Main Kitchens</p>
+                    </div>
+                </div>
+            `;
+            document.body.style.backgroundColor = "#064e3b";
+        }
+
+        // Teacher Override (Click version number 5 times)
+        document.getElementById('version-trigger').onclick = () => {
+            secretCount++;
+            if (secretCount >= 5) success();
+        };
+    </script>
+</body>
+</html>
