@@ -14,11 +14,12 @@
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .briefing-card { border-left: 4px solid #0ea5e9; background: rgba(15, 23, 42, 0.6); }
+        .reflection-card { background: rgba(30, 41, 59, 0.5); border: 1px solid #334155; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
     
-    <!-- Phase 0: Mission Briefing (Front Page) -->
+    <!-- Phase 0: Mission Briefing -->
     <div id="landing-section" class="max-w-4xl w-full p-8 rounded-xl status-box shadow-2xl border-2 border-sky-900">
         <div class="text-center mb-10">
             <h1 class="text-4xl font-black uppercase tracking-[0.2em] text-white mb-2">Storm Protocol</h1>
@@ -34,7 +35,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="briefing-card p-4">
                     <h2 class="text-sky-400 font-bold uppercase mb-2">Communication</h2>
-                    <ul class="list-disc list-inside space-y-1 text-sm">
+                    <ul class="list-disc list-inside space-y-1 text-sm text-slate-400">
                         <li>Use workplace tools (Zoom, Teams, etc.)</li>
                         <li>Talk to other departments to find clues</li>
                         <li>You can use Smartphones or Laptops</li>
@@ -43,7 +44,7 @@
                 </div>
                 <div class="briefing-card p-4 border-l-red-500">
                     <h2 class="text-red-400 font-bold uppercase mb-2">Rules</h2>
-                    <ul class="list-disc list-inside space-y-1 text-sm">
+                    <ul class="list-disc list-inside space-y-1 text-sm text-slate-400">
                         <li>Outside resources are allowed (e.g. Google)</li>
                         <li>You may not share photos/video of the documents. These are confidential.</li>
                         <li class="text-red-300 font-bold">Penalty: Using Japanese mutes your department for 2 minutes</li>
@@ -57,92 +58,146 @@
         </button>
     </div>
 
-    <!-- Phase 1: Dashboard Inputs -->
+    <!-- Phase 1: Dashboard Interface -->
     <div id="main-container" class="max-w-5xl w-full p-8 rounded-xl status-box shadow-2xl border-2 border-sky-900 hidden">
-        <div class="flex justify-between items-center mb-6 border-b-2 border-sky-900 pb-4">
-            <div>
-                <h1 class="text-3xl font-bold uppercase tracking-widest">Generator Dashboard</h1>
-                <p class="text-xs text-sky-600 mt-1 cursor-default select-none" id="version-trigger">BRITISH HILLS - EMERGENCY SYSTEMS V5.2</p>
+        <div id="active-game-view">
+            <div class="flex justify-between items-center mb-6 border-b-2 border-sky-900 pb-4">
+                <div>
+                    <h1 class="text-3xl font-bold uppercase tracking-widest">Generator Dashboard</h1>
+                    <p class="text-xs text-sky-600 mt-1 cursor-default select-none" id="version-trigger">BRITISH HILLS - EMERGENCY SYSTEMS V5.2</p>
+                </div>
+                <div id="timer" class="text-4xl font-bold text-red-500">65:00</div>
             </div>
-            <div id="timer" class="text-4xl font-bold text-red-500">65:00</div>
+
+            <!-- Input Grid -->
+            <div id="input-section">
+                <h2 class="text-lg font-bold text-slate-400 uppercase tracking-widest mb-4 border-l-4 border-slate-500 pl-2">Primary Systems</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
+                        <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room A: Voltage</label>
+                        <input type="number" id="inputA" placeholder="--" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white">
+                        <div id="statusA" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
+                    </div>
+                    <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
+                        <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room B: Freq.</label>
+                        <input type="number" id="inputB" placeholder="---" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white">
+                        <div id="statusB" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
+                    </div>
+                    <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
+                        <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room C: Press.</label>
+                        <input type="text" id="inputC" placeholder="--" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white uppercase" maxlength="2">
+                        <div id="statusC" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
+                    </div>
+                </div>
+
+                <h2 class="text-lg font-bold text-slate-400 uppercase tracking-widest mb-4 border-l-4 border-slate-500 pl-2">Secondary Systems</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
+                        <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room A: Cooling</label>
+                        <input type="number" id="inputA_sec" placeholder="----" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white">
+                        <div id="statusA_sec" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
+                    </div>
+                    <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
+                        <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room B: Temp.</label>
+                        <input type="number" id="inputB_sec" placeholder="---" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white">
+                        <div id="statusB_sec" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
+                    </div>
+                    <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
+                        <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room C: Fuel</label>
+                        <input type="text" id="inputC_sec" placeholder="---" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white uppercase" maxlength="3">
+                        <div id="statusC_sec" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
+                    </div>
+                </div>
+
+                <button id="activateBtn" class="w-full py-4 bg-sky-900 text-white font-bold rounded-lg border-2 border-sky-400 hover:bg-sky-700 transition-all uppercase tracking-widest text-xl">
+                    Initialise Power Sequence
+                </button>
+            </div>
+
+            <!-- Pattern Lock (Hidden initially) -->
+            <div id="finalMessage" class="hidden flex flex-col items-center py-10">
+                <div class="w-full p-4 border-4 border-red-500 bg-red-950/20 text-red-400 rounded-lg text-center mb-8">
+                    <h2 class="text-3xl font-black mb-2 danger">SYSTEM CRITICAL: OVERHEAT</h2>
+                    <p class="font-bold text-sm">Manual Sync Required. Combine your Master Key Fragments and trace the active pattern to override.</p>
+                </div>
+
+                <div class="flex flex-col items-center justify-center w-full">
+                    <canvas id="pattern-lock" width="350" height="350" class="bg-slate-900 rounded-xl border-4 border-sky-900 shadow-[0_0_20px_rgba(2,132,199,0.3)] touch-none cursor-crosshair"></canvas>
+                    <p id="feedback-text" class="mt-4 text-xs font-bold text-center h-4 text-red-400 uppercase tracking-widest"></p>
+                </div>
+            </div>
         </div>
 
-        <div id="input-section">
-            <h2 class="text-lg font-bold text-slate-400 uppercase tracking-widest mb-4 border-l-4 border-slate-500 pl-2">Primary Systems</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
-                    <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room A: Voltage</label>
-                    <input type="number" id="inputA" placeholder="--" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white">
-                    <div id="statusA" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
-                </div>
-                <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
-                    <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room B: Freq.</label>
-                    <input type="number" id="inputB" placeholder="---" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white">
-                    <div id="statusB" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
-                </div>
-                <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
-                    <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room C: Press.</label>
-                    <input type="text" id="inputC" placeholder="--" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white uppercase" maxlength="2">
-                    <div id="statusC" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
-                </div>
+        <!-- Success Screen (Hidden initially) -->
+        <div id="success-view" class="hidden text-center py-12">
+            <div class="w-32 h-32 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_80px_#4ade80]">
+                <svg class="w-20 h-20 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
             </div>
-
-            <h2 class="text-lg font-bold text-slate-400 uppercase tracking-widest mb-4 border-l-4 border-slate-500 pl-2">Secondary Systems</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
-                    <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room A: Cooling</label>
-                    <input type="number" id="inputA_sec" placeholder="----" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white">
-                    <div id="statusA_sec" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
-                </div>
-                <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
-                    <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room B: Temp.</label>
-                    <input type="number" id="inputB_sec" placeholder="---" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white">
-                    <div id="statusB_sec" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
-                </div>
-                <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
-                    <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room C: Fuel</label>
-                    <input type="text" id="inputC_sec" placeholder="---" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white uppercase" maxlength="3">
-                    <div id="statusC_sec" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
-                </div>
+            <h1 class="text-7xl font-black text-green-400 mb-4 tracking-tighter">SUCCESS</h1>
+            <p class="text-2xl text-white mb-8">Generator Synchronised. Power Grid Restored.</p>
+            <div class="p-6 bg-slate-900 border-2 border-sky-900 rounded-lg inline-block mb-10">
+                <p class="text-sky-400 font-bold uppercase tracking-widest text-sm">Operation Success: Power Restored to Main Kitchens</p>
             </div>
-
-            <button id="activateBtn" class="w-full py-4 bg-sky-900 text-white font-bold rounded-lg border-2 border-sky-400 hover:bg-sky-700 transition-all uppercase tracking-widest text-xl">
-                Initialise Power Sequence
+            <br>
+            <button id="reflectionBtn" class="px-8 py-4 bg-sky-600 text-white font-black rounded-lg border-2 border-white hover:bg-sky-500 transition-all uppercase tracking-widest text-lg shadow-lg">
+                Proceed to Reflection
             </button>
         </div>
 
-        <!-- Phase 2: Pattern Lock Interface -->
-        <div id="finalMessage" class="hidden flex flex-col items-center">
-            <div class="w-full p-4 border-4 border-red-500 bg-red-950/20 text-red-400 rounded-lg text-center mb-8">
-                <h2 class="text-3xl font-black mb-2 danger">SYSTEM CRITICAL: OVERHEAT</h2>
-                <p class="font-bold text-sm">Manual Sync Required. Combine your Master Key Fragments and trace the active pattern to override.</p>
+        <!-- Reflection Screen (Hidden initially) -->
+        <div id="reflection-view" class="hidden max-w-4xl mx-auto py-8">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-black text-white uppercase tracking-widest mb-2">Team Reflection</h2>
+                <div class="h-1 w-24 bg-sky-500 mx-auto"></div>
             </div>
-
-            <div class="flex flex-col items-center justify-center w-full">
-                <canvas id="pattern-lock" width="350" height="350" class="bg-slate-900 rounded-xl border-4 border-sky-900 shadow-[0_0_20px_rgba(2,132,199,0.3)] touch-none cursor-crosshair"></canvas>
-                <p id="feedback-text" class="mt-4 text-xs font-bold text-center h-4 text-red-400 uppercase tracking-widest"></p>
+            
+            <div class="space-y-6">
+                <div class="reflection-card p-6 rounded-lg">
+                    <h3 class="text-sky-400 font-bold mb-2 uppercase text-sm tracking-widest">Question 01</h3>
+                    <p class="text-slate-200 text-lg">Did your team adopt a <strong>top-down</strong> or <strong>horizontal</strong> communication structure? Why did you choose this way?</p>
+                </div>
+                <div class="reflection-card p-6 rounded-lg">
+                    <h3 class="text-sky-400 font-bold mb-2 uppercase text-sm tracking-widest">Question 02</h3>
+                    <p class="text-slate-200 text-lg">What <strong>issues</strong> did you have communicating <strong>within</strong> your department?</p>
+                </div>
+                <div class="reflection-card p-6 rounded-lg">
+                    <h3 class="text-sky-400 font-bold mb-2 uppercase text-sm tracking-widest">Question 03</h3>
+                    <p class="text-slate-200 text-lg">What <strong>issues</strong> did you have communicating <strong>with other</strong> departments?</p>
+                </div>
+                <div class="reflection-card p-6 rounded-lg">
+                    <h3 class="text-sky-400 font-bold mb-2 uppercase text-sm tracking-widest">Question 04</h3>
+                    <p class="text-slate-200 text-lg">How did you balance using <strong>external resources</strong> (e.g. Google) with the internal knowledge of your team?</p>
+                </div>
+                <div class="reflection-card p-6 rounded-lg">
+                    <h3 class="text-sky-400 font-bold mb-2 uppercase text-sm tracking-widest">Question 05</h3>
+                    <p class="text-slate-200 text-lg">If you could repeat this mission, what is the <strong>one major change</strong> you would make to your communication strategy?</p>
+                </div>
+            </div>
+            <div class="mt-12 text-center text-slate-500 text-xs uppercase tracking-[0.3em]">
+                Final Report Logged • British Hills Emergency Protocol
             </div>
         </div>
     </div>
 
     <script>
-        // System Solutions
-        const solA = 26; 
-        const solB = 124; 
-        const solC = "DF"; 
-        const solA_sec1 = 1488;
-        const solA_sec2 = 8814;
-        const solB_sec = 850; 
-        const solC_sec = "N7F";
+        // Core Game Constants
+        const SOLS = {
+            A: 26, B: 124, C: ["DF", "FD"],
+            A_SEC: [1488, 8814], B_SEC: 850, C_SEC: "N7F"
+        };
         
         let timeLeft = 3900; 
-        let secretCount = 0;
         let countdown = null;
+        let secretCount = 0;
 
-        // Challenge Start Logic
+        // UI Helpers
+        const hide = (id) => document.getElementById(id).classList.add('hidden');
+        const show = (id) => document.getElementById(id).classList.remove('hidden');
+
+        // 1. Mission Start
         document.getElementById('startBtn').onclick = () => {
-            document.getElementById('landing-section').classList.add('hidden');
-            document.getElementById('main-container').classList.remove('hidden');
+            hide('landing-section');
+            show('main-container');
             startTimer();
         };
 
@@ -161,22 +216,16 @@
             }, 1000);
         }
 
-        /**
-         * Updates status labels.
-         * If the input is empty, it returns to "Waiting".
-         */
-        function updateStatus(id, inputVal, correctVal, isSpecialMatch = null) {
+        // 2. Verification Logic
+        function checkStatus(id, inputVal, correctVal, isSpecial = false) {
             const el = document.getElementById(id);
-            const rawVal = String(inputVal).trim();
-            
-            if (rawVal === "" || (typeof inputVal === 'number' && isNaN(inputVal))) {
+            const val = String(inputVal).trim();
+            if (val === "" || (typeof inputVal === 'number' && isNaN(inputVal))) {
                 el.textContent = "Waiting";
                 el.className = "mt-2 text-[10px] uppercase tracking-widest font-bold text-center text-slate-500";
                 return false;
             }
-
-            const isCorrect = isSpecialMatch !== null ? isSpecialMatch : (inputVal === correctVal);
-
+            const isCorrect = isSpecial ? correctVal : (inputVal === correctVal);
             if(isCorrect) {
                 el.textContent = "Verified";
                 el.className = "mt-2 text-[10px] uppercase tracking-widest font-bold text-center success";
@@ -188,190 +237,109 @@
             }
         }
 
-        // Sequence Initialization
         document.getElementById('activateBtn').onclick = () => {
-            const rawA = document.getElementById('inputA').value;
-            const rawB = document.getElementById('inputB').value;
-            const rawC = document.getElementById('inputC').value.toUpperCase();
-            const rawA_sec = document.getElementById('inputA_sec').value;
-            const rawB_sec = document.getElementById('inputB_sec').value;
-            const rawC_sec = document.getElementById('inputC_sec').value.toUpperCase();
+            const vA = parseInt(document.getElementById('inputA').value);
+            const vB = parseInt(document.getElementById('inputB').value);
+            const vC = document.getElementById('inputC').value.toUpperCase();
+            const vAs = parseInt(document.getElementById('inputA_sec').value);
+            const vBs = parseInt(document.getElementById('inputB_sec').value);
+            const vCs = document.getElementById('inputC_sec').value.toUpperCase();
 
-            const valA = parseInt(rawA);
-            const valB = parseInt(rawB);
-            const valC = rawC;
-            const valA_sec = parseInt(rawA_sec);
-            const valB_sec = parseInt(rawB_sec);
-            const valC_sec = rawC_sec;
+            const isA = checkStatus('statusA', vA, SOLS.A);
+            const isB = checkStatus('statusB', vB, SOLS.B);
+            const isC = checkStatus('statusC', vC, SOLS.C.includes(vC), true);
+            const isAs = checkStatus('statusA_sec', vAs, SOLS.A_SEC.includes(vAs), true);
+            const isBs = checkStatus('statusB_sec', vBs, SOLS.B_SEC);
+            const isCs = checkStatus('statusC_sec', vCs, SOLS.C_SEC);
 
-            const isA_Correct = updateStatus('statusA', valA, solA);
-            const isB_Correct = updateStatus('statusB', valB, solB);
-            const isC_Correct = updateStatus('statusC', valC, null, (valC === "DF" || valC === "FD"));
-            const isA_Sec_Correct = updateStatus('statusA_sec', valA_sec, null, (valA_sec === solA_sec1 || valA_sec === solA_sec2));
-            const isB_Sec_Correct = updateStatus('statusB_sec', valB_sec, solB_sec);
-            const isC_Sec_Correct = updateStatus('statusC_sec', valC_sec, solC_sec);
-
-            const allCorrect = (isA_Correct && isB_Correct && isC_Correct && isA_Sec_Correct && isB_Sec_Correct && isC_Sec_Correct);
-
-            if (allCorrect) {
+            if (isA && isB && isC && isAs && isBs && isCs) {
                 initiateFinale();
             } else {
-                document.getElementById('activateBtn').textContent = "ERROR: SEQUENCE MISMATCH";
-                document.getElementById('activateBtn').classList.add('bg-red-800');
+                const btn = document.getElementById('activateBtn');
+                btn.textContent = "ERROR: SEQUENCE MISMATCH";
+                btn.classList.add('bg-red-800');
                 setTimeout(() => {
-                    document.getElementById('activateBtn').textContent = "Initialise Power Sequence";
-                    document.getElementById('activateBtn').classList.remove('bg-red-800');
+                    btn.textContent = "Initialise Power Sequence";
+                    btn.classList.remove('bg-red-800');
                 }, 2000);
             }
         };
 
-        // Finale Phase Initiation
+        // 3. Pattern Lock Sequence
         function initiateFinale() {
-            document.getElementById('input-section').classList.add('hidden');
-            document.getElementById('finalMessage').classList.remove('hidden');
+            hide('input-section');
+            show('finalMessage');
             initPatternLock();
         }
 
-        /* --- PATTERN LOCK LOGIC --- */
         function initPatternLock() {
             const canvas = document.getElementById('pattern-lock');
             const ctx = canvas.getContext('2d');
             const feedback = document.getElementById('feedback-text');
-            
-            let nodes = [];
-            let path = [];
-            let isDrawing = false;
-            let currentX, currentY;
-            let drawColor = '#38bdf8'; // Sky-400
+            let nodes = [], path = [], isDrawing = false, curX, curY;
 
-            const padding = 50;
-            const spacing = (canvas.width - padding * 2) / 2;
-            let idCounter = 1;
-            for(let row = 0; row < 3; row++) {
-                for(let col = 0; col < 3; col++) {
-                    nodes.push({ x: padding + col * spacing, y: padding + row * spacing, id: idCounter++ });
-                }
-            }
+            const spacing = 125, padding = 50;
+            for(let r=0; r<3; r++) for(let c=0; c<3; c++) nodes.push({x: padding + c*spacing, y: padding + r*spacing, id: (r*3+c+1)});
 
             function draw() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                if (path.length > 0) {
-                    ctx.beginPath();
-                    ctx.strokeStyle = drawColor;
-                    ctx.lineWidth = 10;
-                    ctx.lineJoin = 'round';
-                    ctx.lineCap = 'round';
-                    const first = nodes.find(n => n.id === path[0]);
-                    ctx.moveTo(first.x, first.y);
-                    for (let i = 1; i < path.length; i++) {
-                        const n = nodes.find(n => n.id === path[i]);
-                        ctx.lineTo(n.x, n.y);
-                    }
-                    if (isDrawing) ctx.lineTo(currentX, currentY);
+                if (path.length) {
+                    ctx.beginPath(); ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 10; ctx.lineJoin = ctx.lineCap = 'round';
+                    const start = nodes.find(n => n.id === path[0]); ctx.moveTo(start.x, start.y);
+                    path.slice(1).forEach(id => { const n = nodes.find(m => m.id === id); ctx.lineTo(n.x, n.y); });
+                    if (isDrawing) ctx.lineTo(curX, curY);
                     ctx.stroke();
                 }
                 nodes.forEach(n => {
-                    ctx.beginPath();
-                    ctx.arc(n.x, n.y, 16, 0, Math.PI * 2);
-                    ctx.fillStyle = path.includes(n.id) ? drawColor : '#1e293b';
-                    ctx.fill();
-                    ctx.lineWidth = 4;
-                    ctx.strokeStyle = '#0ea5e9';
-                    ctx.stroke();
+                    ctx.beginPath(); ctx.arc(n.x, n.y, 16, 0, 7); ctx.fillStyle = path.includes(n.id) ? '#38bdf8' : '#1e293b'; ctx.fill();
+                    ctx.lineWidth = 4; ctx.strokeStyle = '#0ea5e9'; ctx.stroke();
                 });
             }
 
-            function getPointerPos(e) {
-                const rect = canvas.getBoundingClientRect();
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                return { x: clientX - rect.left, y: clientY - rect.top };
-            }
+            const getPos = e => {
+                const r = canvas.getBoundingClientRect();
+                return { x: (e.touches ? e.touches[0].clientX : e.clientX) - r.left, y: (e.touches ? e.touches[0].clientY : e.clientY) - r.top };
+            };
 
-            function checkNodeCollision(pos) {
-                const hitRadius = 30;
-                nodes.forEach(n => {
-                    const dist = Math.hypot(n.x - pos.x, n.y - pos.y);
-                    if (dist < hitRadius && !path.includes(n.id)) {
-                        path.push(n.id);
-                        drawColor = '#38bdf8';
-                    }
-                });
-            }
-
-            function handleStart(e) {
-                e.preventDefault();
-                isDrawing = true;
-                path = [];
-                drawColor = '#38bdf8';
-                feedback.textContent = "";
-                const pos = getPointerPos(e);
-                currentX = pos.x; currentY = pos.y;
-                checkNodeCollision(pos);
+            canvas.onmousedown = canvas.ontouchstart = e => {
+                e.preventDefault(); isDrawing = true; path = []; feedback.textContent = "";
+                const p = getPos(e); curX = p.x; curY = p.y;
                 draw();
-            }
+            };
 
-            function handleMove(e) {
+            window.onmousemove = window.ontouchmove = e => {
                 if (!isDrawing) return;
-                e.preventDefault();
-                const pos = getPointerPos(e);
-                currentX = pos.x; currentY = pos.y;
-                checkNodeCollision(pos);
+                const p = getPos(e); curX = p.x; curY = p.y;
+                nodes.forEach(n => { if (Math.hypot(n.x - p.x, n.y - p.y) < 30 && !path.includes(n.id)) path.push(n.id); });
                 draw();
-            }
+            };
 
-            function handleEnd(e) {
+            window.onmouseup = window.ontouchend = () => {
                 if (!isDrawing) return;
-                e.preventDefault();
                 isDrawing = false;
-                draw();
-                validatePattern();
-            }
-
-            function validatePattern() {
-                if (path.length === 0) return;
-                const pathStr = path.join("");
-                if (pathStr === "1235789" || pathStr === "9875321") {
-                    drawColor = '#4ade80';
-                    draw();
-                    setTimeout(success, 500);
-                } else {
-                    drawColor = '#ef4444';
-                    draw();
-                    feedback.textContent = "PATTERN INCORRECT. RELAY CIRCUIT FRAGMENTS.";
-                    setTimeout(() => { path = []; draw(); }, 1000);
-                }
-            }
-
-            canvas.addEventListener('mousedown', handleStart);
-            canvas.addEventListener('mousemove', handleMove);
-            window.addEventListener('mouseup', handleEnd);
-            canvas.addEventListener('touchstart', handleStart, {passive: false});
-            canvas.addEventListener('touchmove', handleMove, {passive: false});
-            window.addEventListener('touchend', handleEnd);
+                const pStr = path.join("");
+                if (pStr === "1235789" || pStr === "9875321") triggerSuccess();
+                else { feedback.textContent = "INCORRECT PATTERN"; path = []; draw(); }
+            };
             draw();
         }
 
-        function success() {
-            document.getElementById('main-container').innerHTML = `
-                <div class="text-center py-12 animate-pulse">
-                    <div class="w-32 h-32 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_80px_#4ade80]">
-                        <svg class="w-20 h-20 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
-                    </div>
-                    <h1 class="text-7xl font-black text-green-400 mb-4 tracking-tighter">SUCCESS</h1>
-                    <p class="text-2xl text-white mb-8">Generator Synchronised. Power Grid Restored.</p>
-                    <div class="p-6 bg-slate-900 border-2 border-sky-900 rounded-lg inline-block">
-                        <p class="text-sky-400 font-bold uppercase tracking-widest text-sm">Operation Success: Power Restored to Main Kitchens</p>
-                    </div>
-                </div>
-            `;
+        // 4. Climax and Reflection
+        function triggerSuccess() {
+            if (countdown) clearInterval(countdown);
+            hide('active-game-view');
+            show('success-view');
             document.body.style.backgroundColor = "#064e3b";
         }
 
-        document.getElementById('version-trigger').onclick = () => {
-            secretCount++;
-            if (secretCount >= 5) success();
+        document.getElementById('reflectionBtn').onclick = () => {
+            hide('success-view');
+            show('reflection-view');
+            document.body.style.backgroundColor = "#0f172a";
         };
+
+        // Master Override
+        document.getElementById('version-trigger').onclick = () => { if (++secretCount >= 5) triggerSuccess(); };
     </script>
 </body>
 </html>
