@@ -6,174 +6,184 @@
     <title>British Hills Generator Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
-        body { font-family: 'JetBrains+Mono', monospace; background-color: #0f172a; color: #38bdf8; overflow-x: hidden; }
-        .status-box { border: 2px solid #1e293b; background: #1e293b55; }
-        .success { color: #4ade80; border-color: #4ade80; }
-        .danger { color: #f87171; animation: blink 1s infinite; }
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&display=swap');
+        body { font-family: 'JetBrains+Mono', monospace; background-color: #020617; color: #38bdf8; overflow-x: hidden; }
+        .status-box { border: 4px solid #0284c7; background: rgba(15, 23, 42, 0.85); }
+        .success { color: #4ade80; text-shadow: 0 0 10px rgba(74,222,128,0.5); }
+        .danger { color: #f87171; animation: blink 1s infinite; text-shadow: 0 0 10px rgba(248,113,113,0.5); }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .briefing-card { border-left: 4px solid #0ea5e9; background: rgba(15, 23, 42, 0.6); }
-        .reflection-card { background: rgba(30, 41, 59, 0.5); border: 1px solid #334155; }
+        .briefing-card { border-left: 8px solid #0ea5e9; background: rgba(30, 41, 59, 0.9); }
+        .reflection-card { background: rgba(30, 41, 59, 0.8); border: 2px solid #334155; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
     
     <!-- Phase 0: Mission Briefing -->
-    <div id="landing-section" class="max-w-4xl w-full p-8 rounded-xl status-box shadow-2xl border-2 border-sky-900">
-        <div class="text-center mb-10">
-            <h1 class="text-4xl font-black uppercase tracking-[0.2em] text-white mb-2">Storm Protocol</h1>
-            <p class="text-sky-500 font-bold uppercase tracking-widest text-sm">Emergency Mission Briefing</p>
+    <div id="landing-section" class="max-w-5xl w-full p-10 rounded-2xl status-box shadow-[0_0_50px_rgba(2,132,199,0.3)]">
+        <div class="text-center mb-12 border-b-2 border-slate-700 pb-8">
+            <h1 class="text-6xl font-black uppercase tracking-[0.2em] text-white mb-4 drop-shadow-lg">Storm Protocol</h1>
+            <p class="text-sky-400 font-bold uppercase tracking-widest text-xl">Emergency Mission Briefing</p>
         </div>
 
-        <div class="space-y-6 text-slate-300 leading-relaxed">
-            <div class="briefing-card p-4">
-                <h2 class="text-sky-400 font-bold uppercase mb-2">The Situation</h2>
-                <p>A huge storm has hit the Manor House, and the power is out. We have <strong>65 minutes</strong> before the food spoils. You must start the generator before the time runs out. If you fail, dinner is cancelled!</p>
+        <!-- Step 1: The Situation -->
+        <div id="briefing-step-1" class="fade-in">
+            <div class="briefing-card p-10 rounded-r-xl shadow-lg mb-12">
+                <h2 class="text-sky-400 font-black uppercase mb-6 tracking-widest text-3xl">The Situation</h2>
+                <p class="text-white text-3xl leading-relaxed font-bold">A huge storm has hit the Manor House, and the power is out. We have <strong class="text-red-400 text-4xl">65 minutes</strong> before the food spoils. You must start the generator before the time runs out. If you fail, dinner is cancelled!</p>
             </div>
+            
+            <button id="nextBtn" class="w-full py-8 bg-sky-600 text-white font-black rounded-xl border-4 border-sky-300 hover:bg-sky-500 transition-all uppercase tracking-[0.3em] text-3xl shadow-[0_0_30px_rgba(2,132,199,0.5)]">
+                Next: Protocol Rules
+            </button>
+        </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="briefing-card p-4">
-                    <h2 class="text-sky-400 font-bold uppercase mb-2">Communication</h2>
-                    <ul class="list-disc list-inside space-y-1 text-sm text-slate-400">
-                        <li>Use workplace tools (Zoom, Teams, etc.)</li>
-                        <li>Talk to other departments to find clues</li>
-                        <li>You can use Smartphones or Laptops</li>
-                        <li>You can use many devices at the same time</li>
+        <!-- Step 2: Rules and Comms -->
+        <div id="briefing-step-2" class="hidden fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                <div class="briefing-card p-8 rounded-r-xl shadow-lg">
+                    <h2 class="text-sky-400 font-black uppercase mb-6 tracking-widest text-2xl">Communication</h2>
+                    <ul class="list-disc list-outside ml-8 space-y-4 text-xl font-bold text-white leading-relaxed">
+                        <li>Talk to other departments to find clues.</li>
+                        <li>Workplace tools (Zoom, Slack etc.) are ok.</li>
+                        <li>You can use smartphones or laptops.</li>
+                        <li>You can use many devices at the same time.</li>
                     </ul>
                 </div>
-                <div class="briefing-card p-4 border-l-red-500">
-                    <h2 class="text-red-400 font-bold uppercase mb-2">Rules</h2>
-                    <ul class="list-disc list-inside space-y-1 text-sm text-slate-400">
-                        <li>Outside resources are allowed (e.g. Google)</li>
+                <div class="briefing-card p-8 border-l-red-500 rounded-r-xl shadow-lg">
+                    <h2 class="text-red-400 font-black uppercase mb-6 tracking-widest text-2xl">Rules</h2>
+                    <ul class="list-disc list-outside ml-8 space-y-4 text-xl font-bold text-white leading-relaxed">
+                        <li>Outside resources are allowed (e.g. Google).</li>
                         <li>You may not share photos/video of the documents. These are confidential.</li>
-                        <li class="text-red-300 font-bold">Penalty: Using Japanese mutes your department for 2 minutes</li>
+                        <li class="text-red-400 font-black">Penalty: Using Japanese mutes your department for 2 minutes.</li>
                     </ul>
                 </div>
             </div>
-        </div>
 
-        <button id="startBtn" class="mt-10 w-full py-6 bg-sky-600 text-white font-black rounded-lg border-2 border-white hover:bg-sky-500 transition-all uppercase tracking-[0.3em] text-2xl shadow-[0_0_30px_rgba(2,132,199,0.4)]">
-            Begin Challenge
-        </button>
+            <button id="startBtn" class="w-full py-8 bg-green-600 text-white font-black rounded-xl border-4 border-green-300 hover:bg-green-500 transition-all uppercase tracking-[0.3em] text-3xl shadow-[0_0_30px_rgba(74,222,128,0.5)]">
+                Begin Challenge
+            </button>
+        </div>
     </div>
 
     <!-- Phase 1: Dashboard Interface -->
-    <div id="main-container" class="max-w-5xl w-full p-8 rounded-xl status-box shadow-2xl border-2 border-sky-900 hidden">
-        <div id="active-game-view">
-            <div class="flex justify-between items-center mb-6 border-b-2 border-sky-900 pb-4">
+    <div id="main-container" class="max-w-6xl w-full p-10 rounded-2xl status-box shadow-[0_0_50px_rgba(2,132,199,0.3)] hidden">
+        <div id="active-game-view" class="fade-in">
+            <div class="flex justify-between items-center mb-10 border-b-4 border-slate-700 pb-6">
                 <div>
-                    <h1 class="text-3xl font-bold uppercase tracking-widest">Generator Dashboard</h1>
-                    <p class="text-xs text-sky-600 mt-1 cursor-default select-none" id="version-trigger">BRITISH HILLS - EMERGENCY SYSTEMS V5.2</p>
+                    <h1 class="text-4xl font-black text-white uppercase tracking-widest">Generator Dashboard</h1>
+                    <p class="text-sm font-bold text-sky-500 mt-2 cursor-default select-none tracking-widest" id="version-trigger">BRITISH HILLS - EMERGENCY SYSTEMS V5.2</p>
                 </div>
-                <div id="timer" class="text-4xl font-bold text-red-500">65:00</div>
+                <div id="timer" class="text-6xl font-black text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.6)]">65:00</div>
             </div>
 
             <!-- Input Grid -->
             <div id="input-section">
-                <h2 class="text-lg font-bold text-slate-400 uppercase tracking-widest mb-4 border-l-4 border-slate-500 pl-2">Primary Systems</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
-                        <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room A: Voltage</label>
-                        <input type="number" id="inputA" placeholder="--" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white">
-                        <div id="statusA" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
+                <h2 class="text-2xl font-black text-slate-300 uppercase tracking-widest mb-6 border-l-8 border-slate-500 pl-4">Primary Systems</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                    <div class="p-6 rounded-xl border-2 border-sky-700 bg-slate-800 shadow-inner">
+                        <label class="block text-sm mb-3 font-black text-sky-400 uppercase tracking-widest">Room A: Voltage</label>
+                        <input type="number" id="inputA" placeholder="--" class="w-full bg-slate-950 border-2 border-sky-600 p-4 text-3xl font-black text-center rounded focus:outline-none focus:border-white text-white shadow-inner">
+                        <div id="statusA" class="mt-4 text-xs uppercase text-slate-400 font-black text-center tracking-[0.2em]">Waiting</div>
                     </div>
-                    <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
-                        <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room B: Freq.</label>
-                        <input type="number" id="inputB" placeholder="---" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white">
-                        <div id="statusB" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
+                    <div class="p-6 rounded-xl border-2 border-sky-700 bg-slate-800 shadow-inner">
+                        <label class="block text-sm mb-3 font-black text-sky-400 uppercase tracking-widest">Room B: Freq.</label>
+                        <input type="number" id="inputB" placeholder="---" class="w-full bg-slate-950 border-2 border-sky-600 p-4 text-3xl font-black text-center rounded focus:outline-none focus:border-white text-white shadow-inner">
+                        <div id="statusB" class="mt-4 text-xs uppercase text-slate-400 font-black text-center tracking-[0.2em]">Waiting</div>
                     </div>
-                    <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
-                        <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room C: Press.</label>
-                        <input type="text" id="inputC" placeholder="--" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white uppercase" maxlength="2">
-                        <div id="statusC" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
-                    </div>
-                </div>
-
-                <h2 class="text-lg font-bold text-slate-400 uppercase tracking-widest mb-4 border-l-4 border-slate-500 pl-2">Secondary Systems</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                    <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
-                        <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room A: Cooling</label>
-                        <input type="number" id="inputA_sec" placeholder="----" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white">
-                        <div id="statusA_sec" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
-                    </div>
-                    <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
-                        <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room B: Temp.</label>
-                        <input type="number" id="inputB_sec" placeholder="---" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white">
-                        <div id="statusB_sec" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
-                    </div>
-                    <div class="p-4 rounded border border-sky-900 bg-slate-900/50">
-                        <label class="block text-xs mb-2 font-bold text-sky-400 uppercase">Room C: Fuel</label>
-                        <input type="text" id="inputC_sec" placeholder="---" class="w-full bg-black border border-sky-700 p-2 text-xl text-center rounded focus:outline-none focus:border-sky-400 text-white uppercase" maxlength="3">
-                        <div id="statusC_sec" class="mt-2 text-[10px] uppercase text-slate-500 font-bold text-center tracking-widest">Waiting</div>
+                    <div class="p-6 rounded-xl border-2 border-sky-700 bg-slate-800 shadow-inner">
+                        <label class="block text-sm mb-3 font-black text-sky-400 uppercase tracking-widest">Room C: Press.</label>
+                        <input type="text" id="inputC" placeholder="--" class="w-full bg-slate-950 border-2 border-sky-600 p-4 text-3xl font-black text-center rounded focus:outline-none focus:border-white text-white uppercase shadow-inner" maxlength="2">
+                        <div id="statusC" class="mt-4 text-xs uppercase text-slate-400 font-black text-center tracking-[0.2em]">Waiting</div>
                     </div>
                 </div>
 
-                <button id="activateBtn" class="w-full py-4 bg-sky-900 text-white font-bold rounded-lg border-2 border-sky-400 hover:bg-sky-700 transition-all uppercase tracking-widest text-xl">
+                <h2 class="text-2xl font-black text-slate-300 uppercase tracking-widest mb-6 border-l-8 border-slate-500 pl-4">Secondary Systems</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                    <div class="p-6 rounded-xl border-2 border-sky-700 bg-slate-800 shadow-inner">
+                        <label class="block text-sm mb-3 font-black text-sky-400 uppercase tracking-widest">Room A: Cooling</label>
+                        <input type="number" id="inputA_sec" placeholder="----" class="w-full bg-slate-950 border-2 border-sky-600 p-4 text-3xl font-black text-center rounded focus:outline-none focus:border-white text-white shadow-inner">
+                        <div id="statusA_sec" class="mt-4 text-xs uppercase text-slate-400 font-black text-center tracking-[0.2em]">Waiting</div>
+                    </div>
+                    <div class="p-6 rounded-xl border-2 border-sky-700 bg-slate-800 shadow-inner">
+                        <label class="block text-sm mb-3 font-black text-sky-400 uppercase tracking-widest">Room B: Temp.</label>
+                        <input type="number" id="inputB_sec" placeholder="---" class="w-full bg-slate-950 border-2 border-sky-600 p-4 text-3xl font-black text-center rounded focus:outline-none focus:border-white text-white shadow-inner">
+                        <div id="statusB_sec" class="mt-4 text-xs uppercase text-slate-400 font-black text-center tracking-[0.2em]">Waiting</div>
+                    </div>
+                    <div class="p-6 rounded-xl border-2 border-sky-700 bg-slate-800 shadow-inner">
+                        <label class="block text-sm mb-3 font-black text-sky-400 uppercase tracking-widest">Room C: Fuel</label>
+                        <input type="text" id="inputC_sec" placeholder="---" class="w-full bg-slate-950 border-2 border-sky-600 p-4 text-3xl font-black text-center rounded focus:outline-none focus:border-white text-white uppercase shadow-inner" maxlength="3">
+                        <div id="statusC_sec" class="mt-4 text-xs uppercase text-slate-400 font-black text-center tracking-[0.2em]">Waiting</div>
+                    </div>
+                </div>
+
+                <button id="activateBtn" class="w-full py-8 bg-sky-800 text-white font-black rounded-xl border-4 border-sky-400 hover:bg-sky-600 transition-all uppercase tracking-widest text-3xl shadow-lg">
                     Initialise Power Sequence
                 </button>
             </div>
 
             <!-- Pattern Lock (Hidden initially) -->
-            <div id="finalMessage" class="hidden flex flex-col items-center py-10">
-                <div class="w-full p-4 border-4 border-red-500 bg-red-950/20 text-red-400 rounded-lg text-center mb-8">
-                    <h2 class="text-3xl font-black mb-2 danger">SYSTEM CRITICAL: OVERHEAT</h2>
-                    <p class="font-bold text-sm">Manual Sync Required. Combine your Master Key Fragments and trace the active pattern to override.</p>
+            <div id="finalMessage" class="hidden flex flex-col items-center py-10 fade-in">
+                <div class="w-full p-6 border-4 border-red-500 bg-red-950/40 text-red-400 rounded-xl text-center mb-10 shadow-[0_0_30px_rgba(239,68,68,0.3)]">
+                    <h2 class="text-5xl font-black mb-4 danger tracking-wider">SYSTEM CRITICAL: OVERHEAT</h2>
+                    <p class="font-bold text-xl text-white">Manual Sync Required. Combine your Master Key Fragments and trace the active pattern to override.</p>
                 </div>
 
                 <div class="flex flex-col items-center justify-center w-full">
-                    <canvas id="pattern-lock" width="350" height="350" class="bg-slate-900 rounded-xl border-4 border-sky-900 shadow-[0_0_20px_rgba(2,132,199,0.3)] touch-none cursor-crosshair"></canvas>
-                    <p id="feedback-text" class="mt-4 text-xs font-bold text-center h-4 text-red-400 uppercase tracking-widest"></p>
+                    <canvas id="pattern-lock" width="450" height="450" class="bg-slate-900 rounded-2xl border-4 border-sky-700 shadow-[0_0_30px_rgba(2,132,199,0.4)] touch-none cursor-crosshair"></canvas>
+                    <p id="feedback-text" class="mt-6 text-lg font-black text-center h-6 text-red-400 uppercase tracking-widest"></p>
                 </div>
             </div>
         </div>
 
         <!-- Success Screen (Hidden initially) -->
-        <div id="success-view" class="hidden text-center py-12">
-            <div class="w-32 h-32 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_80px_#4ade80]">
-                <svg class="w-20 h-20 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
+        <div id="success-view" class="hidden text-center py-16 fade-in">
+            <div class="w-40 h-40 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-10 shadow-[0_0_100px_#4ade80]">
+                <svg class="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="5" d="M5 13l4 4L19 7"></path></svg>
             </div>
-            <h1 class="text-7xl font-black text-green-400 mb-4 tracking-tighter">SUCCESS</h1>
-            <p class="text-2xl text-white mb-8">Generator Synchronised. Power Grid Restored.</p>
-            <div class="p-6 bg-slate-900 border-2 border-sky-900 rounded-lg inline-block mb-10">
-                <p class="text-sky-400 font-bold uppercase tracking-widest text-sm">Operation Success: Power Restored to Main Kitchens</p>
+            <h1 class="text-8xl font-black text-green-400 mb-6 tracking-tighter drop-shadow-lg">SUCCESS</h1>
+            <p class="text-3xl font-bold text-white mb-10">Generator Synchronised. Power Grid Restored.</p>
+            <div class="p-8 bg-slate-900 border-4 border-green-800 rounded-xl inline-block mb-12 shadow-xl">
+                <p class="text-green-400 font-black uppercase tracking-widest text-xl">Operation Success: Power Restored to Main Kitchens</p>
             </div>
             <br>
-            <button id="reflectionBtn" class="px-8 py-4 bg-sky-600 text-white font-black rounded-lg border-2 border-white hover:bg-sky-500 transition-all uppercase tracking-widest text-lg shadow-lg">
+            <button id="reflectionBtn" class="px-10 py-6 bg-sky-600 text-white font-black rounded-xl border-4 border-white hover:bg-sky-500 transition-all uppercase tracking-widest text-2xl shadow-[0_0_30px_rgba(2,132,199,0.6)]">
                 Proceed to Reflection
             </button>
         </div>
 
         <!-- Reflection Screen (Hidden initially) -->
-        <div id="reflection-view" class="hidden max-w-4xl mx-auto py-8">
-            <div class="text-center mb-10">
-                <h2 class="text-3xl font-black text-white uppercase tracking-widest mb-2">Team Reflection</h2>
-                <div class="h-1 w-24 bg-sky-500 mx-auto"></div>
+        <div id="reflection-view" class="hidden max-w-5xl mx-auto py-10 fade-in">
+            <div class="text-center mb-12">
+                <h2 class="text-5xl font-black text-white uppercase tracking-widest mb-4 drop-shadow-lg">Team Reflection</h2>
+                <div class="h-2 w-32 bg-sky-500 mx-auto rounded-full"></div>
             </div>
             
-            <div class="space-y-6">
-                <div class="reflection-card p-6 rounded-lg">
-                    <h3 class="text-sky-400 font-bold mb-2 uppercase text-sm tracking-widest">Question 01</h3>
-                    <p class="text-slate-200 text-lg">Did your team adopt a <strong>top-down</strong> or <strong>horizontal</strong> communication structure? Why did you choose this way?</p>
+            <div class="space-y-8">
+                <div class="reflection-card p-8 rounded-xl shadow-lg">
+                    <h3 class="text-sky-400 font-black mb-4 uppercase text-lg tracking-[0.2em]">Question 01</h3>
+                    <p class="text-white text-2xl font-bold leading-relaxed">Did your team adopt a <strong>top-down</strong> or <strong>horizontal</strong> communication structure? Why did you choose this way?</p>
                 </div>
-                <div class="reflection-card p-6 rounded-lg">
-                    <h3 class="text-sky-400 font-bold mb-2 uppercase text-sm tracking-widest">Question 02</h3>
-                    <p class="text-slate-200 text-lg">What <strong>issues</strong> did you have communicating <strong>within</strong> your department?</p>
+                <div class="reflection-card p-8 rounded-xl shadow-lg">
+                    <h3 class="text-sky-400 font-black mb-4 uppercase text-lg tracking-[0.2em]">Question 02</h3>
+                    <p class="text-white text-2xl font-bold leading-relaxed">What <strong>issues</strong> did you have communicating <strong>within</strong> your department?</p>
                 </div>
-                <div class="reflection-card p-6 rounded-lg">
-                    <h3 class="text-sky-400 font-bold mb-2 uppercase text-sm tracking-widest">Question 03</h3>
-                    <p class="text-slate-200 text-lg">What <strong>issues</strong> did you have communicating <strong>with other</strong> departments?</p>
+                <div class="reflection-card p-8 rounded-xl shadow-lg">
+                    <h3 class="text-sky-400 font-black mb-4 uppercase text-lg tracking-[0.2em]">Question 03</h3>
+                    <p class="text-white text-2xl font-bold leading-relaxed">What <strong>issues</strong> did you have communicating <strong>with other</strong> departments?</p>
                 </div>
-                <div class="reflection-card p-6 rounded-lg">
-                    <h3 class="text-sky-400 font-bold mb-2 uppercase text-sm tracking-widest">Question 04</h3>
-                    <p class="text-slate-200 text-lg">How did you balance using <strong>external resources</strong> (e.g. Google) with the internal knowledge of your team?</p>
+                <div class="reflection-card p-8 rounded-xl shadow-lg">
+                    <h3 class="text-sky-400 font-black mb-4 uppercase text-lg tracking-[0.2em]">Question 04</h3>
+                    <p class="text-white text-2xl font-bold leading-relaxed">How did you balance using <strong>external resources</strong> (e.g. Google) with the internal knowledge of your team?</p>
                 </div>
-                <div class="reflection-card p-6 rounded-lg">
-                    <h3 class="text-sky-400 font-bold mb-2 uppercase text-sm tracking-widest">Question 05</h3>
-                    <p class="text-slate-200 text-lg">If you could repeat this mission, what is the <strong>one major change</strong> you would make to your communication strategy?</p>
+                <div class="reflection-card p-8 rounded-xl shadow-lg">
+                    <h3 class="text-sky-400 font-black mb-4 uppercase text-lg tracking-[0.2em]">Question 05</h3>
+                    <p class="text-white text-2xl font-bold leading-relaxed">If you could repeat this mission, what is the <strong>one major change</strong> you would make to your communication strategy?</p>
                 </div>
             </div>
-            <div class="mt-12 text-center text-slate-500 text-xs uppercase tracking-[0.3em]">
+            <div class="mt-16 text-center text-slate-500 font-bold text-sm uppercase tracking-[0.4em]">
                 Final Report Logged • British Hills Emergency Protocol
             </div>
         </div>
@@ -194,6 +204,12 @@
         const hide = (id) => document.getElementById(id).classList.add('hidden');
         const show = (id) => document.getElementById(id).classList.remove('hidden');
 
+        // Phase 0: Briefing Flow
+        document.getElementById('nextBtn').onclick = () => {
+            hide('briefing-step-1');
+            show('briefing-step-2');
+        };
+
         // 1. Mission Start
         document.getElementById('startBtn').onclick = () => {
             hide('landing-section');
@@ -206,7 +222,7 @@
             countdown = setInterval(() => {
                 if(timeLeft <= 0) {
                     clearInterval(countdown);
-                    document.body.innerHTML = "<div class='text-red-500 text-6xl font-black p-20 text-center uppercase'>Session Expired. System Failure.</div>";
+                    document.body.innerHTML = "<div class='text-red-500 text-7xl font-black p-20 text-center uppercase drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]'>Session Expired.<br><br>System Failure.</div>";
                     return;
                 }
                 timeLeft--;
@@ -222,17 +238,17 @@
             const val = String(inputVal).trim();
             if (val === "" || (typeof inputVal === 'number' && isNaN(inputVal))) {
                 el.textContent = "Waiting";
-                el.className = "mt-2 text-[10px] uppercase tracking-widest font-bold text-center text-slate-500";
+                el.className = "mt-4 text-xs uppercase tracking-[0.2em] font-black text-center text-slate-400";
                 return false;
             }
             const isCorrect = isSpecial ? correctVal : (inputVal === correctVal);
             if(isCorrect) {
                 el.textContent = "Verified";
-                el.className = "mt-2 text-[10px] uppercase tracking-widest font-bold text-center success";
+                el.className = "mt-4 text-xs uppercase tracking-[0.2em] font-black text-center success";
                 return true;
             } else {
                 el.textContent = "Error";
-                el.className = "mt-2 text-[10px] uppercase tracking-widest font-bold text-center danger";
+                el.className = "mt-4 text-xs uppercase tracking-[0.2em] font-black text-center danger";
                 return false;
             }
         }
@@ -257,10 +273,10 @@
             } else {
                 const btn = document.getElementById('activateBtn');
                 btn.textContent = "ERROR: SEQUENCE MISMATCH";
-                btn.classList.add('bg-red-800');
+                btn.classList.add('bg-red-800', 'border-red-400');
                 setTimeout(() => {
                     btn.textContent = "Initialise Power Sequence";
-                    btn.classList.remove('bg-red-800');
+                    btn.classList.remove('bg-red-800', 'border-red-400');
                 }, 2000);
             }
         };
@@ -278,21 +294,22 @@
             const feedback = document.getElementById('feedback-text');
             let nodes = [], path = [], isDrawing = false, curX, curY;
 
-            const spacing = 125, padding = 50;
+            // Updated spacing for the new 450x450 canvas
+            const spacing = 160, padding = 65;
             for(let r=0; r<3; r++) for(let c=0; c<3; c++) nodes.push({x: padding + c*spacing, y: padding + r*spacing, id: (r*3+c+1)});
 
             function draw() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 if (path.length) {
-                    ctx.beginPath(); ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 10; ctx.lineJoin = ctx.lineCap = 'round';
+                    ctx.beginPath(); ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 14; ctx.lineJoin = ctx.lineCap = 'round';
                     const start = nodes.find(n => n.id === path[0]); ctx.moveTo(start.x, start.y);
                     path.slice(1).forEach(id => { const n = nodes.find(m => m.id === id); ctx.lineTo(n.x, n.y); });
                     if (isDrawing) ctx.lineTo(curX, curY);
                     ctx.stroke();
                 }
                 nodes.forEach(n => {
-                    ctx.beginPath(); ctx.arc(n.x, n.y, 16, 0, 7); ctx.fillStyle = path.includes(n.id) ? '#38bdf8' : '#1e293b'; ctx.fill();
-                    ctx.lineWidth = 4; ctx.strokeStyle = '#0ea5e9'; ctx.stroke();
+                    ctx.beginPath(); ctx.arc(n.x, n.y, 22, 0, 7); ctx.fillStyle = path.includes(n.id) ? '#38bdf8' : '#1e293b'; ctx.fill();
+                    ctx.lineWidth = 6; ctx.strokeStyle = '#0ea5e9'; ctx.stroke();
                 });
             }
 
@@ -310,7 +327,8 @@
             window.onmousemove = window.ontouchmove = e => {
                 if (!isDrawing) return;
                 const p = getPos(e); curX = p.x; curY = p.y;
-                nodes.forEach(n => { if (Math.hypot(n.x - p.x, n.y - p.y) < 30 && !path.includes(n.id)) path.push(n.id); });
+                // Increased hit radius for larger canvas
+                nodes.forEach(n => { if (Math.hypot(n.x - p.x, n.y - p.y) < 40 && !path.includes(n.id)) path.push(n.id); });
                 draw();
             };
 
@@ -329,13 +347,13 @@
             if (countdown) clearInterval(countdown);
             hide('active-game-view');
             show('success-view');
-            document.body.style.backgroundColor = "#064e3b";
+            document.body.style.backgroundColor = "#022c22"; // Very dark green background
         }
 
         document.getElementById('reflectionBtn').onclick = () => {
             hide('success-view');
             show('reflection-view');
-            document.body.style.backgroundColor = "#0f172a";
+            document.body.style.backgroundColor = "#020617"; // Back to dark slate
         };
 
         // Master Override
