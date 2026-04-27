@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operation: Midnight - Vault Hack</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        body { font-family: 'Share Tech Mono', monospace; background-color: #050505; color: #10b981; overflow-x: hidden; }
+        .status-box { border: 2px solid #047857; background: rgba(0, 0, 0, 0.85); box-shadow: 0 0 30px rgba(16, 185, 129, 0.15); }
+        .success { color: #34d399; text-shadow: 0 0 10px rgba(52,211,153,0.5); }
+        .danger { color: #f43f5e; animation: blink 1s infinite; text-shadow: 0 0 10px rgba(244,63,94,0.5); }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .briefing-card { border-left: 4px solid #10b981; background: rgba(17, 24, 39, 0.9); }
+        .reflection-card { background: rgba(17, 24, 39, 0.8); border: 1px solid #374151; border-left: 4px solid #10b981; }
+        
+        .cyber-grid {
+            background-image: 
+                linear-gradient(rgba(16, 185, 129, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 185, 129, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .password-slot {
+            transition: all 0.5s ease;
+            border: 2px solid #1f2937;
+            background: rgba(0,0,0,0.5);
+        }
+        
+        .slot-active { border-color: #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.3); }
+
+        /* Color Glows */
+        .glow-blue { background-color: #3b82f6 !important; border-color: #60a5fa !important; box-shadow: 0 0 20px #3b82f6; color: white !important; }
+        .glow-yellow { background-color: #eab308 !important; border-color: #fde047 !important; box-shadow: 0 0 20px #eab308; color: black !important; }
+        .glow-green { background-color: #22c55e !important; border-color: #4ade80 !important; box-shadow: 0 0 20px #22c55e; color: white !important; }
+        .glow-red { background-color: #ef4444 !important; border-color: #f87171 !important; box-shadow: 0 0 20px #ef4444; color: white !important; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 cyber-grid">
+    
+    <!-- Phase 0: Mission Briefing -->
+    <div id="landing-section" class="max-w-5xl w-full p-10 rounded-xl status-box">
+        <div class="text-center mb-12 border-b border-emerald-900 pb-8">
+            <h1 class="text-6xl font-bold uppercase tracking-[0.2em] text-emerald-400 mb-4 text-shadow-md">Operation: Midnight</h1>
+            <p class="text-emerald-600 uppercase tracking-widest text-xl">Secret Mission Rules</p>
+        </div>
+
+        <div id="briefing-step-1" class="fade-in">
+            <div class="briefing-card p-10 shadow-lg mb-12">
+                <h2 class="text-emerald-500 uppercase mb-6 tracking-widest text-3xl font-bold">The Target</h2>
+                <p class="text-gray-300 text-3xl leading-relaxed">Your team broke into another company's building to steal a secret item. But an alarm is ringing! The building will lock down and the police will arrive in <strong class="text-rose-500 text-4xl">65 minutes</strong>. Crack the network, open the vault, and find an escape route before time runs out, or you go to jail.</p>
+            </div>
+            
+            <button id="nextBtn" class="w-full py-6 bg-emerald-900 text-emerald-300 font-bold border border-emerald-500 hover:bg-emerald-800 transition-all uppercase tracking-[0.3em] text-2xl">
+                Next: The Rules
+            </button>
+        </div>
+
+        <div id="briefing-step-2" class="hidden fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                <div class="briefing-card p-8 shadow-lg">
+                    <h2 class="text-emerald-500 uppercase mb-6 tracking-widest text-2xl font-bold">Communication</h2>
+                    <ul class="list-disc list-outside ml-8 space-y-4 text-xl text-gray-300 leading-relaxed font-bold">
+                        <li>Talk to other teams to find the passwords.</li>
+                        <li>Workplace tools (Zoom, Slack etc.) are OK.</li>
+                        <li>You can use smartphones or laptops.</li>
+                        <li>You can use many devices at the same time.</li>
+                    </ul>
+                </div>
+                <div class="briefing-card p-8 border-l-rose-600 shadow-lg">
+                    <h2 class="text-rose-500 uppercase mb-6 tracking-widest text-2xl font-bold">Rules</h2>
+                    <ul class="list-disc list-outside ml-8 space-y-4 text-xl text-gray-300 leading-relaxed font-bold">
+                        <li>Outside tools are allowed (e.g. Google).</li>
+                        <li>You MUST NOT share photos or video of the papers.</li>
+                        <li class="text-rose-400 font-bold text-2xl">Penalty: If you speak Japanese, your team cannot speak for 2 minutes.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <button id="startBtn" class="w-full py-6 bg-emerald-700 text-white font-bold border border-emerald-400 hover:bg-emerald-600 transition-all uppercase tracking-[0.3em] text-3xl shadow-[0_0_20px_rgba(16,185,129,0.4)]">
+                Start Mission
+            </button>
+        </div>
+    </div>
+
+    <!-- Phase 1: Dashboard -->
+    <div id="main-container" class="max-w-6xl w-full p-10 rounded-xl status-box hidden">
+        <div id="active-game-view" class="fade-in">
+            <div class="flex justify-between items-center mb-8 border-b border-emerald-900 pb-6">
+                <div>
+                    <h1 class="text-4xl font-bold text-emerald-400 uppercase tracking-widest">Input Team</h1>
+                    <p class="text-xs text-emerald-700 mt-2 cursor-default select-none tracking-widest" id="version-trigger">SYNDICATE OS V9.1.4 // UNAUTHORIZED ACCESS</p>
+                </div>
+                <div id="timer" class="text-6xl font-bold text-rose-500 drop-shadow-[0_0_15px_rgba(244,63,94,0.6)]">65:00</div>
+            </div>
+
+            <!-- Interruption: Firewall Screen -->
+            <div id="firewall-view" class="hidden flex flex-col items-center py-8 fade-in">
+                <div class="w-full p-8 border-2 border-rose-600 bg-rose-950/40 text-rose-500 rounded text-center mb-8 shadow-[0_0_40px_rgba(244,63,94,0.3)]">
+                    <h2 class="text-6xl font-black mb-4 danger tracking-widest uppercase">Emergency: Counter Hack in Progress</h2>
+                    <p class="text-white text-2xl font-bold mb-2">A firewall has been activated.</p>
+                    <p class="text-rose-300 text-lg font-bold">Enter the 4-digit override code to restore system access.</p>
+                </div>
+                <div class="max-w-sm w-full">
+                    <input type="text" id="firewallInput" placeholder="----" class="w-full bg-black border-2 border-rose-600 p-6 text-6xl text-center focus:outline-none focus:border-rose-400 text-rose-500 font-bold tracking-[0.5em] shadow-[0_0_20px_rgba(244,63,94,0.2)]" maxlength="4" autocomplete="off">
+                    <p id="firewall-feedback" class="mt-4 text-center text-rose-500 font-bold h-6 uppercase tracking-widest"></p>
+                </div>
+            </div>
+
+            <!-- Standard Inputs -->
+            <div id="input-section">
+                <h2 class="text-xl text-emerald-600 uppercase tracking-widest mb-4 border-l-4 border-emerald-800 pl-3">Security Team Inputs</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="p-5 border border-emerald-900 bg-black shadow-inner">
+                        <label class="block text-sm mb-2 text-emerald-500 uppercase tracking-widest font-bold">1. Broken Camera Code</label>
+                        <input type="text" id="inputA" placeholder="--" class="w-full bg-gray-950 border border-emerald-800 p-3 text-3xl text-center focus:outline-none focus:border-emerald-400 text-emerald-300 font-bold uppercase" maxlength="2">
+                        <div id="statusA" class="mt-3 text-xs uppercase text-gray-500 text-center tracking-[0.2em] font-bold">Waiting</div>
+                    </div>
+                    <div class="p-5 border border-emerald-900 bg-black shadow-inner">
+                        <label class="block text-sm mb-2 text-emerald-500 uppercase tracking-widest font-bold">2. Safe Map Square</label>
+                        <input type="text" id="inputB" placeholder="--" class="w-full bg-gray-950 border border-emerald-800 p-3 text-3xl text-center focus:outline-none focus:border-emerald-400 text-emerald-300 uppercase font-bold" maxlength="2">
+                        <div id="statusB" class="mt-3 text-xs uppercase text-gray-500 text-center tracking-[0.2em] font-bold">Waiting</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <h2 class="text-xl text-emerald-600 uppercase tracking-widest mb-4 border-l-4 border-emerald-800 pl-3">Computer Team</h2>
+                        <div class="space-y-4">
+                            <div class="p-5 border border-emerald-900 bg-black shadow-inner">
+                                <label class="block text-sm mb-2 text-emerald-500 uppercase tracking-widest font-bold">3. Target ID</label>
+                                <input type="number" id="inputC" placeholder="----" class="w-full bg-gray-950 border border-emerald-800 p-3 text-3xl text-center focus:outline-none focus:border-emerald-400 text-emerald-300 font-bold">
+                                <div id="statusC" class="mt-3 text-xs uppercase text-gray-500 text-center tracking-[0.2em] font-bold">Waiting</div>
+                            </div>
+                            <div class="p-5 border border-emerald-900 bg-black shadow-inner">
+                                <label class="block text-sm mb-2 text-emerald-500 uppercase tracking-widest font-bold">4. Network Route Code</label>
+                                <input type="text" id="inputA_sec" placeholder="---" class="w-full bg-gray-950 border border-emerald-800 p-3 text-3xl text-center focus:outline-none focus:border-emerald-400 text-emerald-300 font-bold uppercase" maxlength="3">
+                                <div id="statusA_sec" class="mt-3 text-xs uppercase text-gray-500 text-center tracking-[0.2em] font-bold">Waiting</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h2 class="text-xl text-emerald-600 uppercase tracking-widest mb-4 border-l-4 border-emerald-800 pl-3">Door Team</h2>
+                        <div class="space-y-4">
+                            <div class="p-5 border border-emerald-900 bg-black shadow-inner">
+                                <label class="block text-sm mb-2 text-emerald-500 uppercase tracking-widest font-bold">5. Lock Values</label>
+                                <input type="number" id="inputB_sec" placeholder="-----" class="w-full bg-gray-950 border border-emerald-800 p-3 text-3xl text-center focus:outline-none focus:border-emerald-400 text-emerald-300 font-bold">
+                                <div id="statusB_sec" class="mt-3 text-xs uppercase text-gray-500 text-center tracking-[0.2em] font-bold">Waiting</div>
+                            </div>
+                            <div class="p-5 border border-emerald-900 bg-black shadow-inner">
+                                <label class="block text-sm mb-2 text-emerald-500 uppercase tracking-widest font-bold">6. Pump Power</label>
+                                <input type="number" id="inputC_sec" placeholder="--" class="w-full bg-gray-950 border border-emerald-800 p-3 text-3xl text-center focus:outline-none focus:border-emerald-400 text-emerald-300 font-bold">
+                                <div id="statusC_sec" class="mt-3 text-xs uppercase text-gray-500 text-center tracking-[0.2em] font-bold">Waiting</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="activateBtn" class="w-full py-6 bg-emerald-900 text-emerald-300 font-bold border border-emerald-500 hover:bg-emerald-700 hover:text-white transition-all uppercase tracking-[0.2em] text-3xl mt-4">
+                    Unlock Systems
+                </button>
+            </div>
+
+            <!-- Phase 2: Lockdown Screen -->
+            <div id="finalMessage" class="hidden flex flex-col items-center py-6 fade-in">
+                <div class="w-full p-6 border border-rose-600 bg-rose-950/20 text-rose-500 rounded text-center mb-8 shadow-lg">
+                    <h2 class="text-5xl font-bold mb-4 danger tracking-wider">SYSTEM LOCKDOWN</h2>
+                    <p class="text-white text-xl font-bold mb-6 italic underline">Communicate with your teams to find the colour password. Colours are hidden within the materials you are holding.</p>
+                </div>
+
+                <div class="w-full max-w-5xl bg-black border border-emerald-900 p-10 rounded-xl shadow-2xl">
+                    <!-- Progress Slots -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+                        <div id="slot-0" class="password-slot p-6 rounded-lg text-center opacity-50 slot-active">
+                            <p class="text-emerald-500 text-xs font-bold uppercase mb-2">Part 1</p>
+                            <p class="text-white text-sm font-bold h-10 flex items-center justify-center uppercase">Broken Camera Zone</p>
+                            <div id="result-0" class="mt-4 font-black text-xl hidden">---</div>
+                        </div>
+                        <div id="slot-1" class="password-slot p-6 rounded-lg text-center opacity-30">
+                            <p class="text-emerald-500 text-xs font-bold uppercase mb-2">Part 2</p>
+                            <p class="text-white text-sm font-bold h-10 flex items-center justify-center uppercase">Target Department</p>
+                            <div id="result-1" class="mt-4 font-black text-xl hidden">---</div>
+                        </div>
+                        <div id="slot-2" class="password-slot p-6 rounded-lg text-center opacity-30">
+                            <p class="text-emerald-500 text-xs font-bold uppercase mb-2">Part 3</p>
+                            <p class="text-white text-sm font-bold h-10 flex items-center justify-center uppercase">Strongest Shape</p>
+                            <div id="result-2" class="mt-4 font-black text-xl hidden">---</div>
+                        </div>
+                        <div id="slot-3" class="password-slot p-6 rounded-lg text-center opacity-30">
+                            <p class="text-emerald-500 text-xs font-bold uppercase mb-2">Part 4</p>
+                            <p class="text-white text-sm font-bold h-10 flex items-center justify-center uppercase">Check file signatures</p>
+                            <div id="result-3" class="mt-4 font-black text-xl hidden">---</div>
+                        </div>
+                    </div>
+
+                    <!-- Input Bar -->
+                    <div class="max-w-xl mx-auto">
+                        <label class="block text-emerald-500 text-xs font-bold uppercase mb-3 tracking-widest text-center">Encryption Override Input:</label>
+                        <input type="text" id="colorInput" placeholder="TYPE COLOUR NAME..." class="w-full bg-emerald-950/20 border-2 border-emerald-800 p-5 text-4xl text-center focus:outline-none focus:border-emerald-400 text-white font-bold uppercase placeholder:opacity-20" autocomplete="off">
+                        <p id="lockdown-feedback" class="mt-4 text-center text-rose-500 font-bold h-6 uppercase tracking-widest"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Screen -->
+        <div id="success-view" class="hidden text-center py-12 fade-in">
+            <div class="w-40 h-40 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_80px_#10b981]">
+                <svg class="w-20 h-20 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h1 class="text-8xl font-bold text-emerald-400 mb-6 tracking-tighter drop-shadow-lg">DOOR OPEN</h1>
+            <p class="text-3xl text-white font-bold mb-8">You got the secret item! The helicopter is waiting.</p>
+            <div class="p-6 bg-black border border-emerald-800 inline-block mb-10">
+                <p class="text-emerald-500 font-bold uppercase tracking-widest text-xl">Mission Complete</p>
+            </div>
+            <br>
+            <button id="reflectionBtn" class="px-10 py-6 bg-emerald-800 text-white font-bold border border-emerald-400 hover:bg-emerald-700 transition-all uppercase tracking-widest text-2xl">
+                Go to Discussion
+            </button>
+        </div>
+
+        <!-- Reflection View -->
+        <div id="reflection-view" class="hidden max-w-5xl mx-auto py-8 fade-in">
+            <div class="text-center mb-10 border-b border-emerald-900 pb-6">
+                <h2 class="text-5xl font-bold text-emerald-400 uppercase tracking-widest mb-2">Team Discussion</h2>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="reflection-card p-8">
+                    <h3 class="text-emerald-500 font-bold mb-3 uppercase text-lg tracking-[0.1em]">Question 01</h3>
+                    <p class="text-white text-2xl leading-relaxed font-bold"><strong>Sharing Information:</strong> Did anyone keep a clue secret because they didn't know it was important? How long did it take to share it?</p>
+                </div>
+                <div class="reflection-card p-8">
+                    <h3 class="text-emerald-500 font-bold mb-3 uppercase text-lg tracking-[0.1em]">Question 02</h3>
+                    <p class="text-white text-2xl leading-relaxed font-bold"><strong>Trust:</strong> When someone gave you an answer, did you trust them immediately, or did you check their work? Why?</p>
+                </div>
+                <div class="reflection-card p-8">
+                    <h3 class="text-emerald-500 font-bold mb-3 uppercase text-lg tracking-[0.1em]">Question 03</h3>
+                    <p class="text-white text-2xl leading-relaxed font-bold"><strong>Teamwork:</strong> Did you share the work in your team, or did everyone try to look at the same paper at the same time?</p>
+                </div>
+                <div class="reflection-card p-8">
+                    <h3 class="text-emerald-500 font-bold mb-3 uppercase text-lg tracking-[0.1em]">Question 04</h3>
+                    <p class="text-white text-2xl leading-relaxed font-bold"><strong>The Coordinators:</strong> How did the Input Team manage the information? Was it easy or difficult?</p>
+                </div>
+                <div class="reflection-card p-8">
+                    <h3 class="text-emerald-500 font-bold mb-3 uppercase text-lg tracking-[0.1em]">Question 05</h3>
+                    <p class="text-white text-2xl leading-relaxed font-bold">Compare this game to the first game. Did your team's communication <strong>improve</strong> or <strong>get worse</strong>? Give one example.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SOLS = {
+            A: "3F", B: "C4", C: 7334,
+            A_SEC: "ADE", B_SEC: 73117, C_SEC: 35
+        };
+        const FINAL_SEQ = ['BLUE', 'YELLOW', 'GREEN', 'RED'];
+        let currentStep = 0;
+        
+        let timeLeft = 3900; // 65 mins
+        let countdown = null;
+        let secretCount = 0;
+        
+        let firewallTriggered = false;
+        let firewallCleared = false;
+
+        const hide = (id) => document.getElementById(id).classList.add('hidden');
+        const show = (id) => document.getElementById(id).classList.remove('hidden');
+
+        document.getElementById('nextBtn').onclick = () => {
+            hide('briefing-step-1');
+            show('briefing-step-2');
+        };
+
+        document.getElementById('startBtn').onclick = () => {
+            hide('landing-section');
+            show('main-container');
+            startTimer();
+        };
+
+        function startTimer() {
+            const timerDisplay = document.getElementById('timer');
+            countdown = setInterval(() => {
+                if(timeLeft <= 0) {
+                    clearInterval(countdown);
+                    document.body.innerHTML = "<div class='text-rose-500 text-8xl font-bold p-20 text-center uppercase drop-shadow-[0_0_20px_rgba(244,63,94,0.8)]'>Arrested.<br><br>Mission Failed.</div>";
+                    return;
+                }
+                
+                // TRIGGER FIREWALL at exactly 55:00 remaining (10 mins elapsed)
+                if(timeLeft === 3300 && !firewallTriggered) {
+                    triggerFirewall();
+                }
+
+                timeLeft--;
+                const mins = Math.floor(timeLeft / 60);
+                const secs = timeLeft % 60;
+                timerDisplay.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+        
+        function triggerFirewall() {
+            firewallTriggered = true;
+            hide('input-section');
+            show('firewall-view');
+            document.getElementById('firewallInput').focus();
+        }
+        
+        // Firewall Logic
+        document.getElementById('firewallInput').addEventListener('input', function(e) {
+            const val = e.target.value.trim();
+            const feedback = document.getElementById('firewall-feedback');
+            
+            if (val === '7359') {
+                firewallCleared = true;
+                feedback.textContent = "FIREWALL BYPASSED. ACCESS RESTORED.";
+                feedback.classList.replace('text-rose-500', 'text-emerald-500');
+                e.target.classList.replace('border-rose-600', 'border-emerald-500');
+                e.target.classList.replace('text-rose-500', 'text-emerald-500');
+                
+                setTimeout(() => {
+                    hide('firewall-view');
+                    show('input-section');
+                }, 2000);
+            } else if (val.length === 4) {
+                feedback.textContent = "INVALID CODE. ACCESS DENIED.";
+                setTimeout(() => {
+                    e.target.value = '';
+                    feedback.textContent = "";
+                }, 1000);
+            }
+        });
+
+        function checkStatus(id, inputVal, correctVal, isSpecial = false) {
+            const el = document.getElementById(id);
+            const val = String(inputVal).trim().toUpperCase();
+            if (val === "" || (typeof inputVal === 'number' && isNaN(inputVal))) {
+                el.textContent = "Waiting";
+                el.className = "mt-3 text-xs uppercase tracking-[0.2em] text-center text-gray-500 font-bold";
+                return false;
+            }
+            
+            const target = String(correctVal).toUpperCase();
+            const isCorrect = isSpecial ? correctVal : (val === target);
+            
+            if(isCorrect) {
+                el.textContent = "Correct";
+                el.className = "mt-3 text-xs uppercase tracking-[0.2em] text-center success font-bold";
+                return true;
+            } else {
+                el.textContent = "Wrong";
+                el.className = "mt-3 text-xs uppercase tracking-[0.2em] text-center danger font-bold";
+                return false;
+            }
+        }
+
+        document.getElementById('activateBtn').onclick = () => {
+            const vA = document.getElementById('inputA').value;
+            const vB = document.getElementById('inputB').value;
+            const vC = parseInt(document.getElementById('inputC').value);
+            const vAs = document.getElementById('inputA_sec').value.toUpperCase();
+            const vBs = parseInt(document.getElementById('inputB_sec').value);
+            const vCs = parseInt(document.getElementById('inputC_sec').value);
+
+            const isA = checkStatus('statusA', vA, SOLS.A);
+            const isB = checkStatus('statusB', vB, SOLS.B);
+            const isC = checkStatus('statusC', vC, SOLS.C);
+            const isAs = checkStatus('statusA_sec', vAs, SOLS.A_SEC);
+            const isBs = checkStatus('statusB_sec', vBs, SOLS.B_SEC);
+            const isCs = checkStatus('statusC_sec', vCs, SOLS.C_SEC);
+
+            if (isA && isB && isC && isAs && isBs && isCs) {
+                initiateFinale();
+            } else {
+                const btn = document.getElementById('activateBtn');
+                btn.textContent = "ERROR. CHECK PASSWORDS.";
+                btn.classList.add('bg-rose-900', 'text-rose-200', 'border-rose-500');
+                setTimeout(() => {
+                    btn.textContent = "Unlock Systems";
+                    btn.classList.remove('bg-rose-900', 'text-rose-200', 'border-rose-500');
+                }, 2000);
+            }
+        };
+
+        function initiateFinale() {
+            hide('input-section');
+            show('finalMessage');
+            document.getElementById('colorInput').focus();
+        }
+
+        // Colour Logic Parser
+        document.getElementById('colorInput').addEventListener('input', function(e) {
+            const val = e.target.value.trim().toUpperCase();
+            const feedback = document.getElementById('lockdown-feedback');
+            
+            if (val === FINAL_SEQ[currentStep]) {
+                const slot = document.getElementById(`slot-${currentStep}`);
+                const result = document.getElementById(`result-${currentStep}`);
+                
+                slot.classList.add(`glow-${val.toLowerCase()}`);
+                slot.classList.remove('opacity-30', 'opacity-50', 'slot-active');
+                slot.classList.add('opacity-100');
+                result.textContent = val;
+                result.classList.remove('hidden');
+                
+                feedback.textContent = "PARTIAL OVERRIDE SUCCESSFUL";
+                e.target.value = "";
+                currentStep++;
+                
+                if (currentStep < 4) {
+                    const nextSlot = document.getElementById(`slot-${currentStep}`);
+                    nextSlot.classList.add('slot-active');
+                    nextSlot.classList.remove('opacity-30');
+                    nextSlot.classList.add('opacity-50');
+                } else {
+                    setTimeout(triggerSuccess, 800);
+                }
+            } else if (val.length > 2 && !FINAL_SEQ[currentStep].startsWith(val)) {
+                feedback.textContent = "INVALID SEQUENCE DATA";
+                setTimeout(() => { feedback.textContent = ""; }, 1000);
+            }
+        });
+
+        function triggerSuccess() {
+            if (countdown) clearInterval(countdown);
+            hide('active-game-view');
+            show('success-view');
+        }
+
+        document.getElementById('version-trigger').onclick = () => { 
+            if (++secretCount >= 5 && !firewallTriggered) {
+                triggerFirewall(); 
+            }
+        };
+    </script>
+</body>
+</html>
