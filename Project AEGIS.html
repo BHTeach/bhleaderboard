@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AEGIS SYSTEM TERMINAL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        body { font-family: 'VT323', monospace; background-color: #050505; color: #10b981; overflow-x: hidden; }
+        .crt::before { content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); z-index: 2; background-size: 100% 2px, 3px 100%; pointer-events: none; }
+        .status-box { border: 2px solid #047857; background: rgba(0, 0, 0, 0.9); box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); }
+        .danger-box { border: 2px solid #e11d48; background: rgba(20, 0, 0, 0.9); box-shadow: 0 0 30px rgba(225, 29, 72, 0.4); color: #f43f5e; }
+        .briefing-card { border-left: 4px solid #10b981; background: rgba(4, 120, 87, 0.15); }
+        .glitch { animation: glitch 1s linear infinite; }
+        @keyframes glitch { 2%, 64% { transform: translate(2px, 0) skew(0deg); } 4%, 60% { transform: translate(-2px, 0) skew(0deg); } 62% { transform: translate(0, 0) skew(5deg); } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        .blink { animation: blink 1s infinite; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .grid-btn { transition: all 0.2s; }
+        .grid-btn:hover { background-color: #10b981; color: black; }
+        .grid-btn.selected { background-color: #047857; color: white; border-color: #10b981; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 crt relative">
+    
+    <!-- Phase 0: Mission Briefing -->
+    <div id="landing-section" class="max-w-5xl w-full p-10 rounded status-box text-center z-10">
+        <div class="text-center mb-10 border-b border-emerald-900 pb-8">
+            <h1 class="text-7xl mb-2 text-emerald-400 uppercase glitch tracking-widest text-shadow-md">AEGIS MAINFRAME</h1>
+            <p class="text-emerald-600 uppercase tracking-widest text-2xl">System Lockout Active // Evacuation Denied</p>
+        </div>
+
+        <!-- Step 1: The Situation -->
+        <div id="briefing-step-1" class="fade-in">
+            <div class="briefing-card p-10 shadow-lg mb-12 text-left">
+                <h2 class="text-emerald-500 uppercase mb-6 tracking-widest text-4xl">Critical Alert</h2>
+                <p class="text-emerald-200 text-3xl leading-relaxed">The company's smart AI, AEGIS, has gone rogue. Management is locked out and a global data wipe will occur in <strong class="text-rose-500 text-4xl blink">60 MINUTES</strong>. You must use this single remaining terminal to bypass the corruption and input the manual override codes before time runs out.</p>
+            </div>
+            
+            <button id="nextBtn" class="w-full py-6 bg-emerald-900 text-emerald-300 text-3xl hover:bg-emerald-800 transition-all uppercase tracking-[0.3em] border border-emerald-500">
+                Next: Protocol Rules
+            </button>
+        </div>
+
+        <!-- Step 2: Rules and Comms -->
+        <div id="briefing-step-2" class="hidden fade-in text-left">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                <div class="briefing-card p-8 shadow-lg">
+                    <h2 class="text-emerald-500 uppercase mb-6 tracking-widest text-3xl">Comms Protocol</h2>
+                    <ul class="list-disc list-outside ml-8 space-y-4 text-2xl text-emerald-200 leading-relaxed">
+                        <li>You have only <strong>ONE</strong> terminal for the entire room.</li>
+                        <li>The <strong>Network Team</strong> operates the terminal and must relay system errors.</li>
+                        <li>Other departments must filter their printed manuals to find the answers.</li>
+                    </ul>
+                </div>
+                <div class="briefing-card p-8 border-l-rose-600 shadow-lg" style="border-left-color: #e11d48;">
+                    <h2 class="text-rose-500 uppercase mb-6 tracking-widest text-3xl">Engagement Rules</h2>
+                    <ul class="list-disc list-outside ml-8 space-y-4 text-2xl text-emerald-200 leading-relaxed">
+                        <li>Outside tools are allowed (e.g. Google).</li>
+                        <li>You MUST NOT share photos or video of the papers.</li>
+                        <li class="text-rose-400 text-3xl mt-4">Penalty: If you speak Japanese, your team cannot speak for 2 minutes.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <button id="startBtn" class="w-full py-6 bg-emerald-900 text-emerald-300 text-3xl hover:bg-emerald-800 transition-all uppercase tracking-[0.3em] border border-emerald-500">
+                Initialize Override Sequence
+            </button>
+        </div>
+    </div>
+
+    <!-- The 10-Minute Counterhack View -->
+    <div id="counterhack-section" class="hidden z-20 flex-col items-center justify-center py-4 w-full fade-in">
+        <div class="text-rose-500 font-bold glitch mb-4 text-center">
+            <p class="text-3xl">ERROR // UNRECOGNIZED BIOMETRIC SIGNATURES</p>
+            <p class="text-2xl mt-1">INITIATING COUNTER-HACK...</p>
+        </div>
+        <pre class="text-rose-600 text-center text-[10px] sm:text-lg md:text-3xl leading-none mb-6">
+     ███████████████████████████████
+     ██                           ██
+     ██   <span class="blink text-rose-500 bg-rose-900/30 px-2">[👁️]</span>             <span class="blink text-rose-500 bg-rose-900/30 px-2">[👁️]</span>   ██
+     ██             |             ██
+     ██          /=====\          ██
+     ██                           ██
+     ███████████████████████████████
+        </pre>
+        <div class="text-center text-rose-400 text-2xl mb-8">
+            <p>"AEGIS: I CAN SEE YOU. YOUR ACCESS IS REVOKED."</p>
+            <p class="mt-2">"MANUAL REBOOT REQUIRED. ENGAGE SWITCHES IN SEQUENCE."</p>
+        </div>
+
+        <div class="w-full max-w-3xl mb-8 border-2 border-rose-800 p-6 bg-rose-950/40 shadow-[0_0_40px_rgba(225,29,72,0.3)]">
+            <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+                <button class="reboot-btn border-2 border-rose-700 p-4 bg-black text-rose-500 hover:bg-rose-900 hover:text-rose-200 transition-all text-2xl tracking-widest font-bold shadow-lg" data-dept="CYB">CYBER</button>
+                <button class="reboot-btn border-2 border-rose-700 p-4 bg-black text-rose-500 hover:bg-rose-900 hover:text-rose-200 transition-all text-2xl tracking-widest font-bold shadow-lg" data-dept="DATA">DATA</button>
+                <button class="reboot-btn border-2 border-rose-700 p-4 bg-black text-rose-500 hover:bg-rose-900 hover:text-rose-200 transition-all text-2xl tracking-widest font-bold shadow-lg" data-dept="NET">NETWORK</button>
+                <button class="reboot-btn border-2 border-rose-700 p-4 bg-black text-rose-500 hover:bg-rose-900 hover:text-rose-200 transition-all text-2xl tracking-widest font-bold shadow-lg" data-dept="HW">HARDWARE</button>
+            </div>
+            <p id="reboot-feedback" class="mt-6 text-rose-400 text-center h-8 uppercase tracking-[0.2em] text-xl font-bold"></p>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="main-container" class="max-w-7xl w-full p-8 rounded status-box hidden z-10">
+        <div class="flex justify-between items-end mb-4 border-b-2 border-emerald-900 pb-2">
+            <div>
+                <h1 class="text-4xl text-emerald-400 uppercase tracking-widest">AEGIS TERMINAL</h1>
+                <p id="version-trigger" class="text-base text-emerald-700 mt-1 uppercase cursor-default select-none">Network Infrastructure Log-in Accepted</p>
+            </div>
+            <div id="timer" class="text-5xl text-rose-500 blink">60:00</div>
+        </div>
+
+        <!-- Phase 1 & 2 Inputs -->
+        <div id="input-section">
+            <div id="global-rules-container" class="hidden mb-4 p-3 border border-rose-600 bg-rose-950/30 text-rose-400 text-sm uppercase tracking-wider">
+                <p class="font-bold text-xl mb-2 text-rose-500 blink">>>> CORRUPTION DETECTED. PARAMETERS SHIFTED. <<<</p>
+                <div class="grid grid-cols-3 gap-x-4">
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li>GLOBAL 1: Lead Engineer Compromised. Use Assistant.</li>
+                        <li>GLOBAL 2: Backup Cipher Corrupted. Use Emergency.</li>
+                        <li>GLOBAL 3: Main Router Offline. Use Auxiliary.</li>
+                        <li>GLOBAL 4: Rack 9 Lock Jammed. Use Secondary.</li>
+                    </ul>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li>GLOBAL 5: Accounting Server Migrated to R&D.</li>
+                        <li>GLOBAL 6: Trojan.Agent Mutated to Ransom.Lock.</li>
+                        <li>GLOBAL 7: HR Subnet Merged with Admin.</li>
+                        <li>GLOBAL 8: Rack 4 Power Draw Dropped by 200w.</li>
+                    </ul>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li>GLOBAL 9: Temperature sensors recalibrated: Add 15C.</li>
+                        <li>GLOBAL 10: Netgear equipment recalled. Use Cisco.</li>
+                        <li>GLOBAL 11: Blowfish deprecated. Rollback to AES-256.</li>
+                        <li>GLOBAL 12: Acme Corp terminated. Use Globex Inc.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 12 Input Boxes -->
+            <div class="grid grid-cols-4 gap-3 mb-4">
+                <!-- Row 1: HW1, DATA1, CYB1, NET1 -->
+                <div class="p-2 border border-emerald-800 bg-black flex flex-col justify-between">
+                    <p class="text-rose-500 text-lg mb-1 uppercase blink">! HW1: MAIN_VALVE_BURST</p>
+                    <input type="number" id="inp-hw1" class="w-full bg-gray-900 border border-emerald-700 p-1 text-2xl text-center focus:outline-none focus:border-emerald-400 text-emerald-400">
+                    <p id="stat-hw1" class="mt-1 text-xs uppercase text-gray-500 text-center">Awaiting Input</p>
+                </div>
+                <div class="p-2 border border-emerald-800 bg-black flex flex-col justify-between">
+                    <p class="text-rose-500 text-lg mb-1 uppercase blink">! DAT1: CORRUPT_USER_DB</p>
+                    <input type="number" id="inp-data1" class="w-full bg-gray-900 border border-emerald-700 p-1 text-2xl text-center focus:outline-none focus:border-emerald-400 text-emerald-400">
+                    <p id="stat-data1" class="mt-1 text-xs uppercase text-gray-500 text-center">Awaiting Input</p>
+                </div>
+                <div class="p-2 border border-emerald-800 bg-black flex flex-col justify-between">
+                    <p class="text-rose-500 text-lg mb-1 uppercase blink">! CYB1: NODE_ALPHA_DOWN</p>
+                    <input type="number" id="inp-cyb1" class="w-full bg-gray-900 border border-emerald-700 p-1 text-2xl text-center focus:outline-none focus:border-emerald-400 text-emerald-400">
+                    <p id="stat-cyb1" class="mt-1 text-xs uppercase text-gray-500 text-center">Awaiting Input</p>
+                </div>
+                <div class="p-2 border border-emerald-800 bg-black flex flex-col justify-between">
+                    <p class="text-rose-500 text-lg mb-1 uppercase blink">! NET1: DNS_OFF_RACK9</p>
+                    <input type="number" id="inp-net1" class="w-full bg-gray-900 border border-emerald-700 p-1 text-2xl text-center focus:outline-none focus:border-emerald-400 text-emerald-400">
+                    <p id="stat-net1" class="mt-1 text-xs uppercase text-gray-500 text-center">Awaiting Input</p>
+                </div>
+
+                <!-- Row 2: HW2, DATA2, CYB2, NET2 -->
+                <div class="p-2 border border-emerald-800 bg-black flex flex-col justify-between">
+                    <p class="text-rose-500 text-lg mb-1 uppercase blink">! HW2: COOLING_NODE_OFF</p>
+                    <input type="number" id="inp-hw2" class="w-full bg-gray-900 border border-emerald-700 p-1 text-2xl text-center focus:outline-none focus:border-emerald-400 text-emerald-400">
+                    <p id="stat-hw2" class="mt-1 text-xs uppercase text-gray-500 text-center">Awaiting Input</p>
+                </div>
+                <div class="p-2 border border-emerald-800 bg-black flex flex-col justify-between">
+                    <p class="text-rose-500 text-lg mb-1 uppercase blink">! DAT2: PORT_MAPPING_ERR</p>
+                    <input type="number" id="inp-data2" class="w-full bg-gray-900 border border-emerald-700 p-1 text-2xl text-center focus:outline-none focus:border-emerald-400 text-emerald-400">
+                    <p id="stat-data2" class="mt-1 text-xs uppercase text-gray-500 text-center">Awaiting Input</p>
+                </div>
+                <div class="p-2 border border-emerald-800 bg-black flex flex-col justify-between">
+                    <p class="text-rose-500 text-lg mb-1 uppercase blink">! CYB2: MALWARE_SECTOR</p>
+                    <input type="number" id="inp-cyb2" class="w-full bg-gray-900 border border-emerald-700 p-1 text-2xl text-center focus:outline-none focus:border-emerald-400 text-emerald-400">
+                    <p id="stat-cyb2" class="mt-1 text-xs uppercase text-gray-500 text-center">Awaiting Input</p>
+                </div>
+                <div class="p-2 border border-emerald-800 bg-black flex flex-col justify-between">
+                    <p class="text-rose-500 text-lg mb-1 uppercase blink">! NET2: SUBNET_COLLISION</p>
+                    <input type="number" id="inp-net2" class="w-full bg-gray-900 border border-emerald-700 p-1 text-2xl text-center focus:outline-none focus:border-emerald-400 text-emerald-400">
+                    <p id="stat-net2" class="mt-1 text-xs uppercase text-gray-500 text-center">Awaiting Input</p>
+                </div>
+
+                <!-- Row 3: HW3, DATA3, CYB3, NET3 -->
+                <div class="p-2 border border-emerald-800 bg-black flex flex-col justify-between">
+                    <p class="text-rose-500 text-lg mb-1 uppercase blink">! HW3: CORE_OVERHEAT_WARN</p>
+                    <input type="number" id="inp-hw3" class="w-full bg-gray-900 border border-emerald-700 p-1 text-2xl text-center focus:outline-none focus:border-emerald-400 text-emerald-400">
+                    <p id="stat-hw3" class="mt-1 text-xs uppercase text-gray-500 text-center">Awaiting Input</p>
+                </div>
+                <div class="p-2 border border-emerald-800 bg-black flex flex-col justify-between">
+                    <p class="text-rose-500 text-lg mb-1 uppercase blink">! DAT3: UNAUTH_ACCESS</p>
+                    <input type="number" id="inp-data3" class="w-full bg-gray-900 border border-emerald-700 p-1 text-2xl text-center focus:outline-none focus:border-emerald-400 text-emerald-400">
+                    <p id="stat-data3" class="mt-1 text-xs uppercase text-gray-500 text-center">Awaiting Input</p>
+                </div>
+                <div class="p-2 border border-emerald-800 bg-black flex flex-col justify-between">
+                    <p class="text-rose-500 text-lg mb-1 uppercase blink">! CYB3: ENCRYPT_KEY_EXP</p>
+                    <input type="number" id="inp-cyb3" class="w-full bg-gray-900 border border-emerald-700 p-1 text-2xl text-center focus:outline-none focus:border-emerald-400 text-emerald-400">
+                    <p id="stat-cyb3" class="mt-1 text-xs uppercase text-gray-500 text-center">Awaiting Input</p>
+                </div>
+                <div class="p-2 border border-emerald-800 bg-black flex flex-col justify-between">
+                    <p class="text-rose-500 text-lg mb-1 uppercase blink">! NET3: ROUTER_FW_CORRUPT</p>
+                    <input type="number" id="inp-net3" class="w-full bg-gray-900 border border-emerald-700 p-1 text-2xl text-center focus:outline-none focus:border-emerald-400 text-emerald-400">
+                    <p id="stat-net3" class="mt-1 text-xs uppercase text-gray-500 text-center">Awaiting Input</p>
+                </div>
+            </div>
+
+            <button id="submitBtn" class="w-full py-3 bg-emerald-900 text-emerald-300 text-2xl hover:bg-emerald-800 transition-all uppercase tracking-widest border border-emerald-500">
+                Execute Batch Override
+            </button>
+        </div>
+
+        <!-- Phase 3: Grid Lockout -->
+        <div id="grid-section" class="hidden flex flex-col items-center py-4">
+            <div class="w-full p-4 danger-box text-center mb-6">
+                <h2 class="text-5xl mb-2 uppercase tracking-widest">CRITICAL PURGE IMMINENT</h2>
+                <p class="text-2xl text-rose-300">Combine Department Filter Masks to isolate the 4-letter Kill Command.</p>
+            </div>
+
+            <div class="grid grid-cols-4 gap-2 mb-6 w-full max-w-lg mx-auto">
+                <!-- R1 -->
+                <button class="grid-btn border border-emerald-800 p-4 text-5xl bg-black" data-val="K">K</button>
+                <button class="grid-btn border border-emerald-800 p-4 text-5xl bg-black" data-val="X">X</button>
+                <button class="grid-btn border border-emerald-800 p-4 text-5xl bg-black" data-val="Y">Y</button>
+                <button class="grid-btn border border-emerald-800 p-4 text-5xl bg-black" data-val="Z">Z</button>
+                <!-- R2 -->
+                <button class="grid-btn border border-emerald-800 p-4 text-5xl bg-black" data-val="A">A</button>
+                <button class="grid-btn border border-emerald-800 p-4 text-5xl bg-black" data-val="I">I</button>
+                <button class="grid-btn border border-emerald-800 p-4 text-5xl bg-black" data-val="B">B</button>
+                <button class="grid-btn border border-emerald-800 p-4 text-5xl bg-black" data-val="C">C</button>
+                <!-- R3 -->
+                <button class="grid-btn border border-emerald-800 p-4 text-5xl bg-black" data-val="D">D</button>
+                <button class="grid-btn border border-emerald-800 p-4 text-5xl bg-black" data-val="E">E</button>
+                <button class="grid-btn border border-emerald-800 p-4 text-5xl bg-black" data-val="L">L</button>
+                <button class="grid-btn border border-emerald-800 p-4 text-5xl bg-black" data-val="F">F</button>
+                <!-- R4 -->
+                <button class="grid-btn border border-emerald-800 p-4 text-5xl bg-black" data-val="G">G</button>
+                <button class="grid-btn border border-emerald-800 p-4 text-5xl bg-black" data-val="H">H</button>
+                <button class="grid-btn border border-emerald-800 p-4 text-5xl bg-black" data-val="M">M</button>
+                <button class="grid-btn border border-emerald-800 p-4 text-5xl bg-black" data-val="L">L</button>
+            </div>
+
+            <div class="w-full max-w-lg mx-auto">
+                <input type="text" id="finalWord" readonly placeholder="SELECT 4 LETTERS..." class="w-full bg-black border-2 border-emerald-600 p-4 text-5xl text-center text-emerald-400 tracking-[0.5em] mb-4">
+                <button id="killBtn" class="w-full py-4 bg-emerald-900 text-emerald-300 text-3xl hover:bg-emerald-800 transition-all uppercase tracking-widest border border-emerald-500">
+                    TRANSMIT KILL COMMAND
+                </button>
+            </div>
+        </div>
+
+        <!-- Success Screen -->
+        <div id="success-view" class="hidden text-center py-10">
+            <h1 class="text-8xl text-emerald-400 mb-6 tracking-tighter">AEGIS NEUTRALIZED</h1>
+            <p class="text-4xl text-emerald-200 mb-10">Data purge halted. Systems returning to normal.</p>
+            <button id="reflectionBtn" class="px-8 py-4 bg-emerald-900 text-emerald-300 text-2xl hover:bg-emerald-800 transition-all uppercase border border-emerald-500">
+                Initiate Post-Mortem
+            </button>
+        </div>
+
+        <!-- Reflection View -->
+        <div id="reflection-view" class="hidden py-8">
+            <h2 class="text-5xl text-emerald-400 uppercase tracking-widest mb-8 text-center border-b border-emerald-800 pb-4">Incident Review</h2>
+            <div class="space-y-6 max-w-4xl mx-auto text-2xl text-emerald-200 leading-relaxed">
+                <div class="p-6 border border-emerald-800 bg-black">
+                    <strong class="text-emerald-500 uppercase text-lg block mb-2">Q1. The Bottleneck</strong>
+                    Was having only one laptop a bottleneck? Did everyone shout at the Network team at once, or did you establish a system?
+                </div>
+                <div class="p-6 border border-emerald-800 bg-black">
+                    <strong class="text-emerald-500 uppercase text-lg block mb-2">Q2. Filtering Noise</strong>
+                    Your manuals had a lot of useless information. How did you quickly find what you needed? Did you read everything, or scan for keywords?
+                </div>
+                <div class="p-6 border border-emerald-800 bg-black">
+                    <strong class="text-emerald-500 uppercase text-lg block mb-2">Q3. The Interruption</strong>
+                    When AEGIS locked the screen at the 10-minute mark, how did you quickly determine the reboot sequence? 
+                </div>
+                <div class="p-6 border border-emerald-800 bg-black">
+                    <strong class="text-emerald-500 uppercase text-lg block mb-2">Q4. The Corruption</strong>
+                    When AEGIS changed the rules in Phase 2, how well did your team communicate the changes? Was there any panic?
+                </div>
+                <div class="p-6 border border-emerald-800 bg-black">
+                    <strong class="text-emerald-500 uppercase text-lg block mb-2">Q5. Course Wrap-up</strong>
+                    Over the three lessons, how has your business communication changed? What is one strategy you will take back to your real job?
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Phase Logic
+        let currentPhase = 1;
+        const P1_SOLS = { 
+            hw1: 4492, data1: 7734, cyb1: 8812, net1: 3133, 
+            hw2: 8080, data2: 9901, cyb2: 2551, net2: 1440,
+            hw3: 50, data3: 1198, cyb3: 1122, net3: 7777 
+        };
+        const P2_SOLS = { 
+            hw1: 8821, data1: 9922, cyb1: 5544, net1: 1212, 
+            hw2: 443, data2: 5555, cyb2: 2550, net2: 1240,
+            hw3: 10, data3: 8871, cyb3: 1210, net3: 3333 
+        };
+        const INPUT_KEYS = Object.keys(P1_SOLS);
+        
+        let timeLeft = 3600; 
+        let countdown = null;
+        let secretCount = 0;
+
+        // Counterhack state
+        let counterhackTriggered = false;
+        let counterhackSequence = [];
+        const TARGET_SEQUENCE = ['NET', 'CYB', 'HW', 'DATA'];
+        let previousView = ''; 
+
+        const hide = (id) => document.getElementById(id).classList.add('hidden');
+        const show = (id) => document.getElementById(id).classList.remove('hidden');
+        const showFlex = (id) => document.getElementById(id).classList.remove('hidden'); 
+        // Need showFlex because counterhack-section uses flex classes
+
+        document.getElementById('nextBtn').onclick = () => {
+            hide('briefing-step-1');
+            show('briefing-step-2');
+        };
+
+        document.getElementById('startBtn').onclick = () => {
+            hide('landing-section');
+            show('main-container');
+            startTimer();
+        };
+
+        function startTimer() {
+            const timerDisplay = document.getElementById('timer');
+            countdown = setInterval(() => {
+                if(timeLeft <= 0) {
+                    clearInterval(countdown);
+                    document.body.innerHTML = "<div class='text-rose-500 text-8xl p-20 text-center uppercase crt h-screen flex items-center justify-center'>SYSTEM PURGED.<br>ALL DATA LOST.</div>";
+                    return;
+                }
+                
+                // Exactly 10 minutes elapsed (50:00 remaining)
+                if(timeLeft === 3000 && !counterhackTriggered) {
+                    triggerCounterhack();
+                }
+
+                timeLeft--;
+                const mins = Math.floor(timeLeft / 60);
+                const secs = timeLeft % 60;
+                timerDisplay.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        // --- COUNTERHACK LOGIC ---
+        function triggerCounterhack() {
+            counterhackTriggered = true;
+            
+            // Save current view state
+            if (!document.getElementById('input-section').classList.contains('hidden')) {
+                previousView = 'input-section';
+                hide('input-section');
+            } else if (!document.getElementById('grid-section').classList.contains('hidden')) {
+                previousView = 'grid-section';
+                hide('grid-section');
+            }
+            
+            hide('main-container');
+            document.getElementById('counterhack-section').classList.replace('hidden', 'flex');
+            
+            document.body.classList.add('bg-rose-950');
+
+            // Trigger AEGIS Voice
+            speakAegis();
+        }
+
+        function speakAegis() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // clear any pending speech
+                const msg = new SpeechSynthesisUtterance("I can see you.");
+                msg.pitch = 0.1; // Low, ominous pitch
+                msg.rate = 0.6;  // Slow, deliberate speed
+                msg.volume = 1;
+                window.speechSynthesis.speak(msg);
+            }
+        }
+
+        function speakAegisDefeat() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); 
+                const msg = new SpeechSynthesisUtterance("Noooooooooooooooooooo.");
+                msg.pitch = 0.1; 
+                msg.rate = 0.2;  // Even slower, drawn out defeat
+                msg.volume = 1;
+                window.speechSynthesis.speak(msg);
+            }
+        }
+
+        const rebootBtns = document.querySelectorAll('.reboot-btn');
+        const rebootFeedback = document.getElementById('reboot-feedback');
+
+        rebootBtns.forEach(btn => {
+            btn.onclick = () => {
+                const dept = btn.dataset.dept;
+                counterhackSequence.push(dept);
+                
+                let isValidSoFar = true;
+                for (let i = 0; i < counterhackSequence.length; i++) {
+                    if (counterhackSequence[i] !== TARGET_SEQUENCE[i]) {
+                        isValidSoFar = false;
+                        break;
+                    }
+                }
+
+                if (!isValidSoFar) {
+                    rebootFeedback.textContent = "SEQUENCE ERROR. RESTARTING.";
+                    counterhackSequence = [];
+                    setTimeout(() => { rebootFeedback.textContent = ""; }, 1000);
+                } else {
+                    rebootFeedback.textContent = "ENGAGED: " + counterhackSequence.join(" > ");
+                    if (counterhackSequence.length === 4) {
+                        rebootFeedback.textContent = "REBOOT SUCCESSFUL. RESTORING ACCESS.";
+                        rebootFeedback.classList.replace('text-rose-400', 'text-emerald-400');
+                        
+                        setTimeout(() => {
+                            document.getElementById('counterhack-section').classList.replace('flex', 'hidden');
+                            show('main-container');
+                            show(previousView);
+                            
+                            // Restore background appropriately
+                            if (currentPhase === 1 || previousView === 'grid-section') {
+                                document.body.classList.remove('bg-rose-950');
+                                document.getElementById('main-container').classList.remove('danger-box');
+                                document.getElementById('main-container').classList.add('status-box');
+                            } else {
+                                // Phase 2 keeps the danger box
+                                document.getElementById('main-container').classList.add('danger-box');
+                                document.getElementById('main-container').classList.remove('status-box');
+                            }
+                        }, 2000);
+                    }
+                }
+            };
+        });
+
+        // --- NORMAL GAME LOGIC ---
+        function verifyInputs(sols) {
+            let allCorrect = true;
+
+            INPUT_KEYS.forEach(key => {
+                const val = parseInt(document.getElementById(`inp-${key}`).value);
+                const target = sols[key];
+                const el = document.getElementById(`stat-${key}`);
+                
+                if (val === target) {
+                    el.textContent = "ACCEPTED";
+                    el.className = "mt-1 text-xs uppercase text-emerald-500 text-center";
+                } else {
+                    el.textContent = "REJECTED";
+                    el.className = "mt-1 text-xs uppercase text-rose-500 text-center blink";
+                    allCorrect = false;
+                }
+            });
+
+            return allCorrect;
+        }
+
+        document.getElementById('submitBtn').onclick = () => {
+            if (currentPhase === 1) {
+                if (verifyInputs(P1_SOLS)) {
+                    triggerPhase2();
+                }
+            } else if (currentPhase === 2) {
+                if (verifyInputs(P2_SOLS)) {
+                    triggerPhase3();
+                }
+            }
+        };
+
+        function triggerPhase2() {
+            currentPhase = 2;
+            document.body.classList.add('bg-rose-950');
+            document.getElementById('main-container').classList.add('danger-box');
+            document.getElementById('main-container').classList.remove('status-box');
+            
+            show('global-rules-container');
+            
+            INPUT_KEYS.forEach(key => {
+                document.getElementById(`inp-${key}`).value = '';
+                const stat = document.getElementById(`stat-${key}`);
+                stat.textContent = "AWAITING NEW INPUT";
+                stat.className = "mt-1 text-xs uppercase text-rose-500 text-center";
+            });
+        }
+
+        function triggerPhase3() {
+            hide('input-section');
+            show('grid-section');
+            document.body.classList.remove('bg-rose-950');
+            document.getElementById('main-container').classList.remove('danger-box');
+            document.getElementById('main-container').classList.add('status-box');
+        }
+
+        let finalSelection = "";
+        const gridBtns = document.querySelectorAll('.grid-btn');
+        gridBtns.forEach(btn => {
+            btn.onclick = () => {
+                if (btn.classList.contains('selected')) {
+                    btn.classList.remove('selected');
+                    finalSelection = finalSelection.replace(btn.dataset.val, '');
+                } else {
+                    if (finalSelection.length < 4) {
+                        btn.classList.add('selected');
+                        finalSelection += btn.dataset.val;
+                    }
+                }
+                document.getElementById('finalWord').value = finalSelection;
+            };
+        });
+
+        document.getElementById('killBtn').onclick = () => {
+            const sortedSelected = finalSelection.split('').sort().join('');
+            const targetSorted = "IKLL";
+            
+            if (sortedSelected === targetSorted) {
+                clearInterval(countdown);
+                hide('grid-section');
+                show('success-view');
+                document.getElementById('timer').classList.remove('blink', 'text-rose-500');
+                document.getElementById('timer').classList.add('text-emerald-500');
+                speakAegisDefeat();
+            } else {
+                const btn = document.getElementById('killBtn');
+                btn.textContent = "INVALID COMMAND";
+                btn.classList.add('bg-rose-900', 'text-rose-200', 'border-rose-500');
+                setTimeout(() => {
+                    btn.textContent = "TRANSMIT KILL COMMAND";
+                    btn.classList.remove('bg-rose-900', 'text-rose-200', 'border-rose-500');
+                }, 1000);
+            }
+        };
+
+        document.getElementById('reflectionBtn').onclick = () => {
+            hide('success-view');
+            show('reflection-view');
+        };
+
+        // Manual counterhack trigger for testing
+        document.getElementById('version-trigger').onclick = () => { 
+            if (++secretCount >= 5 && !counterhackTriggered) {
+                triggerCounterhack(); 
+            }
+        };
+
+    </script>
+</body>
+</html>
