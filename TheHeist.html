@@ -38,6 +38,7 @@
         .glow-yellow { background-color: #eab308 !important; border-color: #fde047 !important; box-shadow: 0 0 20px #eab308; color: black !important; }
         .glow-green { background-color: #22c55e !important; border-color: #4ade80 !important; box-shadow: 0 0 20px #22c55e; color: white !important; }
         .glow-red { background-color: #ef4444 !important; border-color: #f87171 !important; box-shadow: 0 0 20px #ef4444; color: white !important; }
+        .glow-purple { background-color: #a855f7 !important; border-color: #c084fc !important; box-shadow: 0 0 20px #a855f7; color: white !important; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 cyber-grid">
@@ -171,6 +172,25 @@
                 <div class="w-full p-6 border border-rose-600 bg-rose-950/20 text-rose-500 rounded text-center mb-8 shadow-lg">
                     <h2 class="text-5xl font-bold mb-4 danger tracking-wider">SYSTEM LOCKDOWN</h2>
                     <p class="text-white text-xl font-bold mb-6 italic underline">Communicate with your teams to find the colour password. Colours are hidden within the materials you are holding.</p>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-left max-w-4xl mx-auto">
+                        <div class="bg-black/50 p-4 border border-rose-900">
+                            <p class="text-rose-400 text-xs font-bold uppercase mb-1">Color 1</p>
+                            <p class="text-white font-bold">BROKEN CAMERA ZONE</p>
+                        </div>
+                        <div class="bg-black/50 p-4 border border-rose-900">
+                            <p class="text-rose-400 text-xs font-bold uppercase mb-1">Color 2</p>
+                            <p class="text-white font-bold">TARGET PERSONNEL</p>
+                        </div>
+                        <div class="bg-black/50 p-4 border border-rose-900">
+                            <p class="text-rose-400 text-xs font-bold uppercase mb-1">Color 3</p>
+                            <p class="text-white font-bold">STRONGEST SHAPE</p>
+                        </div>
+                        <div class="bg-black/50 p-4 border border-rose-900">
+                            <p class="text-rose-400 text-xs font-bold uppercase mb-1">Color 4</p>
+                            <p class="text-white font-bold uppercase">Check file signatures</p>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="w-full max-w-5xl bg-black border border-emerald-900 p-10 rounded-xl shadow-2xl">
@@ -183,7 +203,7 @@
                         </div>
                         <div id="slot-1" class="password-slot p-6 rounded-lg text-center opacity-30">
                             <p class="text-emerald-500 text-xs font-bold uppercase mb-2">Part 2</p>
-                            <p class="text-white text-sm font-bold h-10 flex items-center justify-center uppercase">Target Department</p>
+                            <p class="text-white text-sm font-bold h-10 flex items-center justify-center uppercase">Target Personnel</p>
                             <div id="result-1" class="mt-4 font-black text-xl hidden">---</div>
                         </div>
                         <div id="slot-2" class="password-slot p-6 rounded-lg text-center opacity-30">
@@ -241,11 +261,11 @@
                 </div>
                 <div class="reflection-card p-8">
                     <h3 class="text-emerald-500 font-bold mb-3 uppercase text-lg tracking-[0.1em]">Question 03</h3>
-                    <p class="text-white text-2xl leading-relaxed font-bold"><strong>Teamwork:</strong> Did you share the work in your team, or did everyone try to look at the same paper at the same time?</p>
+                    <p class="text-white text-2xl leading-relaxed font-bold"><strong>Teamwork:</strong> Did you share the work in your team, or did everyone try to do everything at the same time?</p>
                 </div>
                 <div class="reflection-card p-8">
                     <h3 class="text-emerald-500 font-bold mb-3 uppercase text-lg tracking-[0.1em]">Question 04</h3>
-                    <p class="text-white text-2xl leading-relaxed font-bold"><strong>The Coordinators:</strong> How did the Input Team manage the information? Was it easy or difficult?</p>
+                    <p class="text-white text-2xl leading-relaxed font-bold"><strong>Leadership:</strong> Did anyone take charge? Was there only one leader, or multiple? What are the advantages and disadvantages of this?</p>
                 </div>
                 <div class="reflection-card p-8">
                     <h3 class="text-emerald-500 font-bold mb-3 uppercase text-lg tracking-[0.1em]">Question 05</h3>
@@ -260,7 +280,7 @@
             A: "3F", B: "C4", C: 7334,
             A_SEC: "ADE", B_SEC: 73117, C_SEC: 35
         };
-        const FINAL_SEQ = ['BLUE', 'YELLOW', 'GREEN', 'RED'];
+        const FINAL_SEQ = ['BLUE', 'YELLOW', 'GREEN', 'PURPLE'];
         let currentStep = 0;
         
         let timeLeft = 3900; // 65 mins
@@ -432,6 +452,11 @@
             hide('active-game-view');
             show('success-view');
         }
+
+        document.getElementById('reflectionBtn').onclick = () => {
+            hide('success-view');
+            show('reflection-view');
+        };
 
         document.getElementById('version-trigger').onclick = () => { 
             if (++secretCount >= 5 && !firewallTriggered) {
