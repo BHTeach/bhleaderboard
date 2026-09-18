@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operation: Manor House - Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        
+        body { 
+            font-family: 'Share Tech Mono', monospace; 
+            background-color: #020617; 
+            color: #38bdf8; 
+            overflow-x: hidden; 
+        }
+        
+        .terminal-box { 
+            border: 2px solid #0284c7; 
+            background: rgba(15, 23, 42, 0.85); 
+            box-shadow: 0 0 30px rgba(2, 132, 199, 0.15); 
+        }
+        
+        .success-text { color: #4ade80; text-shadow: 0 0 10px rgba(74,222,128,0.5); }
+        .danger-text { color: #f43f5e; animation: blink 1s infinite; text-shadow: 0 0 10px rgba(244,63,94,0.5); }
+        
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        .briefing-card { border-left: 4px solid #38bdf8; background: rgba(30, 41, 59, 0.9); }
+        .reflection-card { background: rgba(30, 41, 59, 0.8); border: 1px solid #475569; border-left: 4px solid #38bdf8; }
+        
+        /* Grid background matching the aesthetic */
+        .blueprint-grid {
+            background-image: 
+                linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .color-slot {
+            transition: all 0.5s ease;
+            border: 2px solid #334155;
+            background: rgba(0,0,0,0.5);
+        }
+        
+        .slot-active { border-color: #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); }
+
+        /* Final Trap Colors */
+        .glow-blue { background-color: #3b82f6 !important; border-color: #60a5fa !important; box-shadow: 0 0 20px #3b82f6; color: white !important; }
+        .glow-yellow { background-color: #eab308 !important; border-color: #fde047 !important; box-shadow: 0 0 20px #eab308; color: black !important; }
+        .glow-green { background-color: #22c55e !important; border-color: #4ade80 !important; box-shadow: 0 0 20px #22c55e; color: white !important; }
+        .glow-red { background-color: #ef4444 !important; border-color: #f87171 !important; box-shadow: 0 0 20px #ef4444; color: white !important; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 blueprint-grid">
+    
+    <!-- Phase 0: Mission Briefing -->
+    <div id="landing-section" class="max-w-5xl w-full p-10 rounded-xl terminal-box">
+        <div class="text-center mb-12 border-b border-sky-900 pb-8">
+            <h1 class="text-6xl font-bold uppercase tracking-[0.2em] text-sky-400 mb-4 text-shadow-md">Operation: Manor House</h1>
+            <p class="text-sky-600 uppercase tracking-widest text-xl">Tactical Briefing</p>
+        </div>
+
+        <div id="briefing-step-1" class="fade-in">
+            <div class="briefing-card p-10 shadow-lg mb-12">
+                <h2 class="text-sky-400 uppercase mb-6 tracking-widest text-3xl font-bold">The Target</h2>
+                <p class="text-slate-300 text-3xl leading-relaxed">Your crew has infiltrated a billionaire's fortified Manor to recover a stolen masterpiece. However, a silent alarm has tripped a total security lockdown. The police will arrive in <strong class="text-rose-500 text-4xl">65 minutes</strong>. You must spoof the camera network, disable the laser grid, and crack the biometric vault before time runs out.</p>
+            </div>
+            
+            <button id="nextBtn" class="w-full py-6 bg-slate-800 text-sky-300 font-bold border border-sky-600 hover:bg-slate-700 transition-all uppercase tracking-[0.3em] text-2xl">
+                Next: Operational Rules
+            </button>
+        </div>
+
+        <div id="briefing-step-2" class="hidden fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                <div class="briefing-card p-8 shadow-lg">
+                    <h2 class="text-sky-400 uppercase mb-6 tracking-widest text-2xl font-bold">Communication</h2>
+                    <ul class="list-disc list-outside ml-8 space-y-4 text-xl text-slate-300 leading-relaxed font-bold">
+                        <li>Information is divided between your 4 teams.</li>
+                        <li>Communicate constantly to share clues and formulas.</li>
+                        <li>You can use smartphones, laptops, and chat software.</li>
+                    </ul>
+                </div>
+                <div class="briefing-card p-8 border-l-rose-600 shadow-lg">
+                    <h2 class="text-rose-500 uppercase mb-6 tracking-widest text-2xl font-bold">Rules</h2>
+                    <ul class="list-disc list-outside ml-8 space-y-4 text-xl text-slate-300 leading-relaxed font-bold">
+                        <li>Outside tools (e.g., Google, calculators) are allowed.</li>
+                        <li>You MUST NOT share photos or video of your printed documents.</li>
+                        <li class="text-rose-400 font-bold text-2xl">Penalty: Speaking Japanese mutes your team for 2 minutes.</li>
+                    </ul>
+                </div>
+                <div class="briefing-card p-8 border-l-rose-600 shadow-lg">
+                    <h2 class="text-rose-500 uppercase mb-6 tracking-widest text-2xl font-bold">Rules</h2>
+                    <ul class="list-disc list-outside ml-8 space-y-4 text-xl text-slate-300 leading-relaxed font-bold">
+                        <li>Outside tools (e.g., Google, calculators) are allowed.</li>
+                        <li>You MUST NOT share photos or video of your printed documents.</li>
+                        <li class="text-rose-400 font-bold text-2xl">Penalty: Speaking Japanese mutes your department for 2 minutes.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <button id="startBtn" class="w-full py-6 bg-sky-900 text-white font-bold border border-sky-400 hover:bg-sky-700 transition-all uppercase tracking-[0.3em] text-3xl shadow-[0_0_20px_rgba(56,189,248,0.4)]">
+                Initialise System Override
+            </button>
+        </div>
+    </div>
+
+    <!-- Phase 0.5: Pre-Hack Section -->
+    <div id="hack-section" class="max-w-5xl w-full p-10 rounded-xl terminal-box hidden fade-in text-center">
+        <h2 class="text-5xl font-black text-sky-400 mb-2 uppercase tracking-widest drop-shadow-[0_0_15px_rgba(56,189,248,0.5)]">Begin Security Hack</h2>
+        <p class="text-sky-600 font-bold text-xl uppercase tracking-widest mb-12">Synchronise Team Uplinks to Bypass Outer Perimeter</p>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+            <div class="p-6 bg-slate-900 border-2 border-sky-800 rounded-lg shadow-inner">
+                <p class="text-sky-500 font-bold uppercase tracking-widest text-xs mb-4">Surveillance</p>
+                <button id="btn-hack-surv" class="w-full py-6 text-5xl font-black text-white bg-slate-800 border border-slate-600 hover:bg-slate-700 hover:border-sky-400 transition-all tracking-widest">--</button>
+            </div>
+            <div class="p-6 bg-slate-900 border-2 border-sky-800 rounded-lg shadow-inner">
+                <p class="text-sky-500 font-bold uppercase tracking-widest text-xs mb-4">Cyber</p>
+                <button id="btn-hack-cyb" class="w-full py-6 text-5xl font-black text-white bg-slate-800 border border-slate-600 hover:bg-slate-700 hover:border-sky-400 transition-all tracking-widest">--</button>
+            </div>
+            <div class="p-6 bg-slate-900 border-2 border-sky-800 rounded-lg shadow-inner">
+                <p class="text-sky-500 font-bold uppercase tracking-widest text-xs mb-4">Vault Tech</p>
+                <button id="btn-hack-vlt" class="w-full py-6 text-5xl font-black text-white bg-slate-800 border border-slate-600 hover:bg-slate-700 hover:border-sky-400 transition-all tracking-widest">--</button>
+            </div>
+            <div class="p-6 bg-slate-900 border-2 border-sky-800 rounded-lg shadow-inner">
+                <p class="text-sky-500 font-bold uppercase tracking-widest text-xs mb-4">Operations</p>
+                <button id="btn-hack-ops" class="w-full py-6 text-5xl font-black text-white bg-slate-800 border border-slate-600 hover:bg-slate-700 hover:border-sky-400 transition-all tracking-widest">--</button>
+            </div>
+        </div>
+
+        <button id="verifyHackBtn" class="w-full py-6 bg-sky-900 text-sky-200 font-bold border border-sky-400 hover:bg-sky-700 hover:text-white transition-all uppercase tracking-[0.3em] text-3xl shadow-[0_0_20px_rgba(56,189,248,0.4)]">
+            Verify Uplink
+        </button>
+    </div>
+
+    <!-- Phase 1: Dashboard -->
+    <div id="main-container" class="max-w-6xl w-full p-10 rounded-xl terminal-box hidden">
+        <div id="active-game-view" class="fade-in">
+            <div class="flex justify-between items-center mb-8 border-b border-sky-900 pb-6">
+                <div>
+                    <h1 class="text-4xl font-bold text-sky-400 uppercase tracking-widest">Operations Terminal</h1>
+                    <p class="text-xs text-sky-700 mt-2 cursor-default select-none tracking-widest" id="version-trigger">MANOR_SEC_OS V4.2.1 // UNAUTHORISED ACCESS</p>
+                </div>
+                <div id="timer" class="text-6xl font-bold text-rose-500 drop-shadow-[0_0_15px_rgba(244,63,94,0.6)]">65:00</div>
+            </div>
+
+            <!-- Interruption: Active Trace Screen (MAC Address) -->
+            <div id="trace-view" class="hidden flex flex-col items-center py-8 fade-in">
+                <div class="w-full p-8 border-2 border-rose-600 bg-rose-950/40 text-rose-500 rounded text-center mb-8 shadow-[0_0_40px_rgba(244,63,94,0.3)]">
+                    <h2 class="text-6xl font-black mb-4 danger-text tracking-widest uppercase">Warning: Active Trace Detected</h2>
+                    <p class="text-white text-2xl font-bold mb-2">Hostile AI is attempting to block your connection.</p>
+                    <p id="trace-instructions" class="text-rose-300 text-lg font-bold">Combine the 4 System Override MAC Fragments to spoof a trusted device.</p>
+                </div>
+                <div class="max-w-xl w-full">
+                    <input type="text" id="macInput" placeholder="--------" class="w-full bg-black border-2 border-rose-600 p-6 text-5xl text-center focus:outline-none focus:border-rose-400 text-rose-500 font-bold tracking-[0.5em] shadow-[0_0_20px_rgba(244,63,94,0.2)] uppercase" maxlength="8" autocomplete="off">
+                    <p id="trace-feedback" class="mt-4 text-center text-rose-500 font-bold h-6 uppercase tracking-widest"></p>
+                </div>
+            </div>
+
+            <!-- Standard Inputs -->
+            <div id="input-section">
+                <h2 class="text-xl text-sky-600 uppercase tracking-widest mb-4 border-l-4 border-sky-800 pl-3">Network & Surveillance</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="p-5 border border-sky-900 bg-slate-950 shadow-inner">
+                        <label class="block text-sm mb-2 text-sky-500 uppercase tracking-widest font-bold">1. Camera Spoof (Grid)</label>
+                        <input type="text" id="inp-cam" placeholder="--" class="w-full bg-slate-900 border border-sky-800 p-3 text-3xl text-center focus:outline-none focus:border-sky-400 text-sky-300 font-bold uppercase" maxlength="2">
+                        <div id="stat-cam" class="mt-3 text-xs uppercase text-slate-500 text-center tracking-[0.2em] font-bold">Waiting</div>
+                    </div>
+                    <div class="p-5 border border-sky-900 bg-slate-950 shadow-inner">
+                        <label class="block text-sm mb-2 text-sky-500 uppercase tracking-widest font-bold">4. Server Route (Nodes)</label>
+                        <input type="text" id="inp-route" placeholder="---" class="w-full bg-slate-900 border border-sky-800 p-3 text-3xl text-center focus:outline-none focus:border-sky-400 text-sky-300 uppercase font-bold" maxlength="3">
+                        <div id="stat-route" class="mt-3 text-xs uppercase text-slate-500 text-center tracking-[0.2em] font-bold">Waiting</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <h2 class="text-xl text-sky-600 uppercase tracking-widest mb-4 border-l-4 border-sky-800 pl-3">Vault Security</h2>
+                        <div class="space-y-4">
+                            <div class="p-5 border border-sky-900 bg-slate-950 shadow-inner">
+                                <label class="block text-sm mb-2 text-sky-500 uppercase tracking-widest font-bold">2. Laser Freq (nm)</label>
+                                <input type="number" id="inp-laser" placeholder="---" class="w-full bg-slate-900 border border-sky-800 p-3 text-3xl text-center focus:outline-none focus:border-sky-400 text-sky-300 font-bold">
+                                <div id="stat-laser" class="mt-3 text-xs uppercase text-slate-500 text-center tracking-[0.2em] font-bold">Waiting</div>
+                            </div>
+                            <div class="p-5 border border-sky-900 bg-slate-950 shadow-inner">
+                                <label class="block text-sm mb-2 text-sky-500 uppercase tracking-widest font-bold">3. Biometric PIN</label>
+                                <input type="number" id="inp-pin" placeholder="----" class="w-full bg-slate-900 border border-sky-800 p-3 text-3xl text-center focus:outline-none focus:border-sky-400 text-sky-300 font-bold">
+                                <div id="stat-pin" class="mt-3 text-xs uppercase text-slate-500 text-center tracking-[0.2em] font-bold">Waiting</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h2 class="text-xl text-sky-600 uppercase tracking-widest mb-4 border-l-4 border-sky-800 pl-3">Physical Hardware</h2>
+                        <div class="space-y-4">
+                            <div class="p-5 border border-sky-900 bg-slate-950 shadow-inner">
+                                <label class="block text-sm mb-2 text-sky-500 uppercase tracking-widest font-bold">5. Pressure Lmt. (kg)</label>
+                                <input type="number" id="inp-press" placeholder="--" class="w-full bg-slate-900 border border-sky-800 p-3 text-3xl text-center focus:outline-none focus:border-sky-400 text-sky-300 font-bold">
+                                <div id="stat-press" class="mt-3 text-xs uppercase text-slate-500 text-center tracking-[0.2em] font-bold">Waiting</div>
+                            </div>
+                            <div class="p-5 border border-sky-900 bg-slate-950 shadow-inner">
+                                <label class="block text-sm mb-2 text-sky-500 uppercase tracking-widest font-bold">6. Vault Voltage (mV)</label>
+                                <input type="number" id="inp-volt" placeholder="---" class="w-full bg-slate-900 border border-sky-800 p-3 text-3xl text-center focus:outline-none focus:border-sky-400 text-sky-300 font-bold">
+                                <div id="stat-volt" class="mt-3 text-xs uppercase text-slate-500 text-center tracking-[0.2em] font-bold">Waiting</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="activateBtn" class="w-full py-6 bg-sky-900 text-sky-300 font-bold border border-sky-500 hover:bg-sky-700 hover:text-white transition-all uppercase tracking-[0.2em] text-3xl mt-4">
+                    Bypass Primary Security
+                </button>
+            </div>
+
+            <!-- Phase 2: Vault Trap Screen -->
+            <div id="finalMessage" class="hidden flex flex-col items-center py-6 fade-in">
+                <div class="w-full p-6 border border-rose-600 bg-rose-950/20 text-rose-500 rounded text-center mb-8 shadow-lg">
+                    <h2 class="text-5xl font-bold mb-4 danger-text tracking-wider">VAULT TRAP ENGAGED</h2>
+                    <p class="text-white text-xl font-bold mb-6 italic underline">The magnetic doors have sealed. Deduce the 4-colour escape sequence.</p>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-left max-w-4xl mx-auto">
+                        <div class="bg-black/50 p-4 border border-rose-900">
+                            <p class="text-rose-400 text-xs font-bold uppercase mb-1">Colour 1</p>
+                            <p class="text-white font-bold">Zone containing Camera 5</p>
+                        </div>
+                        <div class="bg-black/50 p-4 border border-rose-900">
+                            <p class="text-rose-400 text-xs font-bold uppercase mb-1">Colour 2</p>
+                            <p class="text-white font-bold">Required Laser Grid Freq.</p>
+                        </div>
+                        <div class="bg-black/50 p-4 border border-rose-900">
+                            <p class="text-rose-400 text-xs font-bold uppercase mb-1">Colour 3</p>
+                            <p class="text-white font-bold">Current Guard's Badge</p>
+                        </div>
+                        <div class="bg-black/50 p-4 border border-rose-900">
+                            <p class="text-rose-400 text-xs font-bold uppercase mb-1">Colour 4</p>
+                            <p class="text-white font-bold">Master Error Light</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full max-w-5xl bg-slate-900 border border-sky-900 p-10 rounded-xl shadow-2xl">
+                    <!-- Progress Slots -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+                        <div id="slot-0" class="color-slot p-6 rounded-lg text-center opacity-50 slot-active">
+                            <p class="text-sky-500 text-xs font-bold uppercase mb-2">Sequence 1</p>
+                            <p class="text-white text-sm font-bold h-10 flex items-center justify-center uppercase">Camera Zone</p>
+                            <div id="result-0" class="mt-4 font-black text-xl hidden">---</div>
+                        </div>
+                        <div id="slot-1" class="color-slot p-6 rounded-lg text-center opacity-30">
+                            <p class="text-sky-500 text-xs font-bold uppercase mb-2">Sequence 2</p>
+                            <p class="text-white text-sm font-bold h-10 flex items-center justify-center uppercase">Laser Grid</p>
+                            <div id="result-1" class="mt-4 font-black text-xl hidden">---</div>
+                        </div>
+                        <div id="slot-2" class="color-slot p-6 rounded-lg text-center opacity-30">
+                            <p class="text-sky-500 text-xs font-bold uppercase mb-2">Sequence 3</p>
+                            <p class="text-white text-sm font-bold h-10 flex items-center justify-center uppercase">Guard Badge</p>
+                            <div id="result-2" class="mt-4 font-black text-xl hidden">---</div>
+                        </div>
+                        <div id="slot-3" class="color-slot p-6 rounded-lg text-center opacity-30">
+                            <p class="text-sky-500 text-xs font-bold uppercase mb-2">Sequence 4</p>
+                            <p class="text-white text-sm font-bold h-10 flex items-center justify-center uppercase">Error Light</p>
+                            <div id="result-3" class="mt-4 font-black text-xl hidden">---</div>
+                        </div>
+                    </div>
+
+                    <!-- Input Bar -->
+                    <div class="max-w-xl mx-auto">
+                        <label class="block text-sky-500 text-xs font-bold uppercase mb-3 tracking-widest text-center">Colour Override Input:</label>
+                        <input type="text" id="colorInput" placeholder="TYPE COLOUR NAME..." class="w-full bg-sky-950/20 border-2 border-sky-800 p-5 text-4xl text-center focus:outline-none focus:border-sky-400 text-white font-bold uppercase placeholder:opacity-20" autocomplete="off">
+                        <p id="trap-feedback" class="mt-4 text-center text-rose-500 font-bold h-6 uppercase tracking-widest"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Screen -->
+        <div id="success-view" class="hidden text-center py-12 fade-in">
+            <div class="w-40 h-40 bg-sky-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_80px_#38bdf8]">
+                <svg class="w-20 h-20 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h1 class="text-8xl font-bold text-sky-400 mb-6 tracking-tighter drop-shadow-lg">VAULT OPEN</h1>
+            <p class="text-3xl text-white font-bold mb-8">Masterpiece recovered. The escape chopper is inbound.</p>
+            <div class="p-6 bg-slate-900 border border-sky-800 inline-block mb-10">
+                <p class="text-sky-500 font-bold uppercase tracking-widest text-xl">Operation Successful</p>
+            </div>
+            <br>
+            <button id="reflectionBtn" class="px-10 py-6 bg-sky-800 text-white font-bold border border-sky-400 hover:bg-sky-700 transition-all uppercase tracking-widest text-2xl">
+                Proceed to Debrief
+            </button>
+        </div>
+
+        <!-- Reflection View -->
+        <div id="reflection-view" class="hidden max-w-5xl mx-auto py-8 fade-in">
+            <div class="text-center mb-10 border-b border-sky-900 pb-6">
+                <h2 class="text-5xl font-bold text-sky-400 uppercase tracking-widest mb-2">Team Debriefing</h2>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="reflection-card p-8">
+                    <h3 class="text-sky-500 font-bold mb-3 uppercase text-lg tracking-[0.1em]">Question 01</h3>
+                    <p class="text-white text-2xl leading-relaxed font-bold">Did you communicate between teams equally, or did one team become a central hub for communication? Why?</p>
+                </div>
+                <div class="reflection-card p-8">
+                    <h3 class="text-sky-500 font-bold mb-3 uppercase text-lg tracking-[0.1em]">Question 02</h3>
+                    <p class="text-white text-2xl leading-relaxed font-bold">Did you use a top-down or horizontal style of organisation? How did you decide this?</p>
+                </div>
+                <div class="reflection-card p-8">
+                    <h3 class="text-sky-500 font-bold mb-3 uppercase text-lg tracking-[0.1em]">Question 03</h3>
+                    <p class="text-white text-2xl leading-relaxed font-bold"><strong>Accuracy vs. Speed:</strong> Did you ever submit an incorrect answer because you rushed the math or misread a document? How did you recover?</p>
+                </div>
+                <div class="reflection-card p-8">
+                    <h3 class="text-sky-500 font-bold mb-3 uppercase text-lg tracking-[0.1em]">Question 04</h3>
+                    <p class="text-white text-2xl leading-relaxed font-bold">Did you share ALL information with ALL teams, or did each team take primary responsibility for their own information?</p>
+                </div>
+                <div class="reflection-card p-8">
+                    <h3 class="text-sky-500 font-bold mb-3 uppercase text-lg tracking-[0.1em]">Question 05</h3>
+                    <p class="text-white text-2xl leading-relaxed font-bold">If you were to design a security system to stop a team like yours, what communication breakdown would you try to cause?</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Core Logic & Solutions
+        const SOLS = {
+            cam: "D2",       // Grid D2
+            laser: 850,      // Level 3 vault
+            pin: 7392,       // Chen at 23:45
+            route: "ABD",    // Safe path avoiding C and E
+            press: 45,       // 25 artifact + 20 stand
+            volt: 120        // 30 base * Tier 4
+        };
+        
+        const FINAL_SEQ = ['GREEN', 'YELLOW', 'BLUE', 'GREEN'];
+        const MAC_OVERRIDE_1 = "A4B7E29F";
+        const MAC_OVERRIDE_2 = "B79FE2A4";
+        
+        let currentStep = 0;
+        let timeLeft = 3900; // 65 mins
+        let countdown = null;
+        let secretCount = 0;
+        
+        let trace1Triggered = false;
+        let trace1Cleared = false;
+        let trace2Triggered = false;
+        let trace2Cleared = false;
+        let activeTraceNum = 0;
+
+        // Utility Functions
+        const hide = (id) => document.getElementById(id).classList.add('hidden');
+        const show = (id) => document.getElementById(id).classList.remove('hidden');
+
+        // Navigation flow
+        document.getElementById('nextBtn').onclick = () => {
+            hide('briefing-step-1');
+            show('briefing-step-2');
+        };
+
+        document.getElementById('startBtn').onclick = () => {
+            hide('landing-section');
+            show('hack-section');
+        };
+
+        // --- PRE-HACK LOGIC ---
+        const hackData = {
+            surv: { opts: ['$&', '%*', '@#', '*@', '#$'], ans: '@#' },
+            cyb:  { opts: ['+=', '^~', '?!', '+~', '!^'], ans: '?!' },
+            vlt:  { opts: ['ZW', 'VU', 'XY', 'XZ', 'YW'], ans: 'XY' },
+            ops:  { opts: ['CD', 'EF', 'AB', 'AF', 'CE'], ans: 'AB' }
+        };
+        const hackState = { surv: 0, cyb: 0, vlt: 0, ops: 0 };
+
+        ['surv', 'cyb', 'vlt', 'ops'].forEach(team => {
+            const btn = document.getElementById(`btn-hack-${team}`);
+            btn.textContent = hackData[team].opts[0];
+            btn.onclick = () => {
+                hackState[team] = (hackState[team] + 1) % hackData[team].opts.length;
+                btn.textContent = hackData[team].opts[hackState[team]];
+            };
+        });
+
+        document.getElementById('verifyHackBtn').onclick = () => {
+            const btn = document.getElementById('verifyHackBtn');
+            const s = hackData.surv.opts[hackState.surv];
+            const c = hackData.cyb.opts[hackState.cyb];
+            const v = hackData.vlt.opts[hackState.vlt];
+            const o = hackData.ops.opts[hackState.ops];
+
+            if(s === hackData.surv.ans && c === hackData.cyb.ans && v === hackData.vlt.ans && o === hackData.ops.ans) {
+                btn.classList.remove('bg-sky-900', 'border-sky-400', 'text-sky-200');
+                btn.classList.add('bg-emerald-600', 'border-emerald-400', 'text-white');
+                btn.textContent = "UPLINK ESTABLISHED";
+                
+                setTimeout(() => {
+                    hide('hack-section');
+                    show('main-container');
+                    startTimer();
+                }, 1500);
+            } else {
+                const oldText = btn.textContent;
+                btn.textContent = "SYNC FAILED. RECALCULATE.";
+                btn.classList.remove('bg-sky-900', 'border-sky-400');
+                btn.classList.add('bg-rose-900', 'text-rose-200', 'border-rose-500');
+                setTimeout(() => {
+                    btn.textContent = oldText;
+                    btn.classList.add('bg-sky-900', 'border-sky-400');
+                    btn.classList.remove('bg-rose-900', 'text-rose-200', 'border-rose-500');
+                }, 2000);
+            }
+        };
+
+        // --- MAIN GAME TIMER ---
+        function startTimer() {
+            const timerDisplay = document.getElementById('timer');
+            countdown = setInterval(() => {
+                if(timeLeft <= 0) {
+                    clearInterval(countdown);
+                    document.body.innerHTML = "<div class='text-rose-500 text-8xl font-bold p-20 text-center uppercase drop-shadow-[0_0_20px_rgba(244,63,94,0.8)]'>Apprehended.<br><br>Mission Failed.</div>";
+                    return;
+                }
+                
+                // TRIGGER ACTIVE TRACE 1 at exactly 45:00 remaining (20 mins elapsed = 2700 sec)
+                if(timeLeft === 2700 && !trace1Triggered) {
+                    triggerActiveTrace(1);
+                }
+                
+                // TRIGGER ACTIVE TRACE 2 at exactly 15:00 remaining (50 mins elapsed = 900 sec)
+                if(timeLeft === 900 && !trace2Triggered) {
+                    triggerActiveTrace(2);
+                }
+
+                timeLeft--;
+                const mins = Math.floor(timeLeft / 60);
+                const secs = timeLeft % 60;
+                timerDisplay.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+        
+        function triggerActiveTrace(traceNum) {
+            activeTraceNum = traceNum;
+            const instructions = document.getElementById('trace-instructions');
+            
+            if (traceNum === 1) {
+                trace1Triggered = true;
+                instructions.textContent = "Combine the 4 System Override MAC Fragments to spoof a trusted device.";
+            } else if (traceNum === 2) {
+                trace2Triggered = true;
+                instructions.textContent = "New fragment order needed: Frag 2, Frag 4, Frag 3, Frag 1";
+            }
+            
+            // Reset input styling in case it's the second trace
+            const macInput = document.getElementById('macInput');
+            macInput.value = '';
+            macInput.classList.remove('border-sky-500', 'text-sky-500');
+            macInput.classList.add('border-rose-600', 'text-rose-500');
+            
+            const feedback = document.getElementById('trace-feedback');
+            feedback.textContent = "";
+            feedback.classList.remove('text-sky-500');
+            feedback.classList.add('text-rose-500');
+
+            hide('input-section');
+            show('trace-view');
+            macInput.focus();
+        }
+        
+        // MAC Address Input Logic
+        document.getElementById('macInput').addEventListener('input', function(e) {
+            const val = e.target.value.trim().toUpperCase();
+            const feedback = document.getElementById('trace-feedback');
+            const targetCode = (activeTraceNum === 1) ? MAC_OVERRIDE_1 : MAC_OVERRIDE_2;
+            
+            if (val === targetCode) {
+                if (activeTraceNum === 1) trace1Cleared = true;
+                if (activeTraceNum === 2) trace2Cleared = true;
+                
+                feedback.textContent = "MAC ADDRESS ACCEPTED. TRACE BYPASSED.";
+                feedback.classList.replace('text-rose-500', 'text-sky-500');
+                e.target.classList.replace('border-rose-600', 'border-sky-500');
+                e.target.classList.replace('text-rose-500', 'text-sky-500');
+                
+                setTimeout(() => {
+                    hide('trace-view');
+                    show('input-section');
+                }, 2000);
+            } else if (val.length === 8) {
+                feedback.textContent = "INVALID MAC SIGNATURE. TRACE CONTINUES.";
+                setTimeout(() => {
+                    e.target.value = '';
+                    feedback.textContent = "";
+                }, 1000);
+            }
+        });
+
+        function checkStatus(id, inputVal, correctVal) {
+            const el = document.getElementById(id);
+            const val = String(inputVal).trim().toUpperCase();
+            
+            if (val === "" || (typeof inputVal === 'number' && isNaN(inputVal))) {
+                el.textContent = "Waiting";
+                el.className = "mt-3 text-xs uppercase tracking-[0.2em] text-center text-slate-500 font-bold";
+                return false;
+            }
+            
+            const target = String(correctVal).toUpperCase();
+            
+            if(val === target) {
+                el.textContent = "Verified";
+                el.className = "mt-3 text-xs uppercase tracking-[0.2em] text-center success-text font-bold";
+                return true;
+            } else {
+                el.textContent = "Error";
+                el.className = "mt-3 text-xs uppercase tracking-[0.2em] text-center danger-text font-bold";
+                return false;
+            }
+        }
+
+        document.getElementById('activateBtn').onclick = () => {
+            const vCam = document.getElementById('inp-cam').value;
+            const vLaser = parseInt(document.getElementById('inp-laser').value);
+            const vPin = parseInt(document.getElementById('inp-pin').value);
+            const vRoute = document.getElementById('inp-route').value;
+            const vPress = parseInt(document.getElementById('inp-press').value);
+            const vVolt = parseInt(document.getElementById('inp-volt').value);
+
+            const isCam = checkStatus('stat-cam', vCam, SOLS.cam);
+            const isLaser = checkStatus('stat-laser', vLaser, SOLS.laser);
+            const isPin = checkStatus('stat-pin', vPin, SOLS.pin);
+            const isRoute = checkStatus('stat-route', vRoute, SOLS.route);
+            const isPress = checkStatus('stat-press', vPress, SOLS.press);
+            const isVolt = checkStatus('stat-volt', vVolt, SOLS.volt);
+
+            if (isCam && isLaser && isPin && isRoute && isPress && isVolt) {
+                initiateFinale();
+            } else {
+                const btn = document.getElementById('activateBtn');
+                btn.textContent = "SYSTEM MISMATCH. RECALCULATE.";
+                btn.classList.add('bg-rose-900', 'text-rose-200', 'border-rose-500');
+                setTimeout(() => {
+                    btn.textContent = "Bypass Primary Security";
+                    btn.classList.remove('bg-rose-900', 'text-rose-200', 'border-rose-500');
+                }, 2000);
+            }
+        };
+
+        function initiateFinale() {
+            hide('input-section');
+            show('finalMessage');
+            document.getElementById('colorInput').focus();
+        }
+
+        document.getElementById('colorInput').addEventListener('input', function(e) {
+            const val = e.target.value.trim().toUpperCase();
+            const feedback = document.getElementById('trap-feedback');
+            
+            if (val === FINAL_SEQ[currentStep]) {
+                const slot = document.getElementById(`slot-${currentStep}`);
+                const result = document.getElementById(`result-${currentStep}`);
+                
+                slot.classList.add(`glow-${val.toLowerCase()}`);
+                slot.classList.remove('opacity-30', 'opacity-50', 'slot-active');
+                slot.classList.add('opacity-100');
+                result.textContent = val;
+                result.classList.remove('hidden');
+                
+                feedback.textContent = "SEQUENCE ACCEPTED";
+                e.target.value = "";
+                currentStep++;
+                
+                if (currentStep < 4) {
+                    const nextSlot = document.getElementById(`slot-${currentStep}`);
+                    nextSlot.classList.add('slot-active');
+                    nextSlot.classList.remove('opacity-30');
+                    nextSlot.classList.add('opacity-50');
+                } else {
+                    setTimeout(triggerSuccess, 800);
+                }
+            } else if (val.length > 2 && !FINAL_SEQ[currentStep].startsWith(val)) {
+                feedback.textContent = "INCORRECT COLOUR DETECTED";
+                setTimeout(() => { feedback.textContent = ""; }, 1000);
+            }
+        });
+
+        function triggerSuccess() {
+            if (countdown) clearInterval(countdown);
+            hide('active-game-view');
+            show('success-view');
+        }
+
+        document.getElementById('reflectionBtn').onclick = () => {
+            hide('success-view');
+            show('reflection-view');
+        };
+
+        // Easter egg to manually trigger the trace for teacher testing
+        document.getElementById('version-trigger').onclick = () => { 
+            secretCount++;
+            if (secretCount === 5 && !trace1Triggered) {
+                triggerActiveTrace(1); 
+            } else if (secretCount === 10 && trace1Cleared && !trace2Triggered) {
+                triggerActiveTrace(2);
+            }
+        };
+    </script>
+</body>
+</html>
