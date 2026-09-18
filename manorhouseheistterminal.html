@@ -168,8 +168,33 @@
                 <h2 class="text-xl text-sky-600 uppercase tracking-widest mb-4 border-l-4 border-sky-800 pl-3">Network & Surveillance</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div class="p-5 border border-sky-900 bg-slate-950 shadow-inner">
-                        <label class="block text-sm mb-2 text-sky-500 uppercase tracking-widest font-bold">1. Camera Spoof (Grid)</label>
-                        <input type="text" id="inp-cam" placeholder="--" class="w-full bg-slate-900 border border-sky-800 p-3 text-3xl text-center focus:outline-none focus:border-sky-400 text-sky-300 font-bold uppercase" maxlength="2">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-sm text-sky-500 uppercase tracking-widest font-bold">1. Camera Spoof (4-Symbol Lock)</label>
+                            <span class="text-[10px] text-sky-500/80 font-mono tracking-wider uppercase">[TAP TO CYCLE]</span>
+                        </div>
+                        <div class="grid grid-cols-4 gap-2 my-2" id="cam-lock-container">
+                            <div class="flex flex-col items-center bg-slate-900/90 border border-sky-800 rounded p-1.5 shadow-md">
+                                <button type="button" class="cam-dial-prev text-sky-400 hover:text-white hover:bg-sky-800/60 w-full py-1 text-xs transition-all select-none rounded" data-index="0">▲</button>
+                                <div class="cam-dial-val w-full py-2.5 text-3xl font-black text-sky-200 text-center select-none cursor-pointer hover:text-white hover:border-sky-400 transition-all font-mono bg-slate-950 my-1 rounded border border-slate-800 shadow-inner" data-index="0">-</div>
+                                <button type="button" class="cam-dial-next text-sky-400 hover:text-white hover:bg-sky-800/60 w-full py-1 text-xs transition-all select-none rounded" data-index="0">▼</button>
+                            </div>
+                            <div class="flex flex-col items-center bg-slate-900/90 border border-sky-800 rounded p-1.5 shadow-md">
+                                <button type="button" class="cam-dial-prev text-sky-400 hover:text-white hover:bg-sky-800/60 w-full py-1 text-xs transition-all select-none rounded" data-index="1">▲</button>
+                                <div class="cam-dial-val w-full py-2.5 text-3xl font-black text-sky-200 text-center select-none cursor-pointer hover:text-white hover:border-sky-400 transition-all font-mono bg-slate-950 my-1 rounded border border-slate-800 shadow-inner" data-index="1">-</div>
+                                <button type="button" class="cam-dial-next text-sky-400 hover:text-white hover:bg-sky-800/60 w-full py-1 text-xs transition-all select-none rounded" data-index="1">▼</button>
+                            </div>
+                            <div class="flex flex-col items-center bg-slate-900/90 border border-sky-800 rounded p-1.5 shadow-md">
+                                <button type="button" class="cam-dial-prev text-sky-400 hover:text-white hover:bg-sky-800/60 w-full py-1 text-xs transition-all select-none rounded" data-index="2">▲</button>
+                                <div class="cam-dial-val w-full py-2.5 text-3xl font-black text-sky-200 text-center select-none cursor-pointer hover:text-white hover:border-sky-400 transition-all font-mono bg-slate-950 my-1 rounded border border-slate-800 shadow-inner" data-index="2">-</div>
+                                <button type="button" class="cam-dial-next text-sky-400 hover:text-white hover:bg-sky-800/60 w-full py-1 text-xs transition-all select-none rounded" data-index="2">▼</button>
+                            </div>
+                            <div class="flex flex-col items-center bg-slate-900/90 border border-sky-800 rounded p-1.5 shadow-md">
+                                <button type="button" class="cam-dial-prev text-sky-400 hover:text-white hover:bg-sky-800/60 w-full py-1 text-xs transition-all select-none rounded" data-index="3">▲</button>
+                                <div class="cam-dial-val w-full py-2.5 text-3xl font-black text-sky-200 text-center select-none cursor-pointer hover:text-white hover:border-sky-400 transition-all font-mono bg-slate-950 my-1 rounded border border-slate-800 shadow-inner" data-index="3">-</div>
+                                <button type="button" class="cam-dial-next text-sky-400 hover:text-white hover:bg-sky-800/60 w-full py-1 text-xs transition-all select-none rounded" data-index="3">▼</button>
+                            </div>
+                        </div>
+                        <input type="hidden" id="inp-cam" value="----">
                         <div id="stat-cam" class="mt-3 text-xs uppercase text-slate-500 text-center tracking-[0.2em] font-bold">Waiting</div>
                     </div>
                     <div class="p-5 border border-sky-900 bg-slate-950 shadow-inner">
@@ -329,13 +354,67 @@
     <script>
         // Core Logic & Solutions
         const SOLS = {
-            cam: "D2",       // Grid D2
+            cam: ["@#^=", "^=@#"], // Coordinate for offline Cam 5 (Column-Row or Row-Column)
             laser: 850,      // Level 3 vault
             pin: 7392,       // Chen at 23:45
             route: "ABD",    // Safe path avoiding C and E
             press: 45,       // 25 artifact + 20 stand
             volt: 120        // 30 base * Tier 4
         };
+
+        const CAM_SYMBOLS = ['-', '?', '$', '!', '%', '&', '*', '@', '#', '+', '~', '^', '='];
+        const camDialIndices = [0, 0, 0, 0];
+
+        function updateCamDialDisplay(idx) {
+            const dialEl = document.querySelector(`.cam-dial-val[data-index="${idx}"]`);
+            if (dialEl) {
+                dialEl.textContent = CAM_SYMBOLS[camDialIndices[idx]];
+            }
+            const currentCode = camDialIndices.map(i => CAM_SYMBOLS[i]).join('');
+            document.getElementById('inp-cam').value = currentCode;
+
+            // Reset status back to Waiting when dials are adjusted
+            const stat = document.getElementById('stat-cam');
+            if (stat && stat.textContent === "Error") {
+                stat.textContent = "Waiting";
+                stat.className = "mt-3 text-xs uppercase text-slate-500 text-center tracking-[0.2em] font-bold";
+            }
+        }
+
+        function cycleCamDial(idx, direction) {
+            if (direction === 'next') {
+                camDialIndices[idx] = (camDialIndices[idx] + 1) % CAM_SYMBOLS.length;
+            } else {
+                camDialIndices[idx] = (camDialIndices[idx] - 1 + CAM_SYMBOLS.length) % CAM_SYMBOLS.length;
+            }
+            updateCamDialDisplay(idx);
+        }
+
+        // Initialize dial event listeners
+        document.querySelectorAll('.cam-dial-next').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                cycleCamDial(parseInt(btn.dataset.index), 'next');
+            };
+        });
+
+        document.querySelectorAll('.cam-dial-prev').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                cycleCamDial(parseInt(btn.dataset.index), 'prev');
+            };
+        });
+
+        document.querySelectorAll('.cam-dial-val').forEach(box => {
+            box.onclick = () => {
+                cycleCamDial(parseInt(box.dataset.index), 'next');
+            };
+            // Support mousewheel on tumbler
+            box.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                cycleCamDial(parseInt(box.dataset.index), e.deltaY > 0 ? 'next' : 'prev');
+            });
+        });
         
         const FINAL_SEQ = ['GREEN', 'YELLOW', 'BLUE', 'GREEN'];
         const MAC_OVERRIDE_1 = "A4B7E29F";
@@ -502,15 +581,17 @@
             const el = document.getElementById(id);
             const val = String(inputVal).trim().toUpperCase();
             
-            if (val === "" || (typeof inputVal === 'number' && isNaN(inputVal))) {
+            if (val === "" || val === "----" || val.includes('-') || (typeof inputVal === 'number' && isNaN(inputVal))) {
                 el.textContent = "Waiting";
                 el.className = "mt-3 text-xs uppercase tracking-[0.2em] text-center text-slate-500 font-bold";
                 return false;
             }
             
-            const target = String(correctVal).toUpperCase();
+            const isMatch = Array.isArray(correctVal)
+                ? correctVal.map(c => String(c).toUpperCase()).includes(val)
+                : val === String(correctVal).toUpperCase();
             
-            if(val === target) {
+            if(isMatch) {
                 el.textContent = "Verified";
                 el.className = "mt-3 text-xs uppercase tracking-[0.2em] text-center success-text font-bold";
                 return true;
