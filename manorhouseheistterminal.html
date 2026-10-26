@@ -94,14 +94,6 @@
                         <li class="text-rose-400 font-bold text-2xl">Penalty: Speaking Japanese mutes your team for 2 minutes.</li>
                     </ul>
                 </div>
-                <div class="briefing-card p-8 border-l-rose-600 shadow-lg">
-                    <h2 class="text-rose-500 uppercase mb-6 tracking-widest text-2xl font-bold">Rules</h2>
-                    <ul class="list-disc list-outside ml-8 space-y-4 text-xl text-slate-300 leading-relaxed font-bold">
-                        <li>Outside tools (e.g., Google, calculators) are allowed.</li>
-                        <li>You MUST NOT share photos or video of your printed documents.</li>
-                        <li class="text-rose-400 font-bold text-2xl">Penalty: Speaking Japanese mutes your department for 2 minutes.</li>
-                    </ul>
-                </div>
             </div>
 
             <button id="startBtn" class="w-full py-6 bg-sky-900 text-white font-bold border border-sky-400 hover:bg-sky-700 transition-all uppercase tracking-[0.3em] text-3xl shadow-[0_0_20px_rgba(56,189,248,0.4)]">
@@ -119,26 +111,47 @@
             </div>
             <div class="flex flex-col items-center md:items-end">
                 <span class="text-xs uppercase tracking-[0.25em] text-rose-400 font-bold mb-1">Lockdown Inevitable In</span>
-                <div id="hack-timer" class="text-5xl md:text-6xl font-bold text-rose-500 drop-shadow-[0_0_15px_rgba(244,63,94,0.6)] font-mono">65:00</div>
+                <!-- Hidden easter egg timer: Click 5 times to add +1 min -->
+                <div id="hack-timer" class="text-5xl md:text-6xl font-bold text-rose-500 drop-shadow-[0_0_15px_rgba(244,63,94,0.6)] font-mono select-none cursor-pointer transition-colors" title="System Lockdown Timer">65:00</div>
             </div>
         </div>
 
+        <!-- 4 Team Sections, each with TWO independent symbol boxes -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+            <!-- Surveillance -->
             <div class="p-6 bg-slate-900 border-2 border-sky-800 rounded-lg shadow-inner">
                 <p class="text-sky-500 font-bold uppercase tracking-widest text-xs mb-4">Surveillance</p>
-                <button id="btn-hack-surv" class="w-full py-6 text-5xl font-black text-white bg-slate-800 border border-slate-600 hover:bg-slate-700 hover:border-sky-400 transition-all tracking-widest">--</button>
+                <div class="grid grid-cols-2 gap-3">
+                    <button id="btn-hack-surv-1" class="w-full py-6 text-4xl md:text-5xl font-black text-white bg-slate-800 border border-slate-600 hover:bg-slate-700 hover:border-sky-400 transition-all select-none rounded flex items-center justify-center">-</button>
+                    <button id="btn-hack-surv-2" class="w-full py-6 text-4xl md:text-5xl font-black text-white bg-slate-800 border border-slate-600 hover:bg-slate-700 hover:border-sky-400 transition-all select-none rounded flex items-center justify-center">-</button>
+                </div>
             </div>
+
+            <!-- Cyber -->
             <div class="p-6 bg-slate-900 border-2 border-sky-800 rounded-lg shadow-inner">
                 <p class="text-sky-500 font-bold uppercase tracking-widest text-xs mb-4">Cyber</p>
-                <button id="btn-hack-cyb" class="w-full py-6 text-5xl font-black text-white bg-slate-800 border border-slate-600 hover:bg-slate-700 hover:border-sky-400 transition-all tracking-widest">--</button>
+                <div class="grid grid-cols-2 gap-3">
+                    <button id="btn-hack-cyb-1" class="w-full py-6 text-4xl md:text-5xl font-black text-white bg-slate-800 border border-slate-600 hover:bg-slate-700 hover:border-sky-400 transition-all select-none rounded flex items-center justify-center">-</button>
+                    <button id="btn-hack-cyb-2" class="w-full py-6 text-4xl md:text-5xl font-black text-white bg-slate-800 border border-slate-600 hover:bg-slate-700 hover:border-sky-400 transition-all select-none rounded flex items-center justify-center">-</button>
+                </div>
             </div>
+
+            <!-- Vault Tech -->
             <div class="p-6 bg-slate-900 border-2 border-sky-800 rounded-lg shadow-inner">
                 <p class="text-sky-500 font-bold uppercase tracking-widest text-xs mb-4">Vault Tech</p>
-                <button id="btn-hack-vlt" class="w-full py-6 text-5xl font-black text-white bg-slate-800 border border-slate-600 hover:bg-slate-700 hover:border-sky-400 transition-all tracking-widest">--</button>
+                <div class="grid grid-cols-2 gap-3">
+                    <button id="btn-hack-vlt-1" class="w-full py-6 text-4xl md:text-5xl font-black text-white bg-slate-800 border border-slate-600 hover:bg-slate-700 hover:border-sky-400 transition-all select-none rounded flex items-center justify-center">-</button>
+                    <button id="btn-hack-vlt-2" class="w-full py-6 text-4xl md:text-5xl font-black text-white bg-slate-800 border border-slate-600 hover:bg-slate-700 hover:border-sky-400 transition-all select-none rounded flex items-center justify-center">-</button>
+                </div>
             </div>
+
+            <!-- Operations -->
             <div class="p-6 bg-slate-900 border-2 border-sky-800 rounded-lg shadow-inner">
                 <p class="text-sky-500 font-bold uppercase tracking-widest text-xs mb-4">Operations</p>
-                <button id="btn-hack-ops" class="w-full py-6 text-5xl font-black text-white bg-slate-800 border border-slate-600 hover:bg-slate-700 hover:border-sky-400 transition-all tracking-widest">--</button>
+                <div class="grid grid-cols-2 gap-3">
+                    <button id="btn-hack-ops-1" class="w-full py-6 text-4xl md:text-5xl font-black text-white bg-slate-800 border border-slate-600 hover:bg-slate-700 hover:border-sky-400 transition-all select-none rounded flex items-center justify-center">-</button>
+                    <button id="btn-hack-ops-2" class="w-full py-6 text-4xl md:text-5xl font-black text-white bg-slate-800 border border-slate-600 hover:bg-slate-700 hover:border-sky-400 transition-all select-none rounded flex items-center justify-center">-</button>
+                </div>
             </div>
         </div>
 
@@ -153,9 +166,10 @@
             <div class="flex justify-between items-center mb-8 border-b border-sky-900 pb-6">
                 <div>
                     <h1 class="text-4xl font-bold text-sky-400 uppercase tracking-widest">Operations Terminal</h1>
-                    <p class="text-xs text-sky-700 mt-2 cursor-default select-none tracking-widest" id="version-trigger">MANOR_SEC_OS V4.2.1 // UNAUTHORISED ACCESS</p>
+                    <p class="text-xs text-sky-700 mt-2 cursor-default select-none tracking-widest" id="version-trigger">MANOR_SEC_OS V4.3.0 // UNAUTHORISED ACCESS</p>
                 </div>
-                <div id="timer" class="text-6xl font-bold text-rose-500 drop-shadow-[0_0_15px_rgba(244,63,94,0.6)]">65:00</div>
+                <!-- Main terminal timer: Also clickable for hidden +1 min feature -->
+                <div id="timer" class="text-6xl font-bold text-rose-500 drop-shadow-[0_0_15px_rgba(244,63,94,0.6)] select-none cursor-pointer transition-colors" title="Lockdown Timer">65:00</div>
             </div>
 
             <!-- Interruption: Active Trace Screen (MAC Address) -->
@@ -175,7 +189,7 @@
             <div id="input-section">
                 <h2 class="text-xl text-sky-600 uppercase tracking-widest mb-4 border-l-4 border-sky-800 pl-3">Network & Surveillance</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div class="p-5 border border-sky-900 bg-slate-950 shadow-inner">
+                    <div class="p-5 border border-sky-900 bg-slate-950 shadow-inner flex flex-col justify-between">
                         <div class="flex justify-between items-center mb-2">
                             <label class="block text-sm text-sky-500 uppercase tracking-widest font-bold">1. Camera Spoof (4-Symbol Lock)</label>
                             <span class="text-[10px] text-sky-500/80 font-mono tracking-wider uppercase">[TAP TO CYCLE]</span>
@@ -183,32 +197,40 @@
                         <div class="grid grid-cols-4 gap-2 my-2" id="cam-lock-container">
                             <div class="flex flex-col items-center bg-slate-900/90 border border-sky-800 rounded p-1.5 shadow-md">
                                 <button type="button" class="cam-dial-prev text-sky-400 hover:text-white hover:bg-sky-800/60 w-full py-1 text-xs transition-all select-none rounded" data-index="0">▲</button>
-                                <div class="cam-dial-val w-full py-2.5 text-3xl font-black text-sky-200 text-center select-none cursor-pointer hover:text-white hover:border-sky-400 transition-all font-mono bg-slate-950 my-1 rounded border border-slate-800 shadow-inner" data-index="0">-</div>
+                                <div class="cam-dial-val w-full py-2 text-3xl font-black text-sky-200 text-center select-none cursor-pointer hover:text-white hover:border-sky-400 transition-all font-mono bg-slate-950 my-1 rounded border border-slate-800 shadow-inner" data-index="0">-</div>
                                 <button type="button" class="cam-dial-next text-sky-400 hover:text-white hover:bg-sky-800/60 w-full py-1 text-xs transition-all select-none rounded" data-index="0">▼</button>
                             </div>
                             <div class="flex flex-col items-center bg-slate-900/90 border border-sky-800 rounded p-1.5 shadow-md">
                                 <button type="button" class="cam-dial-prev text-sky-400 hover:text-white hover:bg-sky-800/60 w-full py-1 text-xs transition-all select-none rounded" data-index="1">▲</button>
-                                <div class="cam-dial-val w-full py-2.5 text-3xl font-black text-sky-200 text-center select-none cursor-pointer hover:text-white hover:border-sky-400 transition-all font-mono bg-slate-950 my-1 rounded border border-slate-800 shadow-inner" data-index="1">-</div>
+                                <div class="cam-dial-val w-full py-2 text-3xl font-black text-sky-200 text-center select-none cursor-pointer hover:text-white hover:border-sky-400 transition-all font-mono bg-slate-950 my-1 rounded border border-slate-800 shadow-inner" data-index="1">-</div>
                                 <button type="button" class="cam-dial-next text-sky-400 hover:text-white hover:bg-sky-800/60 w-full py-1 text-xs transition-all select-none rounded" data-index="1">▼</button>
                             </div>
                             <div class="flex flex-col items-center bg-slate-900/90 border border-sky-800 rounded p-1.5 shadow-md">
                                 <button type="button" class="cam-dial-prev text-sky-400 hover:text-white hover:bg-sky-800/60 w-full py-1 text-xs transition-all select-none rounded" data-index="2">▲</button>
-                                <div class="cam-dial-val w-full py-2.5 text-3xl font-black text-sky-200 text-center select-none cursor-pointer hover:text-white hover:border-sky-400 transition-all font-mono bg-slate-950 my-1 rounded border border-slate-800 shadow-inner" data-index="2">-</div>
+                                <div class="cam-dial-val w-full py-2 text-3xl font-black text-sky-200 text-center select-none cursor-pointer hover:text-white hover:border-sky-400 transition-all font-mono bg-slate-950 my-1 rounded border border-slate-800 shadow-inner" data-index="2">-</div>
                                 <button type="button" class="cam-dial-next text-sky-400 hover:text-white hover:bg-sky-800/60 w-full py-1 text-xs transition-all select-none rounded" data-index="2">▼</button>
                             </div>
                             <div class="flex flex-col items-center bg-slate-900/90 border border-sky-800 rounded p-1.5 shadow-md">
                                 <button type="button" class="cam-dial-prev text-sky-400 hover:text-white hover:bg-sky-800/60 w-full py-1 text-xs transition-all select-none rounded" data-index="3">▲</button>
-                                <div class="cam-dial-val w-full py-2.5 text-3xl font-black text-sky-200 text-center select-none cursor-pointer hover:text-white hover:border-sky-400 transition-all font-mono bg-slate-950 my-1 rounded border border-slate-800 shadow-inner" data-index="3">-</div>
+                                <div class="cam-dial-val w-full py-2 text-3xl font-black text-sky-200 text-center select-none cursor-pointer hover:text-white hover:border-sky-400 transition-all font-mono bg-slate-950 my-1 rounded border border-slate-800 shadow-inner" data-index="3">-</div>
                                 <button type="button" class="cam-dial-next text-sky-400 hover:text-white hover:bg-sky-800/60 w-full py-1 text-xs transition-all select-none rounded" data-index="3">▼</button>
                             </div>
                         </div>
                         <input type="hidden" id="inp-cam" value="----">
-                        <div id="stat-cam" class="mt-3 text-xs uppercase text-slate-500 text-center tracking-[0.2em] font-bold">Waiting</div>
+                        <div id="stat-cam" class="mt-2 text-xs uppercase text-slate-500 text-center tracking-[0.2em] font-bold">Waiting</div>
                     </div>
-                    <div class="p-5 border border-sky-900 bg-slate-950 shadow-inner">
-                        <label class="block text-sm mb-2 text-sky-500 uppercase tracking-widest font-bold">4. Server Route (Nodes)</label>
-                        <input type="text" id="inp-route" placeholder="---" class="w-full bg-slate-900 border border-sky-800 p-3 text-3xl text-center focus:outline-none focus:border-sky-400 text-sky-300 uppercase font-bold" maxlength="3">
-                        <div id="stat-route" class="mt-3 text-xs uppercase text-slate-500 text-center tracking-[0.2em] font-bold">Waiting</div>
+                    
+                    <div class="flex flex-col gap-6">
+                        <div class="p-5 border border-sky-900 bg-slate-950 shadow-inner h-full flex flex-col justify-center">
+                            <label class="block text-sm mb-2 text-sky-500 uppercase tracking-widest font-bold">4. Server Route (Nodes)</label>
+                            <input type="text" id="inp-route" placeholder="---" class="w-full bg-slate-900 border border-sky-800 p-3 text-3xl text-center focus:outline-none focus:border-sky-400 text-sky-300 uppercase font-bold tracking-[0.2em]" maxlength="3">
+                            <div id="stat-route" class="mt-3 text-xs uppercase text-slate-500 text-center tracking-[0.2em] font-bold">Waiting</div>
+                        </div>
+                        <div class="p-5 border border-sky-900 bg-slate-950 shadow-inner h-full flex flex-col justify-center">
+                            <label class="block text-sm mb-2 text-sky-500 uppercase tracking-widest font-bold">7. Decoy Alarm (Hz)</label>
+                            <input type="number" id="inp-decoy" placeholder="---" class="w-full bg-slate-900 border border-sky-800 p-3 text-3xl text-center focus:outline-none focus:border-sky-400 text-sky-300 uppercase font-bold tracking-[0.2em]">
+                            <div id="stat-decoy" class="mt-3 text-xs uppercase text-slate-500 text-center tracking-[0.2em] font-bold">Waiting</div>
+                        </div>
                     </div>
                 </div>
 
@@ -218,12 +240,12 @@
                         <div class="space-y-4">
                             <div class="p-5 border border-sky-900 bg-slate-950 shadow-inner">
                                 <label class="block text-sm mb-2 text-sky-500 uppercase tracking-widest font-bold">2. Laser Freq (nm)</label>
-                                <input type="number" id="inp-laser" placeholder="---" class="w-full bg-slate-900 border border-sky-800 p-3 text-3xl text-center focus:outline-none focus:border-sky-400 text-sky-300 font-bold">
+                                <input type="number" id="inp-laser" placeholder="---" class="w-full bg-slate-900 border border-sky-800 p-3 text-3xl text-center focus:outline-none focus:border-sky-400 text-sky-300 font-bold tracking-[0.2em]">
                                 <div id="stat-laser" class="mt-3 text-xs uppercase text-slate-500 text-center tracking-[0.2em] font-bold">Waiting</div>
                             </div>
                             <div class="p-5 border border-sky-900 bg-slate-950 shadow-inner">
                                 <label class="block text-sm mb-2 text-sky-500 uppercase tracking-widest font-bold">3. Biometric PIN</label>
-                                <input type="number" id="inp-pin" placeholder="----" class="w-full bg-slate-900 border border-sky-800 p-3 text-3xl text-center focus:outline-none focus:border-sky-400 text-sky-300 font-bold">
+                                <input type="number" id="inp-pin" placeholder="----" class="w-full bg-slate-900 border border-sky-800 p-3 text-3xl text-center focus:outline-none focus:border-sky-400 text-sky-300 font-bold tracking-[0.2em]">
                                 <div id="stat-pin" class="mt-3 text-xs uppercase text-slate-500 text-center tracking-[0.2em] font-bold">Waiting</div>
                             </div>
                         </div>
@@ -234,15 +256,30 @@
                         <div class="space-y-4">
                             <div class="p-5 border border-sky-900 bg-slate-950 shadow-inner">
                                 <label class="block text-sm mb-2 text-sky-500 uppercase tracking-widest font-bold">5. Pressure Lmt. (kg)</label>
-                                <input type="number" id="inp-press" placeholder="--" class="w-full bg-slate-900 border border-sky-800 p-3 text-3xl text-center focus:outline-none focus:border-sky-400 text-sky-300 font-bold">
+                                <input type="number" id="inp-press" placeholder="--" class="w-full bg-slate-900 border border-sky-800 p-3 text-3xl text-center focus:outline-none focus:border-sky-400 text-sky-300 font-bold tracking-[0.2em]">
                                 <div id="stat-press" class="mt-3 text-xs uppercase text-slate-500 text-center tracking-[0.2em] font-bold">Waiting</div>
                             </div>
                             <div class="p-5 border border-sky-900 bg-slate-950 shadow-inner">
                                 <label class="block text-sm mb-2 text-sky-500 uppercase tracking-widest font-bold">6. Vault Voltage (mV)</label>
-                                <input type="number" id="inp-volt" placeholder="---" class="w-full bg-slate-900 border border-sky-800 p-3 text-3xl text-center focus:outline-none focus:border-sky-400 text-sky-300 font-bold">
+                                <input type="number" id="inp-volt" placeholder="---" class="w-full bg-slate-900 border border-sky-800 p-3 text-3xl text-center focus:outline-none focus:border-sky-400 text-sky-300 font-bold tracking-[0.2em]">
                                 <div id="stat-volt" class="mt-3 text-xs uppercase text-slate-500 text-center tracking-[0.2em] font-bold">Waiting</div>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Intercom Passphrase -->
+                <div class="mb-8">
+                    <h2 class="text-xl text-sky-600 uppercase tracking-widest mb-4 border-l-4 border-sky-800 pl-3">Security Clearance</h2>
+                    <div class="p-5 border border-sky-900 bg-slate-950 shadow-inner">
+                        <label class="block text-sm mb-3 text-sky-500 uppercase tracking-widest font-bold">8. Intercom Passphrase</label>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <input type="text" id="inp-pass1" placeholder="------" class="w-full bg-slate-900 border border-sky-800 p-3 text-2xl text-center focus:outline-none focus:border-sky-400 text-sky-300 font-bold uppercase tracking-widest" maxlength="6" autocomplete="off">
+                            <input type="text" id="inp-pass2" placeholder="------" class="w-full bg-slate-900 border border-sky-800 p-3 text-2xl text-center focus:outline-none focus:border-sky-400 text-sky-300 font-bold uppercase tracking-widest" maxlength="6" autocomplete="off">
+                            <input type="text" id="inp-pass3" placeholder="----" class="w-full bg-slate-900 border border-sky-800 p-3 text-2xl text-center focus:outline-none focus:border-sky-400 text-sky-300 font-bold uppercase tracking-widest" maxlength="4" autocomplete="off">
+                            <input type="text" id="inp-pass4" placeholder="--------" class="w-full bg-slate-900 border border-sky-800 p-3 text-2xl text-center focus:outline-none focus:border-sky-400 text-sky-300 font-bold uppercase tracking-widest" maxlength="8" autocomplete="off">
+                        </div>
+                        <div id="stat-pass" class="mt-4 text-xs uppercase text-slate-500 text-center tracking-[0.2em] font-bold">Waiting</div>
                     </div>
                 </div>
 
@@ -362,12 +399,13 @@
     <script>
         // Core Logic & Solutions
         const SOLS = {
-            cam: ["@#^=", "^=@#"], // Coordinate for offline Cam 5 (Column-Row or Row-Column)
-            laser: 850,      // Level 3 vault
-            pin: 7392,       // Chen at 23:45
-            route: "ABD",    // Safe path avoiding C and E
-            press: 45,       // 25 artifact + 20 stand
-            volt: 120        // 30 base * Tier 4
+            cam: ["@#^=", "^=@#"], 
+            laser: 850,      
+            pin: 7392,       
+            route: "ABD",    
+            press: 45,       
+            volt: 120,
+            decoy: 495       
         };
 
         const CAM_SYMBOLS = ['-', '?', '$', '!', '%', '&', '*', '@', '#', '+', '~', '^', '='];
@@ -385,7 +423,7 @@
             const stat = document.getElementById('stat-cam');
             if (stat && stat.textContent === "Error") {
                 stat.textContent = "Waiting";
-                stat.className = "mt-3 text-xs uppercase text-slate-500 text-center tracking-[0.2em] font-bold";
+                stat.className = "mt-2 text-xs uppercase text-slate-500 text-center tracking-[0.2em] font-bold";
             }
         }
 
@@ -417,7 +455,6 @@
             box.onclick = () => {
                 cycleCamDial(parseInt(box.dataset.index), 'next');
             };
-            // Support mousewheel on tumbler
             box.addEventListener('wheel', (e) => {
                 e.preventDefault();
                 cycleCamDial(parseInt(box.dataset.index), e.deltaY > 0 ? 'next' : 'prev');
@@ -439,6 +476,10 @@
         let trace2Cleared = false;
         let activeTraceNum = 0;
 
+        // Hidden Easter Egg Timer Clicks Tracker
+        let timerClicks = 0;
+        let timerClickTimeout = null;
+
         // Utility Functions
         const hide = (id) => document.getElementById(id).classList.add('hidden');
         const show = (id) => document.getElementById(id).classList.remove('hidden');
@@ -455,32 +496,57 @@
             startTimer();
         };
 
-        // --- PRE-HACK LOGIC ---
+        // --- PRE-HACK LOGIC (INDEPENDENT SYMBOL BOXES) ---
+        // Each team has its pool of symbols and target combination
         const hackData = {
-            surv: { opts: ['$&', '%*', '@#', '*@', '#$'], ans: '@#' },
-            cyb:  { opts: ['+=', '^~', '?!', '+~', '!^'], ans: '?!' },
-            vlt:  { opts: ['ZW', 'VU', 'XY', 'XZ', 'YW'], ans: 'XY' },
-            ops:  { opts: ['CD', 'EF', 'AB', 'AF', 'CE'], ans: 'AB' }
+            surv: { symbols: ['$', '&', '%', '*', '@', '#'], ans: '@#' },
+            cyb:  { symbols: ['+', '=', '^', '~', '?', '!'], ans: '?!' },
+            vlt:  { symbols: ['Z', 'W', 'V', 'U', 'X', 'Y'], ans: 'XY' },
+            ops:  { symbols: ['C', 'D', 'E', 'F', 'A', 'B'], ans: 'AB' }
         };
-        const hackState = { surv: 0, cyb: 0, vlt: 0, ops: 0 };
 
+        // Box 1 and Box 2 start indices matching the initial UI shown in the brief
+        const hackState = {
+            surv: [0, 1], // $ &
+            cyb:  [0, 1], // + =
+            vlt:  [0, 1], // Z W
+            ops:  [0, 1]  // C D
+        };
+
+        // Setup independent cycle handlers for each button
         ['surv', 'cyb', 'vlt', 'ops'].forEach(team => {
-            const btn = document.getElementById(`btn-hack-${team}`);
-            btn.textContent = hackData[team].opts[0];
-            btn.onclick = () => {
-                hackState[team] = (hackState[team] + 1) % hackData[team].opts.length;
-                btn.textContent = hackData[team].opts[hackState[team]];
-            };
+            [1, 2].forEach(boxNum => {
+                const btn = document.getElementById(`btn-hack-${team}-${boxNum}`);
+                const stateIdx = boxNum - 1;
+                
+                // Set initial text
+                btn.textContent = hackData[team].symbols[hackState[team][stateIdx]];
+
+                const cycleSymbol = (direction = 1) => {
+                    const symbols = hackData[team].symbols;
+                    hackState[team][stateIdx] = (hackState[team][stateIdx] + direction + symbols.length) % symbols.length;
+                    btn.textContent = symbols[hackState[team][stateIdx]];
+                };
+
+                // Click to cycle forward
+                btn.onclick = () => cycleSymbol(1);
+
+                // Wheel scroll to cycle forward / backward
+                btn.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    cycleSymbol(e.deltaY > 0 ? 1 : -1);
+                });
+            });
         });
 
         document.getElementById('verifyHackBtn').onclick = () => {
             const btn = document.getElementById('verifyHackBtn');
-            const s = hackData.surv.opts[hackState.surv];
-            const c = hackData.cyb.opts[hackState.cyb];
-            const v = hackData.vlt.opts[hackState.vlt];
-            const o = hackData.ops.opts[hackState.ops];
+            const s = hackData.surv.symbols[hackState.surv[0]] + hackData.surv.symbols[hackState.surv[1]];
+            const c = hackData.cyb.symbols[hackState.cyb[0]] + hackData.cyb.symbols[hackState.cyb[1]];
+            const v = hackData.vlt.symbols[hackState.vlt[0]] + hackData.vlt.symbols[hackState.vlt[1]];
+            const o = hackData.ops.symbols[hackState.ops[0]] + hackData.ops.symbols[hackState.ops[1]];
 
-            if(s === hackData.surv.ans && c === hackData.cyb.ans && v === hackData.vlt.ans && o === hackData.ops.ans) {
+            if (s === hackData.surv.ans && c === hackData.cyb.ans && v === hackData.vlt.ans && o === hackData.ops.ans) {
                 btn.classList.remove('bg-sky-900', 'border-sky-400', 'text-sky-200');
                 btn.classList.add('bg-emerald-600', 'border-emerald-400', 'text-white');
                 btn.textContent = "UPLINK ESTABLISHED";
@@ -502,6 +568,41 @@
             }
         };
 
+        // --- HIDDEN FEATURE: 5 CLICKS ON TIMER ADDS 1 MINUTE ---
+        function registerTimerSecretClick() {
+            timerClicks++;
+            clearTimeout(timerClickTimeout);
+
+            if (timerClicks >= 5) {
+                timerClicks = 0;
+                timeLeft += 60; // Add 1 minute
+                updateTimerDisplays();
+
+                // Brief green confirmation flash on both timers
+                ['timer', 'hack-timer'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.classList.remove('text-rose-500');
+                        el.classList.add('text-emerald-400');
+                        setTimeout(() => {
+                            el.classList.remove('text-emerald-400');
+                            el.classList.add('text-rose-500');
+                        }, 600);
+                    }
+                });
+            } else {
+                // Reset counter if remaining clicks aren't registered within 3.5 seconds
+                timerClickTimeout = setTimeout(() => {
+                    timerClicks = 0;
+                }, 3500);
+            }
+        }
+
+        const hackTimerEl = document.getElementById('hack-timer');
+        const mainTimerEl = document.getElementById('timer');
+        if (hackTimerEl) hackTimerEl.addEventListener('click', registerTimerSecretClick);
+        if (mainTimerEl) mainTimerEl.addEventListener('click', registerTimerSecretClick);
+
         // --- MAIN GAME TIMER ---
         function updateTimerDisplays() {
             const mins = Math.floor(timeLeft / 60);
@@ -516,23 +617,21 @@
         }
 
         function startTimer() {
-            if (countdown) return; // Prevent duplicate timer instances
+            if (countdown) return; 
             updateTimerDisplays();
 
             countdown = setInterval(() => {
-                if(timeLeft <= 0) {
+                if (timeLeft <= 0) {
                     clearInterval(countdown);
                     document.body.innerHTML = "<div class='text-rose-500 text-8xl font-bold p-20 text-center uppercase drop-shadow-[0_0_20px_rgba(244,63,94,0.8)]'>Apprehended.<br><br>Mission Failed.</div>";
                     return;
                 }
                 
-                // TRIGGER ACTIVE TRACE 1 at exactly 45:00 remaining (20 mins elapsed = 2700 sec)
-                if(timeLeft === 2700 && !trace1Triggered) {
+                if (timeLeft === 2700 && !trace1Triggered) {
                     triggerActiveTrace(1);
                 }
                 
-                // TRIGGER ACTIVE TRACE 2 at exactly 15:00 remaining (50 mins elapsed = 900 sec)
-                if(timeLeft === 900 && !trace2Triggered) {
+                if (timeLeft === 900 && !trace2Triggered) {
                     triggerActiveTrace(2);
                 }
 
@@ -553,7 +652,6 @@
                 instructions.textContent = "New fragment order needed: Frag 2, Frag 4, Frag 3, Frag 1";
             }
             
-            // Reset input styling in case it's the second trace
             const macInput = document.getElementById('macInput');
             macInput.value = '';
             macInput.classList.remove('border-sky-500', 'text-sky-500');
@@ -611,13 +709,38 @@
                 ? correctVal.map(c => String(c).toUpperCase()).includes(val)
                 : val === String(correctVal).toUpperCase();
             
-            if(isMatch) {
+            if (isMatch) {
                 el.textContent = "Verified";
                 el.className = "mt-3 text-xs uppercase tracking-[0.2em] text-center success-text font-bold";
                 return true;
             } else {
                 el.textContent = "Error";
                 el.className = "mt-3 text-xs uppercase tracking-[0.2em] text-center danger-text font-bold";
+                return false;
+            }
+        }
+
+        // Custom check for Passphrase across 4 inputs
+        function checkPassphrase() {
+            const el = document.getElementById('stat-pass');
+            const v1 = document.getElementById('inp-pass1').value.trim().toUpperCase();
+            const v2 = document.getElementById('inp-pass2').value.trim().toUpperCase();
+            const v3 = document.getElementById('inp-pass3').value.trim().toUpperCase();
+            const v4 = document.getElementById('inp-pass4').value.trim().toUpperCase();
+
+            if (!v1 && !v2 && !v3 && !v4) {
+                el.textContent = "Waiting";
+                el.className = "mt-4 text-xs uppercase tracking-[0.2em] text-center text-slate-500 font-bold";
+                return false;
+            }
+
+            if (v1 === "SILENT" && v2 === "FALCON" && v3 === "SAFE" && v4 === "MIDNIGHT") {
+                el.textContent = "Verified";
+                el.className = "mt-4 text-xs uppercase tracking-[0.2em] text-center success-text font-bold";
+                return true;
+            } else {
+                el.textContent = "Error";
+                el.className = "mt-4 text-xs uppercase tracking-[0.2em] text-center danger-text font-bold";
                 return false;
             }
         }
@@ -629,6 +752,7 @@
             const vRoute = document.getElementById('inp-route').value;
             const vPress = parseInt(document.getElementById('inp-press').value);
             const vVolt = parseInt(document.getElementById('inp-volt').value);
+            const vDecoy = parseInt(document.getElementById('inp-decoy').value);
 
             const isCam = checkStatus('stat-cam', vCam, SOLS.cam);
             const isLaser = checkStatus('stat-laser', vLaser, SOLS.laser);
@@ -636,8 +760,10 @@
             const isRoute = checkStatus('stat-route', vRoute, SOLS.route);
             const isPress = checkStatus('stat-press', vPress, SOLS.press);
             const isVolt = checkStatus('stat-volt', vVolt, SOLS.volt);
+            const isDecoy = checkStatus('stat-decoy', vDecoy, SOLS.decoy);
+            const isPass = checkPassphrase();
 
-            if (isCam && isLaser && isPin && isRoute && isPress && isVolt) {
+            if (isCam && isLaser && isPin && isRoute && isPress && isVolt && isDecoy && isPass) {
                 initiateFinale();
             } else {
                 const btn = document.getElementById('activateBtn');
@@ -699,7 +825,7 @@
             show('reflection-view');
         };
 
-        // Easter egg to manually trigger the trace for teacher testing
+        // Easter egg to manually trigger the trace for facilitator testing
         document.getElementById('version-trigger').onclick = () => { 
             secretCount++;
             if (secretCount === 5 && !trace1Triggered) {
