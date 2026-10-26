@@ -152,7 +152,8 @@
                     <h1 class="text-4xl font-black text-sky-400 uppercase tracking-widest">Orbital Decay Console</h1>
                     <p class="text-xs text-sky-700 mt-2 cursor-default select-none tracking-widest font-bold" id="version-trigger">ORBITAL_CORE_OS V5.2.0 // STATION TELEMETRY DEGRADED</p>
                 </div>
-                <div id="timer" class="text-6xl font-black text-rose-500 drop-shadow-[0_0_15px_rgba(244,63,94,0.6)]">65:00</div>
+                <!-- Interactive Easter Egg Timer: Click 5 times to add +1 minute -->
+                <div id="timer" class="text-6xl font-black text-rose-500 drop-shadow-[0_0_15px_rgba(244,63,94,0.6)] select-none cursor-pointer transition-colors" title="Orbital Decay Timer">65:00</div>
             </div>
 
             <!-- Interruption: Solar Flare EMP Alert Screen -->
@@ -396,6 +397,11 @@ let trace2Triggered = false, trace2Cleared = false;
 let activeTraceNum = 0;
 let traceClearing = false;
 let uplinkOpening = false;
+
+// Hidden Feature: 5 clicks on the timer adds 1 minute (+60s)
+let timerClicks = 0;
+let timerClickTimeout = null;
+
 const el = id => document.getElementById(id);
 const hide = id => el(id).classList.add('hidden');
 const show = id => el(id).classList.remove('hidden');
@@ -438,11 +444,51 @@ el('verifyHackBtn').onclick = () => {
         hide('hack-section'); show('main-container'); setPhase('repair'); startTimer();
     }, 1500);
 };
+
+function updateTimerDisplay() {
+    const timerEl = el('timer');
+    if (timerEl) {
+        timerEl.textContent = `${String(Math.floor(timeLeft / 60)).padStart(2,'0')}:${String(timeLeft % 60).padStart(2,'0')}`;
+    }
+}
+
+function registerTimerSecretClick() {
+    timerClicks++;
+    clearTimeout(timerClickTimeout);
+
+    if (timerClicks >= 5) {
+        timerClicks = 0;
+        timeLeft += 60; // Add 1 minute
+        updateTimerDisplay();
+
+        // Subtle green flash confirmation
+        const timerEl = el('timer');
+        if (timerEl) {
+            timerEl.classList.remove('text-rose-500');
+            timerEl.classList.add('text-emerald-400');
+            setTimeout(() => {
+                timerEl.classList.remove('text-emerald-400');
+                timerEl.classList.add('text-rose-500');
+            }, 600);
+        }
+    } else {
+        timerClickTimeout = setTimeout(() => {
+            timerClicks = 0;
+        }, 3500);
+    }
+}
+
+const timerElement = el('timer');
+if (timerElement) {
+    timerElement.addEventListener('click', registerTimerSecretClick);
+}
+
 function startTimer() {
     if (countdown !== null) return;
+    updateTimerDisplay();
     countdown = setInterval(() => {
         timeLeft = Math.max(0, timeLeft - 1);
-        el('timer').textContent = `${String(Math.floor(timeLeft / 60)).padStart(2,'0')}:${String(timeLeft % 60).padStart(2,'0')}`;
+        updateTimerDisplay();
         if (timeLeft === 0) {
             clearInterval(countdown); countdown = null; phase = 'failed';
             document.body.innerHTML = "<div class='text-rose-500 text-8xl font-black p-20 text-center uppercase'>ORBIT DECAYED.<br><br>STATION DESTROYED.</div>";
@@ -568,7 +614,6 @@ el('version-trigger').onclick = () => {
     if (secretCount === 5 && !trace1Triggered) triggerActiveTrace(1);
     else if (secretCount === 10 && trace1Cleared && !trace2Triggered) triggerActiveTrace(2);
 };
-
     </script>
 </body>
 </html>
